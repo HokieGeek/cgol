@@ -12,6 +12,8 @@ const cols = 30
 
 var gameboard [rows][cols]int
 
+// var Universe tmp
+
 func displayGameboard() { //[][]int) {
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j++ {
@@ -45,9 +47,6 @@ func ruleset1() {
 		}
 	}
 }
-
-// func applyRuleset(ruleset func()) {
-// }
 
 func main() {
 	randomInit()
