@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "cgol"
 	"fmt"
 	"math/rand"
 	"time"
@@ -10,16 +11,6 @@ const rows = 15
 const cols = 30
 
 var gameboard [rows][cols]int
-
-type Universe struct {
-	rows      int
-	cols      int
-	gameboard [][]int
-	ruleset   func()
-}
-
-// func (t* Universe) create(rows int, cols int, rules func()) {
-// }
 
 func displayGameboard() { //[][]int) {
 	for i := 0; i < rows; i++ {
