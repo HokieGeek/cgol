@@ -1,54 +1,12 @@
 package main
 
-import (
-	// "cgol"
-	"fmt"
-	"math/rand"
-	"time"
-)
-
-const rows = 15
-const cols = 30
-
-var gameboard [rows][cols]int
-
-// var Universe tmp
-
-func displayGameboard() { //[][]int) {
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
-			if gameboard[i][j] >= 0 {
-				fmt.Printf("%d ", gameboard[i][j])
-			} else {
-				fmt.Printf("- ")
-			}
-		}
-		fmt.Printf("\n")
-	}
-}
-
-func randomInit() {
-	rand.Seed(time.Now().UnixNano())
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
-			if rand.Intn(1000) > 970 {
-				gameboard[i][j] = 0
-			} else {
-				gameboard[i][j] = -1
-			}
-		}
-	}
-}
-
-func ruleset1() {
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
-			gameboard[i][j] = 2
-		}
-	}
-}
+import "cgol"
 
 func main() {
-	randomInit()
-	displayGameboard()
+	/*
+		Will need a daemon that intercepts new pond requests and provides data on all current ponds. Use json
+	*/
+	// cgol.CreatePond("Standard,Random", 5, 20, cgol.StandardRules, cgol.RandomInit)
+	tmp := cgol.CreatePond("Standard,Random", 5, 20, cgol.StandardOrthogonal, cgol.RandomInit)
+	tmp.Display()
 }
