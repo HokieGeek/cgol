@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func RandomInit(pond *Pond) {
+func InitRandom(pond *Pond, percent int) {
 	pond.gameboard = make([][]int, pond.Rows)
 	// pond.NumLiving = pond.Rows * pond.Cols
 
@@ -21,15 +21,11 @@ func RandomInit(pond *Pond) {
 		rand.Seed(time.Now().UnixNano())
 		pond.gameboard[i] = make([]int, pond.Cols)
 		for j := 0; j < pond.Cols; j++ {
-			cell := OrganismReference{X: i, Y: j}
-			if rand.Intn(1000) > 970 {
-				// pond.updateOrganismLivingState(cell, true)
-				pond.gameboard[i][j] = 0
-				pond.NumLiving++
-				pond.living = append(pond.living, cell)
+			organism := OrganismReference{X: i, Y: j}
+			if rand.Intn(100) > percent {
+				pond.setNeighborCount(organism, 0)
 			} else {
-				pond.gameboard[i][j] = -1
-				// pond.updateOrganismLivingState(cell, false)
+				pond.setNeighborCount(organism, -1)
 			}
 		}
 		// c <- i

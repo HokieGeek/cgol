@@ -1,11 +1,5 @@
 package cgol
 
-const (
-	STD_UNDERPOP       = 2
-	STD_OVERPOPULATION = 3
-	STD_LIVE           = 3
-)
-
 func getOrthogonalNeighbors(pond *Pond, organism OrganismReference) []OrganismReference {
 	neighbors := make([]OrganismReference, 4)
 
@@ -34,66 +28,100 @@ func getOrthogonalNeighbors(pond *Pond, organism OrganismReference) []OrganismRe
 	return neighbors
 }
 
-func getAllNeighbors(pond *Pond, organism OrganismReference) []OrganismReference {
-	neighbors := getOrthogonalNeighbors(pond, organism)
+func getObliqueNeighbors(pond *Pond, organism OrganismReference) []OrganismReference {
+	neighbors := make([]OrganismReference, 4)
 
 	// Determine the offsets
-	//above := organism.Y - 1
-	//below := organism.Y + 1
-	//left := organism.X - 1
-	//right := organism.X + 1
+	above := organism.Y - 1
+	below := organism.Y + 1
+	left := organism.X - 1
+	right := organism.X + 1
 
-	// TODO: Retrieve the rest of the neighbors
+	if above >= 0 {
+		if left >= 0 {
+			neighbors = append(neighbors, OrganismReference{X: left, Y: above})
+		}
+		if right <= pond.Cols {
+			neighbors = append(neighbors, OrganismReference{X: right, Y: above})
+		}
+	}
+
+	if below <= pond.Rows {
+		if left >= 0 {
+			neighbors = append(neighbors, OrganismReference{X: left, Y: below})
+		}
+		if right <= pond.Cols {
+			neighbors = append(neighbors, OrganismReference{X: right, Y: below})
+		}
+	}
 
 	return neighbors
 }
 
-func standard(pond *Pond, organism OrganismReference, getNeighbors func(*Pond, OrganismReference) []OrganismReference) {
+func getAllNeighbors(pond *Pond, organism OrganismReference) []OrganismReference {
+	neighbors := append(getOrthogonalNeighbors(pond, organism),
+		getObliqueNeighbors(pond, organism)...)
+	// neighbors := make([]OrganismReference, 8)
+	// neighbors = append(neighbors, getOrthogonalNeighbors(pond, organism))
+	// neighbors = append(neighbors, getObliqueNeighbors(pond, organism))
+
+	return neighbors
+}
+
+//////////////////// STANDARD RULESET ///////////////////
+
+const (
+	STD_UNDERPOPULATION = 2
+	STD_OVERCROWDING    = 3
+	STD_REVIVE          = 3
+)
+
+func standard(pond *Pond, organism OrganismReference,
+	getNeighbors func(*Pond, OrganismReference) []OrganismReference) {
 	// -- Rules --
 	// 1. If live cell has < 2 neighbors, it is dead
 	// 2. If live cell has 2 or 3 neighbors, it lives
 	// 3. If live cell has > 3 neighbors, it dies
 	// 4. If dead cell has exactly 3 neighbors, it lives
 
-	neighbors := getNeighbors(pond, organism)
+	// TODO: does this logic properly handle when an organism dies?
 
 	// Determine if current cell lives
-	cell := pond.getOrganism(organism)
-	// TODO: neighbors := getOrthogonalNeighbors(pond, organism)
-	if *cell < 0 && *cell == STD_LIVE {
-		pond.updateOrganismLivingState(organism, true)
-		// TODO: for each neighbor, increase their count
-		for neighbor := range neighbors {
-			pond.updateNeighborCount(neighbors[neighbor], 1)
+	neighbors := getNeighbors(pond, organism)
+	neighborCount := pond.getNeighborCount(organism)
+	if neighborCount < 0 {
+		// Rule #4
+		numLivingNeighbors := 0
+		for _, neighbor := range neighbors {
+			if pond.getNeighborCount(neighbor) >= 0 {
+				numLivingNeighbors++
+			}
 		}
-	} else if *cell < STD_UNDERPOP || *cell > STD_OVERPOPULATION {
-		pond.updateOrganismLivingState(organism, false)
-		// TODO: for each neighbor, decrease their count
-		for neighbor := range neighbors {
-			pond.updateNeighborCount(neighbors[neighbor], -1)
+		if numLivingNeighbors == STD_REVIVE {
+			pond.setNeighborCount(organism, numLivingNeighbors)
+			for _, neighbor := range neighbors {
+				pond.incrementNeighborCount(neighbor)
+			}
+		}
+
+	} else if neighborCount < STD_UNDERPOPULATION || neighborCount > STD_OVERCROWDING {
+		// Rules #1 and #3
+		pond.setNeighborCount(organism, -1)
+		for _, neighbor := range neighbors {
+			pond.decrementNeighborCount(neighbor)
 		}
 	}
-}
-
-func StandardOrthogonalNew(pond *Pond, organism OrganismReference) {
-	standard(pond, organism, getOrthogonalNeighbors)
+	// TODO: Rule #2?
 }
 
 func StandardOrthogonal(pond *Pond, organism OrganismReference) {
-	// -- Rules --
-	// 1. If live cell has < 2 neighbors, it is dead
-	// 2. If live cell has 2 or 3 neighbors, it lives
-	// 3. If live cell has > 3 neighbors, it dies
-	// 4. If dead cell has exactly 3 neighbors, it lives
+	standard(pond, organism, getOrthogonalNeighbors)
+}
 
-	// Determine if current cell lives
-	cell := pond.getOrganism(organism)
-	// TODO: neighbors := getOrthogonalNeighbors(pond, organism)
-	if *cell < 0 && *cell == STD_LIVE {
-		pond.updateOrganismLivingState(organism, true)
-		// TODO: for each neighbor, increase their count
-	} else if *cell < STD_UNDERPOP || *cell > STD_OVERPOPULATION {
-		pond.updateOrganismLivingState(organism, false)
-		// TODO: for each neighbor, decrease their count
-	}
+func StandardOblique(pond *Pond, organism OrganismReference) {
+	standard(pond, organism, getObliqueNeighbors)
+}
+
+func StandardAll(pond *Pond, organism OrganismReference) {
+	standard(pond, organism, getAllNeighbors)
 }

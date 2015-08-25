@@ -27,43 +27,55 @@ func (t GameStatus) String() string {
 type OrganismReference struct {
 	X int
 	Y int
-	// Z int
+	Z int
 }
+
+// type PondStats struct {
+// }
 
 type Pond struct {
-	Name        string
-	Rows        int
-	Cols        int
-	NumLiving   int
-	Status      GameStatus
-	gameboard   [][]int
-	living      []OrganismReference // Would be best if this was a tuple :-/...
-	ruleset     func(*Pond, OrganismReference)
-	initializer func(*Pond)
+	Name         string
+	Rows         int
+	Cols         int
+	NumLiving    int
+	Status       GameStatus
+	gameboard    [][]int
+	processQueue []OrganismReference
+	ruleset      func(*Pond, OrganismReference)
+	initializer  func(*Pond)
 }
 
-func (t *Pond) getOrganism(cell OrganismReference) *int {
-	return &t.gameboard[cell.X][cell.Y]
+func (t *Pond) getNeighborCount(organism OrganismReference) int {
+	return t.gameboard[organism.X][organism.Y]
 }
 
-func (t *Pond) updateNeighborCount(organism OrganismReference, delta int) {
-	cell := t.getOrganism(organism)
-	(*cell) += delta
-}
+func (t *Pond) setNeighborCount(organism OrganismReference, numNeighbors int) {
+	// TODO: Mutex protection?
+	originalNumNeighbors := t.gameboard[organism.X][organism.Y]
 
-func (t *Pond) updateOrganismLivingState(organism OrganismReference, live bool) {
-	// cell := t.getOrganism(organism)
-	if live {
-		t.gameboard[organism.X][organism.Y] = 0
+	t.gameboard[organism.X][organism.Y] = numNeighbors
+	t.processQueue = append(t.processQueue, organism)
+
+	// Update the living count if organism changed living state
+	if originalNumNeighbors < 0 && numNeighbors >= 0 {
 		t.NumLiving++
-		t.living = append(t.living, organism)
-	} else {
-		t.gameboard[organism.X][organism.Y] = -1
+	} else if originalNumNeighbors >= 0 && numNeighbors < 0 {
 		t.NumLiving--
 	}
 }
 
-// func (t* Pond) applyRuleset() {
+func (t *Pond) incrementNeighborCount(organism OrganismReference) {
+	t.setNeighborCount(organism, t.getNeighborCount(organism)+1)
+}
+
+func (t *Pond) decrementNeighborCount(organism OrganismReference) {
+	t.setNeighborCount(organism, t.getNeighborCount(organism)-1)
+}
+
+// func (t *Pond) cycleProcessQueue() {
+// 	front := t.processQueue[0]
+// 	t.processQueue = append(t.processQueue[:0], t.processQueue[1:]...)
+// 	t.ruleset(t, front)
 // }
 
 func (t *Pond) start() {
@@ -94,12 +106,12 @@ func CreatePond(name string, rows int, cols int, rules func(*Pond, OrganismRefer
 	p.Name = name
 	p.Rows = rows
 	p.Cols = cols
+	p.NumLiving = 0
 	p.ruleset = rules
 	p.initializer = init
 	p.Status = Active
 
 	p.initializer(p)
-	// p.blah blah blah
 
 	return p
 }
