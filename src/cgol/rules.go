@@ -1,73 +1,5 @@
 package cgol
 
-func getOrthogonalNeighbors(pond *Pond, organism OrganismReference) []OrganismReference {
-	neighbors := make([]OrganismReference, 4)
-
-	// Determine the offsets
-	above := organism.Y - 1
-	below := organism.Y + 1
-	left := organism.X - 1
-	right := organism.X + 1
-
-	if above >= 0 {
-		neighbors = append(neighbors, OrganismReference{X: organism.X, Y: above})
-	}
-
-	if below <= pond.Rows {
-		neighbors = append(neighbors, OrganismReference{X: organism.X, Y: below})
-	}
-
-	if left >= 0 {
-		neighbors = append(neighbors, OrganismReference{X: left, Y: organism.Y})
-	}
-
-	if right <= pond.Cols {
-		neighbors = append(neighbors, OrganismReference{X: right, Y: organism.Y})
-	}
-
-	return neighbors
-}
-
-func getObliqueNeighbors(pond *Pond, organism OrganismReference) []OrganismReference {
-	neighbors := make([]OrganismReference, 4)
-
-	// Determine the offsets
-	above := organism.Y - 1
-	below := organism.Y + 1
-	left := organism.X - 1
-	right := organism.X + 1
-
-	if above >= 0 {
-		if left >= 0 {
-			neighbors = append(neighbors, OrganismReference{X: left, Y: above})
-		}
-		if right <= pond.Cols {
-			neighbors = append(neighbors, OrganismReference{X: right, Y: above})
-		}
-	}
-
-	if below <= pond.Rows {
-		if left >= 0 {
-			neighbors = append(neighbors, OrganismReference{X: left, Y: below})
-		}
-		if right <= pond.Cols {
-			neighbors = append(neighbors, OrganismReference{X: right, Y: below})
-		}
-	}
-
-	return neighbors
-}
-
-func getAllNeighbors(pond *Pond, organism OrganismReference) []OrganismReference {
-	neighbors := append(getOrthogonalNeighbors(pond, organism),
-		getObliqueNeighbors(pond, organism)...)
-	// neighbors := make([]OrganismReference, 8)
-	// neighbors = append(neighbors, getOrthogonalNeighbors(pond, organism))
-	// neighbors = append(neighbors, getObliqueNeighbors(pond, organism))
-
-	return neighbors
-}
-
 //////////////////// STANDARD RULESET ///////////////////
 
 const (
@@ -76,8 +8,7 @@ const (
 	STD_REVIVE          = 3
 )
 
-func standard(pond *Pond, organism OrganismReference,
-	getNeighbors func(*Pond, OrganismReference) []OrganismReference) {
+func standard(pond *Pond, organism OrganismReference, getNeighbors func(OrganismReference) []OrganismReference) {
 	// -- Rules --
 	// 1. If live cell has < 2 neighbors, it is dead
 	// 2. If live cell has 2 or 3 neighbors, it lives
@@ -87,7 +18,7 @@ func standard(pond *Pond, organism OrganismReference,
 	// TODO: does this logic properly handle when an organism dies?
 
 	// Determine if current cell lives
-	neighbors := getNeighbors(pond, organism)
+	neighbors := getNeighbors(organism)
 	neighborCount := pond.getNeighborCount(organism)
 	if neighborCount < 0 {
 		// Rule #4
@@ -115,13 +46,13 @@ func standard(pond *Pond, organism OrganismReference,
 }
 
 func StandardOrthogonal(pond *Pond, organism OrganismReference) {
-	standard(pond, organism, getOrthogonalNeighbors)
+	standard(pond, organism, pond.getOrthogonalNeighbors)
 }
 
 func StandardOblique(pond *Pond, organism OrganismReference) {
-	standard(pond, organism, getObliqueNeighbors)
+	standard(pond, organism, pond.getObliqueNeighbors)
 }
 
 func StandardAll(pond *Pond, organism OrganismReference) {
-	standard(pond, organism, getAllNeighbors)
+	standard(pond, organism, pond.getAllNeighbors)
 }

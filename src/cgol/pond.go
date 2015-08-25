@@ -45,6 +45,73 @@ type Pond struct {
 	initializer  func(*Pond)
 }
 
+func (t *Pond) getOrthogonalNeighbors(organism OrganismReference) []OrganismReference {
+	neighbors := make([]OrganismReference, 4)
+
+	// Determine the offsets
+	above := organism.Y - 1
+	below := organism.Y + 1
+	left := organism.X - 1
+	right := organism.X + 1
+
+	if above >= 0 {
+		neighbors = append(neighbors, OrganismReference{X: organism.X, Y: above})
+	}
+
+	if below <= t.Rows {
+		neighbors = append(neighbors, OrganismReference{X: organism.X, Y: below})
+	}
+
+	if left >= 0 {
+		neighbors = append(neighbors, OrganismReference{X: left, Y: organism.Y})
+	}
+
+	if right <= t.Cols {
+		neighbors = append(neighbors, OrganismReference{X: right, Y: organism.Y})
+	}
+
+	return neighbors
+}
+
+func (t *Pond) getObliqueNeighbors(organism OrganismReference) []OrganismReference {
+	neighbors := make([]OrganismReference, 4)
+
+	// Determine the offsets
+	above := organism.Y - 1
+	below := organism.Y + 1
+	left := organism.X - 1
+	right := organism.X + 1
+
+	if above >= 0 {
+		if left >= 0 {
+			neighbors = append(neighbors, OrganismReference{X: left, Y: above})
+		}
+		if right <= t.Cols {
+			neighbors = append(neighbors, OrganismReference{X: right, Y: above})
+		}
+	}
+
+	if below <= t.Rows {
+		if left >= 0 {
+			neighbors = append(neighbors, OrganismReference{X: left, Y: below})
+		}
+		if right <= t.Cols {
+			neighbors = append(neighbors, OrganismReference{X: right, Y: below})
+		}
+	}
+
+	return neighbors
+}
+
+func (t *Pond) getAllNeighbors(organism OrganismReference) []OrganismReference {
+	neighbors := append(t.getOrthogonalNeighbors(organism), t.getObliqueNeighbors(organism)...)
+	// neighbors := make([]OrganismReference, 8)
+	// neighbors = append(neighbors, getOrthogonalNeighbors(pond, organism))
+	// neighbors = append(neighbors, getObliqueNeighbors(pond, organism))
+
+	return neighbors
+}
+
 func (t *Pond) getNeighborCount(organism OrganismReference) int {
 	return t.gameboard[organism.X][organism.Y]
 }
@@ -54,13 +121,14 @@ func (t *Pond) setNeighborCount(organism OrganismReference, numNeighbors int) {
 	originalNumNeighbors := t.gameboard[organism.X][organism.Y]
 
 	t.gameboard[organism.X][organism.Y] = numNeighbors
-	t.processQueue = append(t.processQueue, organism)
 
 	// Update the living count if organism changed living state
 	if originalNumNeighbors < 0 && numNeighbors >= 0 {
 		t.NumLiving++
+		t.processQueue = append(t.processQueue, organism)
 	} else if originalNumNeighbors >= 0 && numNeighbors < 0 {
 		t.NumLiving--
+		t.processQueue = append(t.processQueue, organism)
 	}
 }
 
