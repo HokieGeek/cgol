@@ -24,6 +24,14 @@ func (t GameStatus) String() string {
 	return s
 }
 
+type NeighborsSelector int
+
+const (
+	NEIGHBORS_ORTHOGONAL NeighborsSelector = 1
+	NEIGHBORS_OBLIQUE    NeighborsSelector = 2
+	NEIGHBORS_ALL        NeighborsSelector = 3
+)
+
 type OrganismReference struct {
 	X int
 	Y int
@@ -34,15 +42,16 @@ type OrganismReference struct {
 // }
 
 type Pond struct {
-	Name         string
-	Rows         int
-	Cols         int
-	NumLiving    int
-	Status       GameStatus
-	gameboard    [][]int
-	processQueue []OrganismReference
-	ruleset      func(*Pond, OrganismReference)
-	initializer  func(*Pond)
+	Name              string
+	Rows              int
+	Cols              int
+	NumLiving         int
+	Status            GameStatus
+	gameboard         [][]int
+	processQueue      []OrganismReference
+	neighborsSelector NeighborsSelector
+	ruleset           func(*Pond, OrganismReference)
+	initializer       func(*Pond)
 }
 
 func (t *Pond) getOrthogonalNeighbors(organism OrganismReference) []OrganismReference {
@@ -105,15 +114,40 @@ func (t *Pond) getObliqueNeighbors(organism OrganismReference) []OrganismReferen
 
 func (t *Pond) getAllNeighbors(organism OrganismReference) []OrganismReference {
 	neighbors := append(t.getOrthogonalNeighbors(organism), t.getObliqueNeighbors(organism)...)
-	// neighbors := make([]OrganismReference, 8)
-	// neighbors = append(neighbors, getOrthogonalNeighbors(pond, organism))
-	// neighbors = append(neighbors, getObliqueNeighbors(pond, organism))
 
 	return neighbors
 }
 
+func (t *Pond) GetNeighbors(organism OrganismReference) []OrganismReference {
+	switch {
+	case t.neighborsSelector == NEIGHBORS_ORTHOGONAL:
+		return t.getOrthogonalNeighbors(organism)
+	case t.neighborsSelector == NEIGHBORS_OBLIQUE:
+		return t.getObliqueNeighbors(organism)
+	case t.neighborsSelector == NEIGHBORS_ALL:
+		return t.getAllNeighbors(organism)
+	}
+
+	return make([]OrganismReference, 0)
+}
+
+func (t *Pond) isOrganismAlive(organism OrganismReference) bool {
+	return (t.getNeighborCount(organism) >= 0)
+}
+
 func (t *Pond) getNeighborCount(organism OrganismReference) int {
 	return t.gameboard[organism.X][organism.Y]
+}
+
+func (t *Pond) calculateNeighborCount(organism OrganismReference) int {
+	numLivingNeighbors := 0
+	for _, neighbor := range t.GetNeighbors(organism) {
+		if t.isOrganismAlive(neighbor) {
+			numLivingNeighbors++
+		}
+	}
+	return numLivingNeighbors
+	//return t.gameboard[organism.X][organism.Y]
 }
 
 func (t *Pond) setNeighborCount(organism OrganismReference, numNeighbors int) {
@@ -123,12 +157,13 @@ func (t *Pond) setNeighborCount(organism OrganismReference, numNeighbors int) {
 	t.gameboard[organism.X][organism.Y] = numNeighbors
 
 	// Update the living count if organism changed living state
+	// Also, if the state did change, then add its neighbors to the processing queue
 	if originalNumNeighbors < 0 && numNeighbors >= 0 {
 		t.NumLiving++
-		t.processQueue = append(t.processQueue, organism)
+		t.processQueue = append(t.processQueue, t.GetNeighbors(organism)...)
 	} else if originalNumNeighbors >= 0 && numNeighbors < 0 {
 		t.NumLiving--
-		t.processQueue = append(t.processQueue, organism)
+		t.processQueue = append(t.processQueue, t.GetNeighbors(organism)...)
 	}
 }
 
@@ -169,16 +204,22 @@ func (t *Pond) Display() {
 	}
 }
 
-func CreatePond(name string, rows int, cols int, rules func(*Pond, OrganismReference), init func(*Pond)) *Pond {
+func CreatePond(name string, rows int, cols int, neighbors NeighborsSelector, rules func(*Pond, OrganismReference), init func(*Pond)) *Pond {
 	p := new(Pond)
+
+	// Add the selected values
 	p.Name = name
 	p.Rows = rows
 	p.Cols = cols
-	p.NumLiving = 0
+	p.neighborsSelector = neighbors
 	p.ruleset = rules
 	p.initializer = init
 	p.Status = Active
 
+	// Default init
+	p.NumLiving = 0
+
+	// Prime the pump
 	p.initializer(p)
 
 	return p

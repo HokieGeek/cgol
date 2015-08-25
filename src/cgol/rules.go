@@ -8,7 +8,7 @@ const (
 	STD_REVIVE          = 3
 )
 
-func standard(pond *Pond, organism OrganismReference, getNeighbors func(OrganismReference) []OrganismReference) {
+func Standard(pond *Pond, organism OrganismReference) {
 	// -- Rules --
 	// 1. If live cell has < 2 neighbors, it is dead
 	// 2. If live cell has 2 or 3 neighbors, it lives
@@ -18,16 +18,17 @@ func standard(pond *Pond, organism OrganismReference, getNeighbors func(Organism
 	// TODO: does this logic properly handle when an organism dies?
 
 	// Determine if current cell lives
-	neighbors := getNeighbors(organism)
+	neighbors := pond.GetNeighbors(organism)
 	neighborCount := pond.getNeighborCount(organism)
 	if neighborCount < 0 {
 		// Rule #4
-		numLivingNeighbors := 0
-		for _, neighbor := range neighbors {
-			if pond.getNeighborCount(neighbor) >= 0 {
-				numLivingNeighbors++
-			}
-		}
+		// numLivingNeighbors := 0
+		// for _, neighbor := range neighbors {
+		// 	if pond.getNeighborCount(neighbor) >= 0 {
+		// 		numLivingNeighbors++
+		// 	}
+		// }
+		numLivingNeighbors := pond.calculateNeighborCount(organism)
 		if numLivingNeighbors == STD_REVIVE {
 			pond.setNeighborCount(organism, numLivingNeighbors)
 			for _, neighbor := range neighbors {
@@ -43,16 +44,4 @@ func standard(pond *Pond, organism OrganismReference, getNeighbors func(Organism
 		}
 	}
 	// TODO: Rule #2?
-}
-
-func StandardOrthogonal(pond *Pond, organism OrganismReference) {
-	standard(pond, organism, pond.getOrthogonalNeighbors)
-}
-
-func StandardOblique(pond *Pond, organism OrganismReference) {
-	standard(pond, organism, pond.getObliqueNeighbors)
-}
-
-func StandardAll(pond *Pond, organism OrganismReference) {
-	standard(pond, organism, pond.getAllNeighbors)
 }
