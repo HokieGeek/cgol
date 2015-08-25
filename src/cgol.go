@@ -4,12 +4,16 @@ import "cgol"
 
 func main() {
 	/*
-		Will need a daemon that intercepts new pond requests and provides data on all current ponds. Use json
+		TODO: Will need a daemon that intercepts new pond requests and provides data on all current ponds. Use json
 	*/
-	// cgol.CreatePond("Standard,Random", 5, 20, cgol.StandardRules, cgol.RandomInit)
-	tmp := cgol.CreatePond("Standard,Orthogonal,Random", 5, 20,
-		cgol.NEIGHBORS_ORTHOGONAL,
+	s := cgol.CreateStrategy("Standard,Orthogonal,Random",
+		cgol.CreatePond(5, 20, cgol.NEIGHBORS_ORTHOGONAL),
+		func(pond *cgol.Pond) []OrganismReference { return cgol.InitRandom(pond, 80) },
 		cgol.Standard,
-		func(pond *cgol.Pond) { cgol.InitRandom(pond, 80) })
-	tmp.Display()
+		new(cgol.QueueProcessor))
+
+	s.Display()
+
+    // s.Start()
+	// s.Display()
 }

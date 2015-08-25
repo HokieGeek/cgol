@@ -2,6 +2,76 @@ package cgol
 
 import "fmt"
 
+/*
+type gameboardReadOp struct {
+    key  OrganismReference
+    resp chan int
+}
+type gameboardWriteOp struct {
+    key  OrganismReference
+    val  int
+    resp chan bool
+}
+
+type Gameboard struct {
+    Rows int
+    Cols int
+    reads chan *gameboardReadOp
+    writes chan *gameboardWriteOp
+}
+
+func (t *Gameboard) board() {
+     var gameboard = make([][]int, t.Rows)
+        for i := 0; i < t.Rows; i++ {
+		gameboard[0] = make([]int, t.Cols)
+	 }
+
+        for {
+            select {
+            case read := <-t.reads:
+                read.resp <- gameboard[read.key.X][read.key.Y]
+            case write := <-t.writes:
+                gameboard[write.key.X][write.key.Y] = write.val
+                write.resp <- true
+            }
+        }
+}
+
+func (t *Gameboard) SetOrganism(ref OrganismReference, v int) {
+    write := &gameboardWriteOp {key: ref, val: v, resp: make(chan bool)}
+    t.writes <- write
+    <-write.resp
+}
+
+func (t *Gameboard) GetOrganism(ref OrganismReference) int {
+    read := &gameboardReadOp{key: ref, resp: make(chan int)}
+    t.reads <- read
+    val := <-read.resp
+    return val
+}
+
+func (t *Gameboard) init() {
+    // Setup the gameboard
+    t.Rows = 2
+    t.Cols = 5
+    t.reads = make(chan *gameboardReadOp)
+    t.writes = make(chan *gameboardWriteOp)
+    go t.board()
+}
+
+func CreateGameboard(rows int, cols int) {
+}
+
+func testGameboard() {
+	testing := new(Gameboard)
+	testing.init()
+
+	ref := OrganismReference {X: 0, Y: 0}
+    testing.SetOrganism(ref, 738)
+    fmt.Printf("Testing: %d\n", testing.GetOrganism(ref))
+}
+*/
+
 type GameStatus int
 
 const (
@@ -32,26 +102,35 @@ const (
 	NEIGHBORS_ALL        NeighborsSelector = 3
 )
 
+func (t NeighborsSelector) String() string {
+	s := ""
+
+	if t&NEIGHBORS_ORTHOGONAL == NEIGHBORS_ORTHOGONAL {
+		s += "NEIGHBORS_ORTHOGONAL"
+	} else if t&NEIGHBORS_OBLIQUE == NEIGHBORS_OBLIQUE {
+		s += "NEIGHBORS_OBLIQUE"
+	} else if t&NEIGHBORS_ALL == NEIGHBORS_ALL {
+		s += "NEIGHBORS_ALL"
+	}
+
+	return s
+}
+
 type OrganismReference struct {
 	X int
 	Y int
 	Z int
 }
 
-// type PondStats struct {
-// }
-
 type Pond struct {
-	Name              string
 	Rows              int
 	Cols              int
+	gameboard         [][]int
+
 	NumLiving         int
 	Status            GameStatus
-	gameboard         [][]int
-	processQueue      []OrganismReference
 	neighborsSelector NeighborsSelector
-	ruleset           func(*Pond, OrganismReference)
-	initializer       func(*Pond)
+	initialOrganisms  []OrganismReference
 }
 
 func (t *Pond) getOrthogonalNeighbors(organism OrganismReference) []OrganismReference {
@@ -147,29 +226,20 @@ func (t *Pond) calculateNeighborCount(organism OrganismReference) int {
 		}
 	}
 	return numLivingNeighbors
-	//return t.gameboard[organism.X][organism.Y]
 }
 
-// TODO: Is there a point to this?
-// func (t *Pond) updateNeighborCount(organism OrganismReference) int {
-// 	t.setNeighborCount(organism, t.calculateNeighborCount(organism))
-// 	return t.getNeighborCount(organism)
-// }
-
 func (t *Pond) setNeighborCount(organism OrganismReference, numNeighbors int) {
-	// TODO: Mutex protection?
-	originalNumNeighbors := t.gameboard[organism.X][organism.Y]
+	// TODO: Mutex protection
+	originalNumNeighbors := t.getNeighborCount(organism)
 
 	t.gameboard[organism.X][organism.Y] = numNeighbors
 
 	// Update the living count if organism changed living state
-	// Also, if the state did change, then add its neighbors to the processing queue
+	// fmt.Printf("Original: %d vs New: %d\n", originalNumNeighbors, numNeighbors)
 	if originalNumNeighbors < 0 && numNeighbors >= 0 {
 		t.NumLiving++
-		t.processQueue = append(t.processQueue, t.GetNeighbors(organism)...)
 	} else if originalNumNeighbors >= 0 && numNeighbors < 0 {
 		t.NumLiving--
-		t.processQueue = append(t.processQueue, t.GetNeighbors(organism)...)
 	}
 }
 
@@ -181,22 +251,33 @@ func (t *Pond) decrementNeighborCount(organism OrganismReference) {
 	t.setNeighborCount(organism, t.getNeighborCount(organism)-1)
 }
 
-// func (t *Pond) cycleProcessQueue() {
-// 	front := t.processQueue[0]
-// 	t.processQueue = append(t.processQueue[:0], t.processQueue[1:]...)
-// 	t.ruleset(t, front)
-// }
+func (t* Pond) init(initialLiving []OrganismReference) {
+    t.initialOrganisms = initalLiving
+	t.gameboard = make([][]int, t.Rows)
 
-func (t *Pond) start() {
-	// TODO: Kick off thread that periodically goes through the 'living' queue
-}
+	// completion := make(chan int, pond.Rows)
+	for i := 0; i < t.Rows; i++ {
+		// go func(row int, c chan int) {
+		// 	fmt.Printf("Doing: %d\n", row)
+		// 	c <- row
+		// }(i, completion)
+		t.gameboard[i] = make([]int, t.Cols)
+		for j := 0; j < t.Cols; j++ {
+			t.gameboard[i][j] = -1
+            // t.setNeighborCount(OrganismReference{X: i, Y: j}, -1)
+		}
+	}
 
-func (t *Pond) stop() {
-	// TODO: stop the processing thread
+    for _,initialOrganism : range initialLiving {
+        t.setNeighborCount(initialOrganism)
+    }
+	// for c := range completion {
+	// 	fmt.Printf("%d is done\n", c)
+	// }
 }
 
 func (t *Pond) Display() {
-	fmt.Printf("[%s] (%dx%d)\n", t.Name, t.Rows, t.Cols)
+	fmt.Printf("Size: %dx%d, Neighbor selection: %s\n", t.Rows, t.Cols, t.neighborsSelector)
 	fmt.Printf("Living organisms: %d\tStatus: %s\n", t.NumLiving, t.Status)
 	for i := 0; i < t.Rows; i++ {
 		for j := 0; j < t.Cols; j++ {
@@ -210,23 +291,17 @@ func (t *Pond) Display() {
 	}
 }
 
-func CreatePond(name string, rows int, cols int, neighbors NeighborsSelector, rules func(*Pond, OrganismReference), init func(*Pond)) *Pond {
+func CreatePond(rows int, cols int, neighbors NeighborsSelector) *Pond {
 	p := new(Pond)
 
-	// Add the selected values
-	p.Name = name
+	// Default values
+	p.NumLiving = 0
+	p.Status = Active
+
+	// Add the given values
 	p.Rows = rows
 	p.Cols = cols
 	p.neighborsSelector = neighbors
-	p.ruleset = rules
-	p.initializer = init
-	p.Status = Active
-
-	// Default init
-	p.NumLiving = 0
-
-	// Prime the pump
-	p.initializer(p)
 
 	return p
 }
