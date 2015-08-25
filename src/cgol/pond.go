@@ -150,6 +150,12 @@ func (t *Pond) calculateNeighborCount(organism OrganismReference) int {
 	//return t.gameboard[organism.X][organism.Y]
 }
 
+// TODO: Is there a point to this?
+// func (t *Pond) updateNeighborCount(organism OrganismReference) int {
+// 	t.setNeighborCount(organism, t.calculateNeighborCount(organism))
+// 	return t.getNeighborCount(organism)
+// }
+
 func (t *Pond) setNeighborCount(organism OrganismReference, numNeighbors int) {
 	// TODO: Mutex protection?
 	originalNumNeighbors := t.gameboard[organism.X][organism.Y]
