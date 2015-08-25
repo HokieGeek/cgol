@@ -123,9 +123,9 @@ type OrganismReference struct {
 }
 
 type Pond struct {
-	Rows              int
-	Cols              int
-	gameboard         [][]int
+	Rows      int
+	Cols      int
+	gameboard [][]int
 
 	NumLiving         int
 	Status            GameStatus
@@ -251,8 +251,8 @@ func (t *Pond) decrementNeighborCount(organism OrganismReference) {
 	t.setNeighborCount(organism, t.getNeighborCount(organism)-1)
 }
 
-func (t* Pond) init(initialLiving []OrganismReference) {
-    t.initialOrganisms = initalLiving
+func (t *Pond) init(initialLiving []OrganismReference) {
+	t.initialOrganisms = initalLiving
 	t.gameboard = make([][]int, t.Rows)
 
 	// completion := make(chan int, pond.Rows)
@@ -264,13 +264,13 @@ func (t* Pond) init(initialLiving []OrganismReference) {
 		t.gameboard[i] = make([]int, t.Cols)
 		for j := 0; j < t.Cols; j++ {
 			t.gameboard[i][j] = -1
-            // t.setNeighborCount(OrganismReference{X: i, Y: j}, -1)
+			// t.setNeighborCount(OrganismReference{X: i, Y: j}, -1)
 		}
 	}
 
-    for _,initialOrganism : range initialLiving {
-        t.setNeighborCount(initialOrganism)
-    }
+	for _, initialOrganism := range initialLiving {
+		t.setNeighborCount(initialOrganism)
+	}
 	// for c := range completion {
 	// 	fmt.Printf("%d is done\n", c)
 	// }
