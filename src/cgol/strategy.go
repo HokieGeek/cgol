@@ -18,14 +18,17 @@ type Strategy struct {
 	pond       *Pond
 	processor  Processor
 	ruleset    func(*Pond, OrganismReference) bool
-	ticker     time.Ticker
+	ticker     *time.Ticker
 	updateRate time.Duration
 }
 
 func (t *Strategy) process() {
 	currentLivingCount := t.pond.NumLiving
 
-	stillProcessing := t.processor.Process(t.pond, t.ruleset)
+	stillProcessing := false
+	if currentLivingCount >= 2 { // Only process if it makes sense to do so
+		stillProcessing = t.processor.Process(t.pond, t.ruleset)
+	}
 
 	// Update the pond's status
 	if stillProcessing {
@@ -50,18 +53,29 @@ func (t *Strategy) process() {
 }
 
 func (t *Strategy) Start() {
-	// t.ticker := time.NewTicker(t.updateRate)
+	t.ticker = time.NewTicker(t.updateRate)
+	// go func() {
+	for {
+		select {
+		case <-t.ticker.C:
+			t.process()
+			fmt.Println(t)
+		}
+	}
+	// }()
+
 	// go func() {
 	// 	for _ := range t.ticker.C {
 	// 		t.process()
 	// 		fmt.Println(t)
 	// 	}
 	// }()
-	for i := len(t.pond.initialOrganisms) - 1; i >= 0; i-- {
-		t.process()
-		fmt.Println(t)
-		time.Sleep(time.Second)
-	}
+
+	// for i := len(t.pond.initialOrganisms) - 1; i >= 0; i-- {
+	// 	t.process()
+	// 	fmt.Println(t)
+	// 	time.Sleep(time.Second)
+	// }
 }
 
 func (t *Strategy) Stop() {
