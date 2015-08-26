@@ -14,31 +14,40 @@ type QueueProcessor struct {
 }
 
 func (t *QueueProcessor) schedule(organisms []OrganismReference) {
+	fmt.Printf("schedule(%v)\n", organisms)
 	t.queue = append(t.queue, organisms...)
 }
 
 func (t *QueueProcessor) Process(pond *Pond, rules func(*Pond, OrganismReference) bool) bool {
 	if len(t.queue) > 0 {
-		fmt.Println("Processing...")
+		fmt.Printf("\n>>>> Processing (queue size: %d)...\n", len(t.queue))
+		fmt.Printf("QUEUE: %v\n", t.queue)
 
 		// 1. Consider an organism
 		front := t.queue[0]
-		// TODO: error handling when queue len == 1
-		t.queue = append(t.queue[:0], t.queue[1:]...)
+		if len(t.queue) > 1 {
+			t.queue = append(t.queue[:0], t.queue[1:]...)
+		} else {
+			t.queue = nil
+		}
+		fmt.Printf(" Organism: %s\n", front.String())
 
 		// 2. Apply rules to organism
 		modified := rules(pond, front)
 
 		// 3. Propogate any changes to neighbors
 		if modified {
-			// TODO: does this logic properly handle when an organism dies?
-
 			neighbors := pond.GetNeighbors(front)
-			for _, neighbor := range neighbors {
-				if pond.isOrganismAlive(neighbor) {
-					pond.incrementNeighborCount(neighbor)
+			// fmt.Printf("Found %d neighbors: %v\n", len(neighbors), neighbors)
+			/*
+				for _, neighbor := range neighbors {
+					if pond.isOrganismAlive(neighbor) {
+						// fmt.Printf("  Neighbor %s is alive\n", neighbor.String())
+						// pond.incrementNeighborCount(neighbor)
+						t.schedule([]OrganismReference{neighbor})
+					}
 				}
-			}
+			*/
 			t.schedule(neighbors)
 		}
 

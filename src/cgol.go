@@ -1,6 +1,7 @@
 package main
 
 import "cgol"
+import "fmt"
 
 func main() {
 	/*
@@ -12,8 +13,8 @@ func main() {
 		cgol.Standard,
 		new(cgol.QueueProcessor))
 
-	s.Display()
+	fmt.Println("===== Starting the thing =====")
+	fmt.Print(s)
 
-	// s.Start()
-	// s.Display()
+	s.Start()
 }

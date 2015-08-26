@@ -6,7 +6,7 @@ import (
 )
 
 func InitRandom(pond *Pond, percent int) []OrganismReference {
-	initialLiving := make([]OrganismReference, 10)
+	initialLiving := make([]OrganismReference, 0)
 
 	for i := 0; i < pond.Rows; i++ {
 		rand.Seed(time.Now().UnixNano())

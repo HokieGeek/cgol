@@ -1,6 +1,7 @@
 package cgol
 
 import (
+	"bytes"
 	"fmt"
 	"time"
 )
@@ -17,7 +18,7 @@ type Strategy struct {
 	pond       *Pond
 	processor  Processor
 	ruleset    func(*Pond, OrganismReference) bool
-	// ticker     Ticker
+	ticker     time.Ticker
 	updateRate time.Duration
 }
 
@@ -49,23 +50,34 @@ func (t *Strategy) process() {
 }
 
 func (t *Strategy) Start() {
-	// ticker := time.NewTicker(t.updateRate)
+	// t.ticker := time.NewTicker(t.updateRate)
 	// go func() {
-	//     for u := range ticker.C {
-	t.process()
-	//     }
-	// } ()
+	// 	for _ := range t.ticker.C {
+	// 		t.process()
+	// 		fmt.Println(t)
+	// 	}
+	// }()
+	for i := len(t.pond.initialOrganisms) - 1; i >= 0; i-- {
+		t.process()
+		fmt.Println(t)
+		time.Sleep(time.Second)
+	}
 }
 
 func (t *Strategy) Stop() {
 	// TODO: stop the processing thread
-	// ticker.Stop()
+	t.ticker.Stop()
 }
 
-func (t *Strategy) Display() {
-	fmt.Printf("[%s]\n", t.Label)
-	fmt.Printf("Ruleset: %s\n", t.ruleset) // TODO: is this a good idea?
-	t.pond.Display()
+func (t *Strategy) String() string {
+	var buf bytes.Buffer
+	buf.WriteString("[")
+	buf.WriteString(t.Label)
+	buf.WriteString("]\n")
+	// fmt.Printf("Ruleset: %s\n", t.ruleset)
+	buf.WriteString(t.pond.String())
+
+	return buf.String()
 }
 
 func (t *Strategy) init(initializer func(*Pond) []OrganismReference) {
