@@ -8,12 +8,12 @@ func main() {
 	*/
 	s := cgol.CreateStrategy("Standard,Orthogonal,Random",
 		cgol.CreatePond(5, 20, cgol.NEIGHBORS_ORTHOGONAL),
-		func(pond *cgol.Pond) []OrganismReference { return cgol.InitRandom(pond, 80) },
+		func(pond *cgol.Pond) []cgol.OrganismReference { return cgol.InitRandom(pond, 80) },
 		cgol.Standard,
 		new(cgol.QueueProcessor))
 
 	s.Display()
 
-    // s.Start()
+	// s.Start()
 	// s.Display()
 }
