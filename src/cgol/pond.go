@@ -66,22 +66,12 @@ type OrganismReference struct {
 }
 
 func (t *OrganismReference) String() string {
-	/*
-		var buf bytes.Buffer
-		buf.WriteString("[")
-		buf.WriteString(t.X)
-		buf.WriteString(",")
-		buf.WriteString(t.Y)
-		buf.WriteString("]")
-		return buf.String()
-	*/
 	return fmt.Sprintf("[%d,%d]", t.X, t.Y)
 }
 
 type Pond struct {
-	Rows int
-	Cols int
-	// gameboard [][]int
+	Rows            int
+	Cols            int
 	gameboardReads  chan *gameboardReadOp
 	gameboardWrites chan *gameboardWriteOp
 
@@ -119,10 +109,6 @@ func (t *Pond) gameboard() {
 	for {
 		select {
 		case read := <-t.gameboardReads:
-			// fmt.Printf("gb read: %s\n", read.key.String())
-			// fmt.Printf("gb size: %dx%d\n", t.Rows, t.Cols)
-			// fmt.Printf("gb len1: %d\n", len(gameboard))
-			// fmt.Printf("gb len2(%d): %d\n", read.key.X, len(gameboard[read.key.X]))
 			read.resp <- gameboard[read.key.X][read.key.Y]
 		case write := <-t.gameboardWrites:
 			gameboard[write.key.X][write.key.Y] = write.val
@@ -233,7 +219,7 @@ func (t *Pond) calculateNeighborCount(organism OrganismReference) int {
 }
 
 func (t *Pond) setNeighborCount(organism OrganismReference, numNeighbors int) {
-	fmt.Printf("\tsetNeighborCount(%s, %d)\n", organism.String(), numNeighbors)
+	// fmt.Printf("\tsetNeighborCount(%s, %d)\n", organism.String(), numNeighbors)
 	originalNumNeighbors := t.getNeighborCount(organism)
 
 	// Write the value to the gameboard
@@ -270,12 +256,8 @@ func (t *Pond) init(initialLiving []OrganismReference) {
 	}
 	for _, initialOrganism := range initialLiving {
 		livingNeighborsCount := 0
-		// fmt.Printf("Looking for living neighbors of: %s\n", initialOrganism.String())
-		// fmt.Print(t.String())
 		for _, neighbor := range t.GetNeighbors(initialOrganism) {
-			// fmt.Printf("Checking neighbor: %s\n", neighbor.String())
 			if t.isOrganismAlive(neighbor) {
-				// fmt.Printf("Live neighbor: %s\n", neighbor.String())
 				livingNeighborsCount++
 			}
 		}
@@ -294,14 +276,11 @@ func (t *Pond) String() string {
 			neighborCount := t.getNeighborCount(OrganismReference{X: i, Y: j})
 			if neighborCount >= 0 {
 				matrix.WriteString(strconv.Itoa(neighborCount))
-				// fmt.Printf("%d", neighborCount)
 			} else {
 				matrix.WriteString("-")
-				// fmt.Printf("-")
 			}
 		}
 		matrix.WriteString("\n")
-		//fmt.Printf("\n")
 	}
 
 	return s + matrix.String()

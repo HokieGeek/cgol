@@ -4,9 +4,6 @@ import "cgol"
 import "fmt"
 
 func main() {
-	/*
-		TODO: Will need a daemon that intercepts new pond requests and provides data on all current ponds. Use json
-	*/
 	s := cgol.CreateStrategy("Standard,Orthogonal,Random",
 		cgol.CreatePond(5, 20, cgol.NEIGHBORS_ORTHOGONAL),
 		func(pond *cgol.Pond) []cgol.OrganismReference { return cgol.InitRandom(pond, 80) },

@@ -26,8 +26,10 @@ func (t *Strategy) process() {
 	currentLivingCount := t.pond.NumLiving
 
 	stillProcessing := false
-	if currentLivingCount >= 2 { // Only process if it makes sense to do so
+	if currentLivingCount > 3 { // Only process the current queue if it makes sense to do so
 		stillProcessing = t.processor.Process(t.pond, t.ruleset)
+		// } else {
+		// TODO: t.processor.clear()
 	}
 
 	// Update the pond's status
@@ -45,6 +47,7 @@ func (t *Strategy) process() {
 	} else {
 		if t.pond.NumLiving > 0 {
 			t.pond.Status = Stable
+			// TODO: if have been stable for a while stop processing
 		} else {
 			t.pond.Status = Dead
 			t.Stop()
@@ -54,7 +57,6 @@ func (t *Strategy) process() {
 
 func (t *Strategy) Start() {
 	t.ticker = time.NewTicker(t.updateRate)
-	// go func() {
 	for {
 		select {
 		case <-t.ticker.C:
@@ -62,24 +64,9 @@ func (t *Strategy) Start() {
 			fmt.Println(t)
 		}
 	}
-	// }()
-
-	// go func() {
-	// 	for _ := range t.ticker.C {
-	// 		t.process()
-	// 		fmt.Println(t)
-	// 	}
-	// }()
-
-	// for i := len(t.pond.initialOrganisms) - 1; i >= 0; i-- {
-	// 	t.process()
-	// 	fmt.Println(t)
-	// 	time.Sleep(time.Second)
-	// }
 }
 
 func (t *Strategy) Stop() {
-	// TODO: stop the processing thread
 	t.ticker.Stop()
 }
 
