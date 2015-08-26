@@ -1,30 +1,20 @@
 package cgol
 
 import (
+	// "fmt"
 	"bytes"
-	"fmt"
 	"strconv"
 )
 
-type gameboardReadOp struct {
-	key  OrganismReference
-	resp chan int
-}
-type gameboardWriteOp struct {
-	key  OrganismReference
-	val  int
-	resp chan bool
-}
-
-type GameStatus int
+type PondStatus int
 
 const (
-	Active GameStatus = 1
-	Stable GameStatus = 2
-	Dead   GameStatus = 3
+	Active PondStatus = 1
+	Stable PondStatus = 2
+	Dead   PondStatus = 3
 )
 
-func (t GameStatus) String() string {
+func (t PondStatus) String() string {
 	s := ""
 
 	if t&Active == Active {
@@ -60,155 +50,37 @@ func (t NeighborsSelector) String() string {
 	return s
 }
 
-type OrganismReference struct {
-	X int
-	Y int
-}
-
-func (t *OrganismReference) String() string {
-	return fmt.Sprintf("[%d,%d]", t.X, t.Y)
-}
-
 type Pond struct {
-	Rows            int
-	Cols            int
-	gameboardReads  chan *gameboardReadOp
-	gameboardWrites chan *gameboardWriteOp
-
+	gameboard         *Gameboard
 	NumLiving         int
-	Status            GameStatus
+	Status            PondStatus
 	neighborsSelector NeighborsSelector
-	initialOrganisms  []OrganismReference
+	initialOrganisms  []GameboardLocation
 }
 
-func (t *Pond) gameboard() {
-	// Initialize the gameboard
-	var gameboard = make([][]int, t.Rows)
-	// completion := make(chan int, t.Rows)
-	for i := 0; i < t.Rows; i++ {
-		/*
-			go func(row int, c chan int) {
-				// fmt.Printf("Doing: %d\n", row)
-				gameboard[row] = make([]int, t.Cols)
-				for j := 0; j < t.Cols; j++ {
-					gameboard[row][j] = -1
-				}
-				c <- row
-			}(i, completion)
-		*/
-		gameboard[i] = make([]int, t.Cols)
-		for j := 0; j < t.Cols; j++ {
-			gameboard[i][j] = -1
-		}
-	}
-	// for c := range completion {
-	// fmt.Printf("%d is done\n", c)
-	// }
-
-	// Listen for requests
-	for {
-		select {
-		case read := <-t.gameboardReads:
-			read.resp <- gameboard[read.key.X][read.key.Y]
-		case write := <-t.gameboardWrites:
-			gameboard[write.key.X][write.key.Y] = write.val
-			write.resp <- true
-		}
-	}
-}
-
-func (t *Pond) getOrthogonalNeighbors(organism OrganismReference) []OrganismReference {
-	neighbors := make([]OrganismReference, 0)
-
-	// Determine the offsets
-	// ROWS = X, COLS = Y
-	left := organism.Y - 1
-	right := organism.Y + 1
-	above := organism.X - 1
-	below := organism.X + 1
-
-	if above >= 0 {
-		neighbors = append(neighbors, OrganismReference{X: above, Y: organism.Y})
-	}
-
-	if below < t.Rows {
-		neighbors = append(neighbors, OrganismReference{X: below, Y: organism.Y})
-	}
-
-	if left >= 0 {
-		neighbors = append(neighbors, OrganismReference{X: organism.X, Y: left})
-	}
-
-	if right < t.Cols {
-		neighbors = append(neighbors, OrganismReference{X: organism.X, Y: right})
-	}
-
-	// fmt.Printf("getOrthogonalNeighbors(%s): %v\n", organism.String(), neighbors)
-	return neighbors
-}
-
-func (t *Pond) getObliqueNeighbors(organism OrganismReference) []OrganismReference {
-	neighbors := make([]OrganismReference, 0)
-
-	// Determine the offsets
-	above := organism.Y - 1
-	below := organism.Y + 1
-	left := organism.X - 1
-	right := organism.X + 1
-
-	if above >= 0 {
-		if left >= 0 {
-			neighbors = append(neighbors, OrganismReference{X: left, Y: above})
-		}
-		if right < t.Cols {
-			neighbors = append(neighbors, OrganismReference{X: right, Y: above})
-		}
-	}
-
-	if below < t.Rows {
-		if left >= 0 {
-			neighbors = append(neighbors, OrganismReference{X: left, Y: below})
-		}
-		if right < t.Cols {
-			neighbors = append(neighbors, OrganismReference{X: right, Y: below})
-		}
-	}
-
-	return neighbors
-}
-
-func (t *Pond) getAllNeighbors(organism OrganismReference) []OrganismReference {
-	neighbors := append(t.getOrthogonalNeighbors(organism), t.getObliqueNeighbors(organism)...)
-
-	return neighbors
-}
-
-func (t *Pond) GetNeighbors(organism OrganismReference) []OrganismReference {
+func (t *Pond) GetNeighbors(organism GameboardLocation) []GameboardLocation {
 	switch {
 	case t.neighborsSelector == NEIGHBORS_ORTHOGONAL:
-		return t.getOrthogonalNeighbors(organism)
+		return t.gameboard.GetOrthogonalNeighbors(organism)
 	case t.neighborsSelector == NEIGHBORS_OBLIQUE:
-		return t.getObliqueNeighbors(organism)
+		return t.gameboard.GetObliqueNeighbors(organism)
 	case t.neighborsSelector == NEIGHBORS_ALL:
-		return t.getAllNeighbors(organism)
+		return t.gameboard.GetAllNeighbors(organism)
 	}
 
-	return make([]OrganismReference, 0)
+	return make([]GameboardLocation, 0)
 }
 
-func (t *Pond) isOrganismAlive(organism OrganismReference) bool {
+func (t *Pond) isOrganismAlive(organism GameboardLocation) bool {
 	return (t.getNeighborCount(organism) >= 0)
 }
 
-func (t *Pond) getNeighborCount(organism OrganismReference) int {
+func (t *Pond) getNeighborCount(organism GameboardLocation) int {
 	// fmt.Printf("\tgetNeighborCount(%s)\n", organism.String())
-	read := &gameboardReadOp{key: organism, resp: make(chan int)}
-	t.gameboardReads <- read
-	val := <-read.resp
-	return val
+	return t.gameboard.GetGameboardValue(organism)
 }
 
-func (t *Pond) calculateNeighborCount(organism OrganismReference) int {
+func (t *Pond) calculateNeighborCount(organism GameboardLocation) int {
 	numLivingNeighbors := 0
 	for _, neighbor := range t.GetNeighbors(organism) {
 		if t.isOrganismAlive(neighbor) {
@@ -218,14 +90,12 @@ func (t *Pond) calculateNeighborCount(organism OrganismReference) int {
 	return numLivingNeighbors
 }
 
-func (t *Pond) setNeighborCount(organism OrganismReference, numNeighbors int) {
+func (t *Pond) setNeighborCount(organism GameboardLocation, numNeighbors int) {
 	// fmt.Printf("\tsetNeighborCount(%s, %d)\n", organism.String(), numNeighbors)
 	originalNumNeighbors := t.getNeighborCount(organism)
 
 	// Write the value to the gameboard
-	write := &gameboardWriteOp{key: organism, val: numNeighbors, resp: make(chan bool)}
-	t.gameboardWrites <- write
-	<-write.resp
+	t.gameboard.SetGameboardValue(organism, numNeighbors)
 
 	// Update the living count if organism changed living state
 	if originalNumNeighbors < 0 && numNeighbors >= 0 {
@@ -235,20 +105,15 @@ func (t *Pond) setNeighborCount(organism OrganismReference, numNeighbors int) {
 	}
 }
 
-func (t *Pond) incrementNeighborCount(organism OrganismReference) {
+func (t *Pond) incrementNeighborCount(organism GameboardLocation) {
 	t.setNeighborCount(organism, t.getNeighborCount(organism)+1)
 }
 
-func (t *Pond) decrementNeighborCount(organism OrganismReference) {
+func (t *Pond) decrementNeighborCount(organism GameboardLocation) {
 	t.setNeighborCount(organism, t.getNeighborCount(organism)-1)
 }
 
-func (t *Pond) init(initialLiving []OrganismReference) {
-	// Initialize the gameboard and its channels
-	t.gameboardReads = make(chan *gameboardReadOp)
-	t.gameboardWrites = make(chan *gameboardWriteOp)
-	go t.gameboard()
-
+func (t *Pond) init(initialLiving []GameboardLocation) {
 	// Initialize the first organisms and set their neighbor counts
 	t.initialOrganisms = append(t.initialOrganisms, initialLiving...)
 	for _, initialOrganism := range initialLiving {
@@ -266,36 +131,28 @@ func (t *Pond) init(initialLiving []OrganismReference) {
 }
 
 func (t *Pond) String() string {
+	var buf bytes.Buffer
+	buf.WriteString("Neighbor selection: ")
+	buf.WriteString(t.neighborsSelector.String())
+	buf.WriteString("\nLiving organisms: ")
+	buf.WriteString(strconv.Itoa(t.NumLiving))
+	buf.WriteString("Status: ")
+	buf.WriteString(t.Status.String())
+	buf.WriteString("\n")
+	buf.WriteString(t.gameboard.String())
 
-	s := fmt.Sprintf("Size: %dx%d, Neighbor selection: %s", t.Rows, t.Cols, t.neighborsSelector)
-	s = fmt.Sprintf("%s\nLiving organisms: %d\tStatus: %s\n", s, t.NumLiving, t.Status)
-
-	var matrix bytes.Buffer
-	for i := 0; i < t.Rows; i++ {
-		for j := 0; j < t.Cols; j++ {
-			neighborCount := t.getNeighborCount(OrganismReference{X: i, Y: j})
-			if neighborCount >= 0 {
-				matrix.WriteString(strconv.Itoa(neighborCount))
-			} else {
-				matrix.WriteString("-")
-			}
-		}
-		matrix.WriteString("\n")
-	}
-
-	return s + matrix.String()
+	return buf.String()
 }
 
-func CreatePond(rows int, cols int, neighbors NeighborsSelector) *Pond {
+func NewPond(rows int, cols int, neighbors NeighborsSelector) *Pond {
 	p := new(Pond)
 
 	// Default values
 	p.NumLiving = 0
 	p.Status = Active
+	p.gameboard = NewGameboard(GameboardDims{Height: rows, Width: cols})
 
 	// Add the given values
-	p.Rows = rows
-	p.Cols = cols
 	p.neighborsSelector = neighbors
 
 	return p

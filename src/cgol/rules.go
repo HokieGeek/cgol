@@ -1,19 +1,20 @@
 package cgol
 
 //////////////////// STANDARD RULESET ///////////////////
-const (
-	STD_UNDERPOPULATION = 2
-	STD_OVERCROWDING    = 3
-	STD_REVIVE          = 3
-)
-
-func Standard(pond *Pond, organism OrganismReference) bool {
+func Standard(pond *Pond, organism GameboardLocation) bool {
 	// fmt.Printf("Standard(pond, %s)\n", organism.String())
 	// -- Rules --
 	// 1. If live cell has < 2 neighbors, it dies
 	// 2. If live cell has 2 or 3 neighbors, it lives
 	// 3. If live cell has > 3 neighbors, it dies
 	// 4. If dead cell has exactly 3 neighbors, it lives
+
+    // TODO: would be nice if these could be mucked with
+    const (
+    	STD_UNDERPOPULATION = 2
+    	STD_OVERCROWDING    = 3
+    	STD_REVIVE          = 3
+    )
 
 	modified := false
 	neighborCount := pond.getNeighborCount(organism)

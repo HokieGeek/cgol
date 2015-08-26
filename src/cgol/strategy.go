@@ -16,57 +16,55 @@ type Strategy struct {
 	Label      string
 	Statistics StrategyStats
 	pond       *Pond
-	processor  Processor
-	ruleset    func(*Pond, OrganismReference) bool
+	processor  *QueueProcessor
+	ruleset    func(*Pond, GameboardLocation) bool
 	ticker     *time.Ticker
 	updateRate time.Duration
 }
 
+// FIXME: this method shouldn't exist at all, really
 func (t *Strategy) process() {
-	currentLivingCount := t.pond.NumLiving
+	// TODO: if have been stable for a while stop processing
+	// TODO: does this stuff belong here or in the processor?
+	// startingLivingCount := t.pond.NumLiving
 
-	stillProcessing := false
-	if currentLivingCount > 3 { // Only process the current queue if it makes sense to do so
-		stillProcessing = t.processor.Process(t.pond, t.ruleset)
-		// } else {
-		// TODO: t.processor.clear()
-	}
+	// Process any organisms that need to be
+	t.processor.Process(t.pond, t.ruleset)
 
-	// Update the pond's status
-	if stillProcessing {
-		t.pond.Status = Active
-		t.Statistics.Iterations++
+	// Update the pond's statistics
+	// if stillProcessing {
+	// 	t.Statistics.Iterations++
 
-		// Update the statistics
-		organismsDelta := t.pond.NumLiving - currentLivingCount
-		if organismsDelta > 0 {
-			t.Statistics.OrganismsCreated += organismsDelta
-		} else if organismsDelta < 0 {
-			t.Statistics.OrganismsKilled += (organismsDelta * -1) // FIXME
-		}
-	} else {
-		if t.pond.NumLiving > 0 {
-			t.pond.Status = Stable
-			// TODO: if have been stable for a while stop processing
-		} else {
-			t.pond.Status = Dead
-			t.Stop()
-		}
+	// 	// Update the statistics
+	// 	organismsDelta := t.pond.NumLiving - startingLivingCount
+	// 	if organismsDelta > 0 {
+	// 		t.Statistics.OrganismsCreated += organismsDelta
+	// 	} else if organismsDelta < 0 {
+	// 		t.Statistics.OrganismsKilled += (organismsDelta * -1) // FIXME
+	// 	}
+	// }
+
+	// If the pond is dead, let's just stop doing things
+	if t.pond.Status == Dead {
+		t.Stop()
 	}
 }
 
 func (t *Strategy) Start() {
+	// t.processor.Process(t.pond, t.ruleset)
+
 	t.ticker = time.NewTicker(t.updateRate)
 	for {
 		select {
 		case <-t.ticker.C:
 			t.process()
-			fmt.Println(t)
+			fmt.Println(t) // TODO: remove
 		}
 	}
 }
 
 func (t *Strategy) Stop() {
+	// t.processor.Stop()
 	t.ticker.Stop()
 }
 
@@ -75,32 +73,17 @@ func (t *Strategy) String() string {
 	buf.WriteString("[")
 	buf.WriteString(t.Label)
 	buf.WriteString("]\n")
-	// fmt.Printf("Ruleset: %s\n", t.ruleset)
+	// TODO: fmt.Printf("Ruleset: %s\n", t.ruleset)
 	buf.WriteString(t.pond.String())
 
 	return buf.String()
 }
 
-func (t *Strategy) init(initializer func(*Pond) []OrganismReference) {
-	// Initialize the pond
-	initialLiving := initializer(t.pond)
-	// TODO: Try several times if initialLiving == 0
-	t.pond.init(initialLiving)
-
-	// Initialize the statistics tracker
-	t.Statistics.Iterations = 0
-	t.Statistics.OrganismsCreated = len(initialLiving)
-	t.Statistics.OrganismsKilled = 0
-
-	// Schedule the currently living organisms
-	t.processor.schedule(initialLiving)
-}
-
-func CreateStrategy(label string,
+func NewStrategy(label string,
 	pond *Pond,
-	initializer func(*Pond) []OrganismReference,
-	rules func(*Pond, OrganismReference) bool,
-	processor Processor) *Strategy {
+	initializer func(*Pond) []GameboardLocation,
+	rules func(*Pond, GameboardLocation) bool,
+	processor *QueueProcessor) *Strategy {
 	s := new(Strategy)
 
 	// Save the given values
@@ -109,10 +92,13 @@ func CreateStrategy(label string,
 	s.ruleset = rules
 	s.processor = processor
 
-	s.updateRate = time.Millisecond * 500
+	s.updateRate = time.Millisecond * 250
 
-	// Prime the pump
-	s.init(initializer)
+	// Initialize the pond and schedule the currently living organisms
+	initialLiving := initializer(s.pond)
+	s.pond.init(initialLiving)
+	s.Statistics.OrganismsCreated = len(initialLiving)
+	s.processor.Schedule(initialLiving)
 
 	return s
 }

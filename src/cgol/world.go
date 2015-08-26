@@ -8,6 +8,6 @@ func (t *World) Ponds() {
     // TODO
 }
 
-func (t *World) Display() {
-    // TODO
+func (t *World) String() string {
+    return "TODO"
 }
