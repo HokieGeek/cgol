@@ -51,6 +51,7 @@ func (t *Strategy) process() {
 }
 
 func (t *Strategy) Start() {
+	t.processor.Schedule(t.pond.initialOrganisms)
 	// t.processor.Process(t.pond, t.ruleset)
 
 	t.ticker = time.NewTicker(t.updateRate)
@@ -98,7 +99,6 @@ func NewStrategy(label string,
 	initialLiving := initializer(s.pond)
 	s.pond.init(initialLiving)
 	s.Statistics.OrganismsCreated = len(initialLiving)
-	s.processor.Schedule(initialLiving)
 
 	return s
 }
