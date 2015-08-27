@@ -130,6 +130,7 @@ func NewQueueProcessor() *QueueProcessor {
 }
 
 //////////////////// SIMULTANEOUS ////////////////////
+/*
 type SimultaneousProcessor struct {
 	defaultProcessor
 	list []GameboardLocation // TODO: mutex protect
@@ -141,13 +142,11 @@ func (t *SimultaneousProcessor) Schedule(organisms []GameboardLocation) {
 
 func (t *SimultaneousProcessor) Process(pond *Pond, rules func(*Pond, GameboardLocation) bool) {
 	if len(t.list) > 0 {
-		/*
-		   go func() {
-		   // TODO: seriously need some mutex protection here, I think...
-		       for _,organism := t.list {
-		           go func() {
-		           }
-		*/
+		   // go func() {
+		   // // TODO: seriously need some mutex protection here, I think...
+		   //     for _,organism := t.list {
+		   //         go func() {
+		   //         }
 		// 1. Consider an organism. Pop it off the front of the queue
 		// next := t.dequeue()
 
@@ -164,3 +163,4 @@ func NewSimultaneousProcessor() *SimultaneousProcessor {
 	p := new(SimultaneousProcessor)
 	return p
 }
+*/

@@ -136,7 +136,7 @@ func (t *Pond) String() string {
 	buf.WriteString(t.neighborsSelector.String())
 	buf.WriteString("\nLiving organisms: ")
 	buf.WriteString(strconv.Itoa(t.NumLiving))
-	buf.WriteString("Status: ")
+	buf.WriteString("\tStatus: ")
 	buf.WriteString(t.Status.String())
 	buf.WriteString("\n")
 	buf.WriteString(t.gameboard.String())

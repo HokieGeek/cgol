@@ -62,33 +62,25 @@ type Gameboard struct {
 func (t *Gameboard) gameboard() {
 	// Initialize the gameboard
 	var gameboard = make([][]int, t.Rows)
-	// completion := make(chan bool, t.Rows)
+	completion := make(chan bool, t.Rows)
 	for i := 0; i < t.Rows; i++ {
-		/*
-			go func(row int, c chan bool) {
-				gameboard[row] = make([]int, t.Cols)
-				for j := 0; j < t.Cols; j++ {
-					gameboard[row][j] = -1
-				}
-				c <- true
-			}(i, completion)
-		*/
-		gameboard[i] = make([]int, t.Cols)
-		for j := 0; j < t.Cols; j++ {
-			gameboard[i][j] = -1
+		go func(row int, c chan bool) {
+			gameboard[row] = make([]int, t.Cols)
+			for j := 0; j < t.Cols; j++ {
+				gameboard[row][j] = -1
+			}
+			c <- true
+		}(i, completion)
+	}
+	completed := 0
+	for c := range completion {
+		if c {
+			completed++
+			if completed >= t.Rows {
+				close(completion)
+			}
 		}
 	}
-	/*
-		    completed := 0
-			for c := range completion {
-		        if c {
-		            completed++
-		            if completed >= t.Rows {
-		                close(completion)
-		            }
-		        }
-			}
-	*/
 
 	// Listen for requests
 	for {
@@ -208,7 +200,6 @@ func (t *Gameboard) String() string {
 	for i := 0; i < t.Rows; i++ {
 		for j := 0; j < t.Cols; j++ {
 			val := snapshot[i][j]
-			// val := t.GetGameboardValue(GameboardLocation{X: i, Y: j})
 			if val >= 0 {
 				buf.WriteString(strconv.Itoa(val))
 			} else {
@@ -221,7 +212,6 @@ func (t *Gameboard) String() string {
 	return buf.String()
 }
 
-// func NewGameboard(rows int, cols int) *Gameboard {
 func NewGameboard(dims GameboardDims) *Gameboard {
 	g := new(Gameboard)
 	g.Dims = dims
