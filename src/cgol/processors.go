@@ -63,7 +63,7 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 	// numToProcess := pond.GetNumLiving() // FIXME Is this correct?
 	fmt.Printf(" living = %v\n", pond.living)
 	// fmt.Printf(" numToProcess = %d\n", numToProcess)
-	processingQueue := make(chan GameboardLocation, pond.gameboard.Dims.GetCapacity()/2)
+	processingQueue := make(chan GameboardLocation, pond.gameboard.Dims.GetCapacity()+pond.GetNumLiving()+10)
 	// processingQueue := make(chan GameboardLocation)
 	doneProcessing := make(chan bool, 1)
 
@@ -76,7 +76,7 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 				// numNeighbors, neighbors := pond.calculateNeighborCount(organism)
 				numNeighbors, _ := pond.calculateNeighborCount(organism)
 				currentlyAlive := pond.isOrganismAlive(organism)
-				fmt.Printf("   processing organism at %s with %d neighbors and alive status of '%t'\n", organism.String(), numNeighbors, currentlyAlive)
+				fmt.Printf("======= processing organism at %s with %d neighbors and alive status of '%t'\n", organism.String(), numNeighbors, currentlyAlive)
 
 				// Check with the ruleset what this organism's current status is
 				organismStatus := rules(numNeighbors, currentlyAlive)
@@ -104,6 +104,7 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 					}
 				*/
 			} else {
+				fmt.Printf("   No longer processing organisms\n")
 				close(queueModification)
 				doneProcessing <- true
 				break
@@ -116,14 +117,14 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 	for _, row := range pond.living {
 		for _, organism := range row {
 			processingQueue <- organism
-			fmt.Printf("========= processingQueue <- organism: %s\n", organism.String())
+			fmt.Printf(">> processingQueue <- organism: %s\n", organism.String())
 
 			// Now process the neighbors!
 			_, neighbors := pond.calculateNeighborCount(organism)
 			for _, neighbor := range neighbors {
-				// TODO: processingQueue <- neighbor
+				// processingQueue <- neighbor
 				// numToProcess++
-				fmt.Printf("TODO       processingQueue <- neighbor: %s\n", neighbor.String())
+				fmt.Printf("    > processingQueue <- neighbor: %s\n", neighbor.String())
 			}
 		}
 	}
