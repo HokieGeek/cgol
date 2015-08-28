@@ -104,7 +104,7 @@ func (t *Gameboard) GetGameboardValue(location GameboardLocation) int {
 	return val
 }
 
-func (t *Gameboard) GetGameboardSnapshot() [][]int {
+func (t *Gameboard) getGameboardSnapshot() [][]int {
 	snapshot := &gameboardSnapshotOp{resp: make(chan [][]int)}
 	t.gameboardSnapshots <- snapshot
 	val := <-snapshot.resp
@@ -196,7 +196,7 @@ func (t *Gameboard) String() string {
 	buf.WriteString("\n")
 
 	// Draw out the matrix
-	snapshot := t.GetGameboardSnapshot()
+	snapshot := t.getGameboardSnapshot()
 	for i := 0; i < t.Rows; i++ {
 		for j := 0; j < t.Cols; j++ {
 			val := snapshot[i][j]

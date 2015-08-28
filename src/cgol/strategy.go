@@ -16,8 +16,8 @@ type Strategy struct {
 	Label      string
 	Statistics StrategyStats
 	pond       *Pond
-	processor  *QueueProcessor
-	ruleset    func(*Pond, GameboardLocation) bool
+	processor  func(pond *Pond, rules func(int, bool) bool)
+	ruleset    func(int, bool) bool
 	ticker     *time.Ticker
 	updateRate time.Duration
 }
@@ -29,7 +29,7 @@ func (t *Strategy) process() {
 	// startingLivingCount := t.pond.NumLiving
 
 	// Process any organisms that need to be
-	t.processor.Process(t.pond, t.ruleset)
+	t.processor(t.pond, t.ruleset)
 
 	// Update the pond's statistics
 	// if stillProcessing {
@@ -51,7 +51,7 @@ func (t *Strategy) process() {
 }
 
 func (t *Strategy) Start() {
-	t.processor.Schedule(t.pond.initialOrganisms)
+	// t.processor.Schedule(t.pond.initialOrganisms)
 	// t.processor.Process(t.pond, t.ruleset)
 
 	t.ticker = time.NewTicker(t.updateRate)
@@ -83,8 +83,8 @@ func (t *Strategy) String() string {
 func NewStrategy(label string,
 	pond *Pond,
 	initializer func(*Pond) []GameboardLocation,
-	rules func(*Pond, GameboardLocation) bool,
-	processor *QueueProcessor) *Strategy {
+	rules func(int, bool) bool,
+	processor func(pond *Pond, rules func(int, bool) bool)) *Strategy {
 	s := new(Strategy)
 
 	// Save the given values

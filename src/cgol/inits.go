@@ -23,9 +23,14 @@ func InitRandom(pond *Pond, percent int) []GameboardLocation {
 }
 
 func Blinkers(pond *Pond) []GameboardLocation {
-	// length := 3
+	const LENGTH = 3
 
 	initialLiving := make([]GameboardLocation, 0)
+
+	// This is not how I'm doing it
+	initialLiving = append(initialLiving, GameboardLocation{X: 0, Y: 1})
+	initialLiving = append(initialLiving, GameboardLocation{X: 1, Y: 1})
+	initialLiving = append(initialLiving, GameboardLocation{X: 2, Y: 1})
 
 	// TODO: put in as many lengthx1 vertical lines as you can fit
 	// Period 1
@@ -47,6 +52,17 @@ func Blinkers(pond *Pond) []GameboardLocation {
 	//    1. initialiLiving = append(initialLiving, centerPoint)
 	//    2. initialiLiving = append(initialLiving, centerPoint.Y-1)
 	//    3. initialiLiving = append(initialLiving, centerPoint.Y+1)
+
+	/*
+		numPerRow := pond.gameboard.Dims.Width / (LENGTH + 1)
+		numPerCol := pond.gameboard.Dims.Height / (LENGTH + 1)
+		// startingPoint := GameboardLocation{X: 1, Y: 1}
+
+		for row := 0; row < numPerCol; row++ {
+			for col := 0; col < numPerRow; col++ {
+			}
+		}
+	*/
 
 	return initialLiving
 }

@@ -129,38 +129,53 @@ func NewQueueProcessor() *QueueProcessor {
 	return p
 }
 
-//////////////////// SIMULTANEOUS ////////////////////
-/*
-type SimultaneousProcessor struct {
-	defaultProcessor
-	list []GameboardLocation // TODO: mutex protect
-}
+func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
+	// For each living organism, push to processing channel
+	//	calculate num neighbors
+	//	if living and over or under pop, push to kill channel and send neighbors to processing channel
+	//	if dead and can be revived, then send to revive channel and send neighbors to processing channel
 
-func (t *SimultaneousProcessor) Schedule(organisms []GameboardLocation) {
-	t.list = append(t.list, organisms...)
-}
+	type ModifiedOrganism struct {
+		loc GameboardLocation
+		val int
+	}
+	modifiedOrganisms := make(chan ModifiedOrganism)
+	processingQueue := make(chan GameboardLocation)
 
-func (t *SimultaneousProcessor) Process(pond *Pond, rules func(*Pond, GameboardLocation) bool) {
-	if len(t.list) > 0 {
-		   // go func() {
-		   // // TODO: seriously need some mutex protection here, I think...
-		   //     for _,organism := t.list {
-		   //         go func() {
-		   //         }
-		// 1. Consider an organism. Pop it off the front of the queue
-		// next := t.dequeue()
+	// Add living organisms to processing queue
+	for _, row := range pond.living {
+		for _, organism := range row {
+			processingQueue <- organism
+		}
+	}
+	numToProcess := len(pond.living)
 
-		// 2. Apply rules to organism
-		// 3. Propogate any changes to neighbors
-		//if t.processOrganism(pond, rules, next) {
-		// 3. Propogate any changes to neighbors
-		// TODO: t.Process(pond.GetNeighbors(front))
-		//}
+	// Process the queue
+	for i := 0; i < numToProcess; i++ {
+		// Retrieve organism from channel, get its neighbors and see if it is alive
+		organism := <-processingQueue
+		numNeighbors, neighbors := pond.calculateNeighborCount(organism)
+		currentlyAlive := pond.isOrganismAlive(organism)
+
+		// Check with the ruleset what this organism's current status is
+		organismStatus := rules(numNeighbors, currentlyAlive)
+
+		if currentlyAlive != organismStatus { // If its status has changed, then we do stuff
+			pond.Status = Active
+
+			if organismStatus { // If is alive
+				modifiedOrganisms <- ModifiedOrganism{loc: organism, val: 0}
+				for _, neighbor := range neighbors {
+					processingQueue <- neighbor
+					numToProcess++
+				}
+			}
+		}
+	}
+
+	if pond.NumLiving > 0 {
+		pond.Status = Stable
+	} else {
+		pond.Status = Dead
 	}
 }
-
-func NewSimultaneousProcessor() *SimultaneousProcessor {
-	p := new(SimultaneousProcessor)
-	return p
-}
-*/

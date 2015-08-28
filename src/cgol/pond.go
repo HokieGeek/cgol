@@ -56,6 +56,7 @@ type Pond struct {
 	Status            PondStatus
 	neighborsSelector NeighborsSelector
 	initialOrganisms  []GameboardLocation
+	living            map[int]map[int]GameboardLocation
 }
 
 func (t *Pond) GetNeighbors(organism GameboardLocation) []GameboardLocation {
@@ -72,27 +73,17 @@ func (t *Pond) GetNeighbors(organism GameboardLocation) []GameboardLocation {
 }
 
 func (t *Pond) isOrganismAlive(organism GameboardLocation) bool {
-	return (t.getNeighborCount(organism) >= 0)
+	return (t.getOrganismValue(organism) >= 0)
 }
 
-func (t *Pond) getNeighborCount(organism GameboardLocation) int {
+func (t *Pond) getOrganismValue(organism GameboardLocation) int {
 	// fmt.Printf("\tgetNeighborCount(%s)\n", organism.String())
 	return t.gameboard.GetGameboardValue(organism)
 }
 
-func (t *Pond) calculateNeighborCount(organism GameboardLocation) int {
-	numLivingNeighbors := 0
-	for _, neighbor := range t.GetNeighbors(organism) {
-		if t.isOrganismAlive(neighbor) {
-			numLivingNeighbors++
-		}
-	}
-	return numLivingNeighbors
-}
-
-func (t *Pond) setNeighborCount(organism GameboardLocation, numNeighbors int) {
+func (t *Pond) setOrganismValue(organism GameboardLocation, numNeighbors int) {
 	// fmt.Printf("\tsetNeighborCount(%s, %d)\n", organism.String(), numNeighbors)
-	originalNumNeighbors := t.getNeighborCount(organism)
+	originalNumNeighbors := t.getOrganismValue(organism)
 
 	// Write the value to the gameboard
 	t.gameboard.SetGameboardValue(organism, numNeighbors)
@@ -105,6 +96,18 @@ func (t *Pond) setNeighborCount(organism GameboardLocation, numNeighbors int) {
 	}
 }
 
+func (t *Pond) calculateNeighborCount(organism GameboardLocation) (int, []GameboardLocation) {
+	numNeighbors := 0
+	neighbors := t.GetNeighbors(organism)
+	for _, neighbor := range neighbors {
+		if t.isOrganismAlive(neighbor) {
+			numNeighbors++
+		}
+	}
+	return numNeighbors, neighbors
+}
+
+/*
 func (t *Pond) incrementNeighborCount(organism GameboardLocation) {
 	t.setNeighborCount(organism, t.getNeighborCount(organism)+1)
 }
@@ -112,12 +115,13 @@ func (t *Pond) incrementNeighborCount(organism GameboardLocation) {
 func (t *Pond) decrementNeighborCount(organism GameboardLocation) {
 	t.setNeighborCount(organism, t.getNeighborCount(organism)-1)
 }
+*/
 
 func (t *Pond) init(initialLiving []GameboardLocation) {
 	// Initialize the first organisms and set their neighbor counts
 	t.initialOrganisms = append(t.initialOrganisms, initialLiving...)
 	for _, initialOrganism := range initialLiving {
-		t.setNeighborCount(initialOrganism, 0)
+		t.setOrganismValue(initialOrganism, 0)
 	}
 	for _, initialOrganism := range initialLiving {
 		livingNeighborsCount := 0
@@ -126,7 +130,7 @@ func (t *Pond) init(initialLiving []GameboardLocation) {
 				livingNeighborsCount++
 			}
 		}
-		t.setNeighborCount(initialOrganism, livingNeighborsCount)
+		t.setOrganismValue(initialOrganism, livingNeighborsCount)
 	}
 }
 

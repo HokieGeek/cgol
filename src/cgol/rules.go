@@ -1,8 +1,11 @@
 package cgol
 
 //////////////////// STANDARD RULESET ///////////////////
-func Standard(pond *Pond, organism GameboardLocation) bool {
-	// fmt.Printf("Standard(pond, %s)\n", organism.String())
+func Standard(numNeighbors int, isAlive bool) bool {
+	// fmt.Printf("Standard(%d)\n", numNeighbors)
+	// TODO: figure out go documentation
+	// Returns true if the organism lives
+
 	// -- Rules --
 	// 1. If live cell has < 2 neighbors, it dies
 	// 2. If live cell has 2 or 3 neighbors, it lives
@@ -16,26 +19,20 @@ func Standard(pond *Pond, organism GameboardLocation) bool {
 		STD_REVIVE          = 3
 	)
 
-	modified := false
-	neighborCount := pond.getNeighborCount(organism)
-	// fmt.Printf(" neighborCount = %d\n", neighborCount)
-
-	// Test rules
-	if neighborCount < 0 {
-		// Rule #4
-		numLivingNeighbors := pond.calculateNeighborCount(organism)
-		if numLivingNeighbors == STD_REVIVE {
+	// Rule #4
+	/*
+		if numNeighbors < 0 && numNeighbors == STD_REVIVE {
 			// fmt.Printf("Reviving: %s\n", organism.String())
-			pond.setNeighborCount(organism, numLivingNeighbors)
-			modified = true
-		}
+			return true
 
-	} else if neighborCount < STD_UNDERPOPULATION || neighborCount > STD_OVERCROWDING {
+		} else
+	*/
+	if numNeighbors >= 0 &&
+		(numNeighbors < STD_UNDERPOPULATION || numNeighbors > STD_OVERCROWDING) {
 		// Rules #1 and #3
 		// fmt.Printf("Killing: %s\n", organism.String())
-		pond.setNeighborCount(organism, -1)
-		modified = true
+		return false
 	}
 
-	return modified
+	return true
 }

@@ -4,14 +4,27 @@ import "cgol"
 import "fmt"
 
 func main() {
-	s := cgol.NewStrategy("Standard,Orthogonal,Random",
-		cgol.NewPond(5, 20, cgol.NEIGHBORS_ORTHOGONAL),
-		func(pond *cgol.Pond) []cgol.GameboardLocation { return cgol.InitRandom(pond, 80) },
+	/*
+		random := cgol.NewStrategy("Standard,Random",
+			cgol.NewPond(5, 20, cgol.NEIGHBORS_ALL),
+			func(pond *cgol.Pond) []cgol.GameboardLocation { return cgol.InitRandom(pond, 80) },
+			cgol.Standard,
+			cgol.NewQueueProcessor())
+
+		fmt.Println("===== Starting random sim =====")
+		fmt.Print(random)
+
+		random.Start()
+	*/
+
+	blinkers := cgol.NewStrategy("Standard,Blinkers",
+		cgol.NewPond(3, 3, cgol.NEIGHBORS_ALL),
+		cgol.Blinkers,
 		cgol.Standard,
-		cgol.NewQueueProcessor())
+		cgol.SimultaneousProcessor)
 
-	fmt.Println("===== Starting the thing =====")
-	fmt.Print(s)
+	fmt.Println("===== Starting blinkers sim =====")
+	fmt.Print(blinkers)
 
-	s.Start()
+	blinkers.Start()
 }
