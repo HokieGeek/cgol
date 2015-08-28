@@ -26,5 +26,5 @@ func main() {
 	fmt.Println("===== Starting blinkers sim =====")
 	fmt.Print(blinkers)
 
-	blinkers.Start()
+	// blinkers.Start()
 }

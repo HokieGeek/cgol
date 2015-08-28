@@ -28,9 +28,9 @@ func Blinkers(pond *Pond) []GameboardLocation {
 	initialLiving := make([]GameboardLocation, 0)
 
 	// This is not how I'm doing it
-	initialLiving = append(initialLiving, GameboardLocation{X: 0, Y: 1})
+	initialLiving = append(initialLiving, GameboardLocation{X: 1, Y: 0})
 	initialLiving = append(initialLiving, GameboardLocation{X: 1, Y: 1})
-	initialLiving = append(initialLiving, GameboardLocation{X: 2, Y: 1})
+	initialLiving = append(initialLiving, GameboardLocation{X: 1, Y: 2})
 
 	// TODO: put in as many lengthx1 vertical lines as you can fit
 	// Period 1
@@ -58,8 +58,15 @@ func Blinkers(pond *Pond) []GameboardLocation {
 		numPerCol := pond.gameboard.Dims.Height / (LENGTH + 1)
 		// startingPoint := GameboardLocation{X: 1, Y: 1}
 
+		currentX := 1
 		for row := 0; row < numPerCol; row++ {
+			currentX += row * (LENGTH + 1)
+			currentY := 1
 			for col := 0; col < numPerRow; col++ {
+				currentY += col * (LENGTH + 1)
+				initialiLiving = append(initialLiving, GameboardLocation{X: currentX, Y: currentY-1})
+				initialiLiving = append(initialLiving, GameboardLocation{X: currentX, Y: currentY})
+				initialiLiving = append(initialLiving, GameboardLocation{X: currentX, Y: currentY+1})
 			}
 		}
 	*/

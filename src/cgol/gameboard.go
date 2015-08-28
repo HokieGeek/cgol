@@ -86,9 +86,9 @@ func (t *Gameboard) gameboard() {
 	for {
 		select {
 		case read := <-t.gameboardReads:
-			read.resp <- gameboard[read.loc.X][read.loc.Y]
+			read.resp <- gameboard[read.loc.Y][read.loc.X]
 		case write := <-t.gameboardWrites:
-			gameboard[write.loc.X][write.loc.Y] = write.val
+			gameboard[write.loc.Y][write.loc.X] = write.val
 			write.resp <- true
 		case snapshot := <-t.gameboardSnapshots:
 			snapshot.resp <- gameboard
@@ -124,26 +124,26 @@ func (t *Gameboard) GetOrthogonalNeighbors(location GameboardLocation) []Gameboa
 	neighbors := make([]GameboardLocation, 0)
 
 	// Determine the offsets
-	// ROWS = X, COLS = Y
-	left := location.Y - 1
-	right := location.Y + 1
-	above := location.X - 1
-	below := location.X + 1
+	// ROWS = Y, COLS = X
+	left := location.X - 1
+	right := location.X + 1
+	above := location.Y - 1
+	below := location.Y + 1
 
 	if above >= 0 {
-		neighbors = append(neighbors, GameboardLocation{X: above, Y: location.Y})
+		neighbors = append(neighbors, GameboardLocation{X: location.X, Y: above})
 	}
 
 	if below < t.Rows {
-		neighbors = append(neighbors, GameboardLocation{X: below, Y: location.Y})
+		neighbors = append(neighbors, GameboardLocation{X: location.X, Y: below})
 	}
 
 	if left >= 0 {
-		neighbors = append(neighbors, GameboardLocation{X: location.X, Y: left})
+		neighbors = append(neighbors, GameboardLocation{X: left, Y: location.Y})
 	}
 
 	if right < t.Cols {
-		neighbors = append(neighbors, GameboardLocation{X: location.X, Y: right})
+		neighbors = append(neighbors, GameboardLocation{X: right, Y: location.Y})
 	}
 
 	// fmt.Printf("GetOrthogonalNeighbors(%s): %v\n", location.String(), neighbors)
@@ -154,10 +154,10 @@ func (t *Gameboard) GetObliqueNeighbors(location GameboardLocation) []GameboardL
 	neighbors := make([]GameboardLocation, 0)
 
 	// Determine the offsets
-	above := location.X - 1
-	below := location.X + 1
-	left := location.Y - 1
-	right := location.Y + 1
+	left := location.X - 1
+	right := location.X + 1
+	above := location.Y - 1
+	below := location.Y + 1
 
 	if above >= 0 {
 		if left >= 0 {

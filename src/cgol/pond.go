@@ -55,7 +55,6 @@ type Pond struct {
 	NumLiving         int
 	Status            PondStatus
 	neighborsSelector NeighborsSelector
-	initialOrganisms  []GameboardLocation
 	living            map[int]map[int]GameboardLocation
 }
 
@@ -119,18 +118,9 @@ func (t *Pond) decrementNeighborCount(organism GameboardLocation) {
 
 func (t *Pond) init(initialLiving []GameboardLocation) {
 	// Initialize the first organisms and set their neighbor counts
-	t.initialOrganisms = append(t.initialOrganisms, initialLiving...)
-	for _, initialOrganism := range initialLiving {
-		t.setOrganismValue(initialOrganism, 0)
-	}
-	for _, initialOrganism := range initialLiving {
-		livingNeighborsCount := 0
-		for _, neighbor := range t.GetNeighbors(initialOrganism) {
-			if t.isOrganismAlive(neighbor) {
-				livingNeighborsCount++
-			}
-		}
-		t.setOrganismValue(initialOrganism, livingNeighborsCount)
+	for _, organism := range initialLiving {
+		// TODO: t.living[organism.Y][organism.X] = organism
+		t.setOrganismValue(organism, 0)
 	}
 }
 

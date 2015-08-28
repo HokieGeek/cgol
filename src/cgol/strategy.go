@@ -13,13 +13,14 @@ type StrategyStats struct {
 }
 
 type Strategy struct {
-	Label      string
-	Statistics StrategyStats
-	pond       *Pond
-	processor  func(pond *Pond, rules func(int, bool) bool)
-	ruleset    func(int, bool) bool
-	ticker     *time.Ticker
-	updateRate time.Duration
+	Label            string
+	Statistics       StrategyStats
+	pond             *Pond
+	processor        func(pond *Pond, rules func(int, bool) bool)
+	ruleset          func(int, bool) bool
+	initialOrganisms []GameboardLocation
+	ticker           *time.Ticker
+	updateRate       time.Duration
 }
 
 // FIXME: this method shouldn't exist at all, really
@@ -96,9 +97,9 @@ func NewStrategy(label string,
 	s.updateRate = time.Millisecond * 250
 
 	// Initialize the pond and schedule the currently living organisms
-	initialLiving := initializer(s.pond)
-	s.pond.init(initialLiving)
-	s.Statistics.OrganismsCreated = len(initialLiving)
+	s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond)...)
+	s.pond.init(s.initialOrganisms)
+	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
 
 	return s
 }
