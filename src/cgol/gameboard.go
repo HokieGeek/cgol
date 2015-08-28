@@ -27,6 +27,10 @@ type GameboardDims struct {
 	Width  int
 }
 
+func (t *GameboardDims) GetCapacity() int {
+	return t.Height * t.Width
+}
+
 func (t *GameboardDims) String() string {
 	var buf bytes.Buffer
 	buf.WriteString(strconv.Itoa(t.Height))
