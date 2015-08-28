@@ -72,26 +72,32 @@ func (t *Pond) GetNeighbors(organism GameboardLocation) []GameboardLocation {
 }
 
 func (t *Pond) isOrganismAlive(organism GameboardLocation) bool {
-	return (t.getOrganismValue(organism) >= 0)
+	return (t.GetOrganismValue(organism) >= 0)
 }
 
-func (t *Pond) getOrganismValue(organism GameboardLocation) int {
+func (t *Pond) GetNumLiving() int {
+	return len(t.living)
+}
+
+func (t *Pond) GetOrganismValue(organism GameboardLocation) int {
 	// fmt.Printf("\tgetNeighborCount(%s)\n", organism.String())
 	return t.gameboard.GetGameboardValue(organism)
 }
 
 func (t *Pond) setOrganismValue(organism GameboardLocation, numNeighbors int) {
 	// fmt.Printf("\tsetNeighborCount(%s, %d)\n", organism.String(), numNeighbors)
-	originalNumNeighbors := t.getOrganismValue(organism)
+	originalNumNeighbors := t.GetOrganismValue(organism)
 
 	// Write the value to the gameboard
 	t.gameboard.SetGameboardValue(organism, numNeighbors)
 
 	// Update the living count if organism changed living state
 	if originalNumNeighbors < 0 && numNeighbors >= 0 {
+		// TODO: add to 'living'
 		t.NumLiving++
 	} else if originalNumNeighbors >= 0 && numNeighbors < 0 {
 		t.NumLiving--
+		// TODO: remove from 'living'
 	}
 }
 
@@ -120,6 +126,7 @@ func (t *Pond) init(initialLiving []GameboardLocation) {
 	// Initialize the first organisms and set their neighbor counts
 	t.living = make(map[int]map[int]GameboardLocation)
 	for _, organism := range initialLiving {
+		// TODO: this logic needs to move into its own place function with channel accessors
 		_, keyExists := t.living[organism.Y]
 		if !keyExists {
 			t.living[organism.Y] = make(map[int]GameboardLocation)
