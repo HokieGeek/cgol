@@ -27,7 +27,7 @@ func Blinkers(gameboard *Gameboard) []GameboardLocation {
 
 	initialLiving := make([]GameboardLocation, 0)
 
-	// TODO: put in as many lengthx1 vertical lines as you can fit
+	// put in as many lengthx1 vertical lines as you can fit
 	// Period 1
 	// -1-
 	// -1-

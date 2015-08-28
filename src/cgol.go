@@ -24,7 +24,8 @@ func main() {
 		cgol.SimultaneousProcessor)
 
 	fmt.Println("===== Starting blinkers sim =====")
-	fmt.Print(blinkers)
+	fmt.Println(blinkers)
 
-	// blinkers.Start()
+	blinkers.Start()
+	fmt.Println(blinkers)
 }

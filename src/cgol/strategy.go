@@ -55,14 +55,14 @@ func (t *Strategy) Start() {
 	// t.processor.Schedule(t.pond.initialOrganisms)
 	// t.processor.Process(t.pond, t.ruleset)
 
-	t.ticker = time.NewTicker(t.updateRate)
-	for {
-		select {
-		case <-t.ticker.C:
-			t.process()
-			fmt.Println(t) // TODO: remove
-		}
-	}
+	// t.ticker = time.NewTicker(t.updateRate)
+	// for {
+	// 	select {
+	// 	case <-t.ticker.C:
+	t.process()
+	//  		fmt.Println(t) // TODO: remove
+	//  	}
+	//  }
 }
 
 func (t *Strategy) Stop() {
@@ -98,6 +98,7 @@ func NewStrategy(label string,
 
 	// Initialize the pond and schedule the currently living organisms
 	s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.gameboard)...)
+	fmt.Printf("NewStrategy(): initialOrganisms = %d\n", s.initialOrganisms)
 	s.pond.init(s.initialOrganisms)
 	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
 

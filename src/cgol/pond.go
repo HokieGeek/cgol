@@ -119,7 +119,7 @@ func (t *Pond) decrementNeighborCount(organism GameboardLocation) {
 func (t *Pond) init(initialLiving []GameboardLocation) {
 	// Initialize the first organisms and set their neighbor counts
 	for _, organism := range initialLiving {
-		// TODO: t.living[organism.Y][organism.X] = organism
+		// TODO (create the stuffs): t.living[organism.Y][organism.X] = organism
 		t.setOrganismValue(organism, 0)
 	}
 }

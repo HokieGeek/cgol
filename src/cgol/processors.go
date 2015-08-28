@@ -1,6 +1,9 @@
 package cgol
 
+import "fmt"
+
 func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
+	fmt.Printf("SimultaneousProcessor()\n")
 	// For each living organism, push to processing channel
 	//	calculate num neighbors
 	//	if living and over or under pop, push to kill channel and send neighbors to processing channel
@@ -20,6 +23,7 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 		}
 	}
 	numToProcess := len(pond.living)
+	fmt.Printf(" numToProcess = %d\n", numToProcess)
 
 	// Process the queue
 	for i := 0; i < numToProcess; i++ {
