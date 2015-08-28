@@ -83,7 +83,7 @@ func (t *Strategy) String() string {
 
 func NewStrategy(label string,
 	pond *Pond,
-	initializer func(*Pond) []GameboardLocation,
+	initializer func(*Gameboard) []GameboardLocation,
 	rules func(int, bool) bool,
 	processor func(pond *Pond, rules func(int, bool) bool)) *Strategy {
 	s := new(Strategy)
@@ -97,7 +97,7 @@ func NewStrategy(label string,
 	s.updateRate = time.Millisecond * 250
 
 	// Initialize the pond and schedule the currently living organisms
-	s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond)...)
+	s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.gameboard)...)
 	s.pond.init(s.initialOrganisms)
 	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
 
