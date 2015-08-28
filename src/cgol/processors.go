@@ -13,13 +13,14 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 		loc GameboardLocation
 		val int
 	}
-	modifiedOrganisms := make(chan ModifiedOrganism)
+	// modifiedOrganisms := make(chan ModifiedOrganism)
 	processingQueue := make(chan GameboardLocation)
 
 	// Add living organisms to processing queue
 	for _, row := range pond.living {
 		for _, organism := range row {
-			processingQueue <- organism
+			// processingQueue <- organism
+			fmt.Printf("DEBUG: processingQueue <- organism: %s\n", organism.String())
 		}
 	}
 	numToProcess := len(pond.living)
@@ -28,7 +29,9 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 	// Process the queue
 	for i := 0; i < numToProcess; i++ {
 		// Retrieve organism from channel, get its neighbors and see if it is alive
-		organism := <-processingQueue
+		// organism := <-processingQueue
+		organism := GameboardLocation{X: 1, Y: 1}
+		fmt.Printf("DEBUG: organism := <-processingQueue\n")
 		numNeighbors, neighbors := pond.calculateNeighborCount(organism)
 		currentlyAlive := pond.isOrganismAlive(organism)
 
@@ -39,14 +42,20 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 			pond.Status = Active
 
 			if organismStatus { // If is alive
-				modifiedOrganisms <- ModifiedOrganism{loc: organism, val: 0}
+				// modifiedOrganisms <- ModifiedOrganism{loc: organism, val: 0}
+				fmt.Printf("DEBUG: modifiedOrganisms <- ModifiedOrganism{loc: organism, val: 0}\n")
 				for _, neighbor := range neighbors {
-					processingQueue <- neighbor
+					// processingQueue <- neighbor
+					fmt.Printf("DEBUG: processingQueue <- neighbor: %s\n", neighbor.String())
 					numToProcess++
 				}
 			}
 		}
 	}
+	close(processingQueue)
+	// close(modifiedOrganisms)
+
+	// TODO: loop that handles modifiedOrganisms
 
 	if pond.NumLiving > 0 {
 		pond.Status = Stable
