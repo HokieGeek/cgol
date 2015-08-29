@@ -2,6 +2,7 @@ package main
 
 import "cgol"
 import "fmt"
+import "time"
 
 func main() {
 	/*
@@ -27,5 +28,7 @@ func main() {
 	fmt.Println(blinkers)
 
 	blinkers.Start()
+	time.Sleep(blinkers.UpdateRate * 2)
+	blinkers.Stop()
 	fmt.Println(blinkers)
 }

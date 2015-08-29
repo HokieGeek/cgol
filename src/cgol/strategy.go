@@ -15,19 +15,19 @@ type StrategyStats struct {
 type Strategy struct {
 	Label            string
 	Statistics       StrategyStats
+	UpdateRate       time.Duration
 	pond             *Pond
 	processor        func(pond *Pond, rules func(int, bool) bool)
 	ruleset          func(int, bool) bool
 	initialOrganisms []GameboardLocation
 	ticker           *time.Ticker
-	updateRate       time.Duration
 }
 
 // FIXME: this method shouldn't exist at all, really
 func (t *Strategy) process() {
 	// TODO: if have been stable for a while stop processing
 	// TODO: does this stuff belong here or in the processor?
-	// startingLivingCount := t.pond.NumLiving
+	// startingLivingCount := t.pond.GetNumLiving()
 
 	// Process any organisms that need to be
 	t.processor(t.pond, t.ruleset)
@@ -52,21 +52,18 @@ func (t *Strategy) process() {
 }
 
 func (t *Strategy) Start() {
-	// t.processor.Schedule(t.pond.initialOrganisms)
-	// t.processor.Process(t.pond, t.ruleset)
-
-	// t.ticker = time.NewTicker(t.updateRate)
-	// for {
-	// 	select {
-	// 	case <-t.ticker.C:
-	t.process()
-	//  		fmt.Println(t) // TODO: remove
-	//  	}
-	//  }
+	t.ticker = time.NewTicker(t.UpdateRate)
+	go func() {
+		for {
+			select {
+			case <-t.ticker.C:
+				t.process()
+			}
+		}
+	}()
 }
 
 func (t *Strategy) Stop() {
-	// t.processor.Stop()
 	t.ticker.Stop()
 }
 
@@ -94,7 +91,7 @@ func NewStrategy(label string,
 	s.ruleset = rules
 	s.processor = processor
 
-	s.updateRate = time.Millisecond * 250
+	s.UpdateRate = time.Millisecond * 250
 
 	// Initialize the pond and schedule the currently living organisms
 	s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.gameboard)...)
