@@ -1,6 +1,7 @@
 package cgol
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -23,28 +24,26 @@ func InitRandom(gameboard *Gameboard, percent int) []GameboardLocation {
 }
 
 func Blinkers(gameboard *Gameboard) []GameboardLocation {
-	const LENGTH = 4 // 3 for the line itself and 1 for the spacer
-
-	initialLiving := make([]GameboardLocation, 0)
-
 	// put in as many lengthx1 vertical lines as you can fit
 	// Period 1
-	// -1-
-	// -1-
-	// -1-
+	// -0-
+	// -0-
+	// -0-
 	// Period 2
 	// ---
-	// 111
+	// 000
 	// ---
 
-	numPerRow := gameboard.Dims.Width / LENGTH
-	numPerCol := gameboard.Dims.Height / LENGTH
+	const HEIGHT = 4 // 3 for the line itself and 1 for the spacer
+
+	numPerRow := gameboard.Dims.Width / HEIGHT
+	numPerCol := gameboard.Dims.Height / HEIGHT
 
 	// Special case for when the spacer is not needed
-	if numPerRow == 0 && gameboard.Dims.Height == 3 {
+	if numPerRow == 0 && gameboard.Dims.Height == HEIGHT-1 {
 		numPerRow = 1
 	}
-	if numPerCol == 0 && gameboard.Dims.Width == 3 {
+	if numPerCol == 0 && gameboard.Dims.Width == HEIGHT-1 {
 		numPerCol = 1
 	}
 
@@ -52,12 +51,13 @@ func Blinkers(gameboard *Gameboard) []GameboardLocation {
 	// fmt.Printf("numPerRow = %d\n", numPerRow)
 	// fmt.Printf("numPerCol = %d\n", numPerCol)
 
+	initialLiving := make([]GameboardLocation, 0)
 	currentY := 1
 	for row := 0; row < numPerCol; row++ {
-		currentY = (row * LENGTH) + 1
+		currentY = (row * HEIGHT) + 1
 		currentX := 1
 		for col := 0; col < numPerRow; col++ {
-			currentX = (col * LENGTH) + 1
+			currentX = (col * HEIGHT) + 1
 			// fmt.Printf("X: %d, Y: %d\n", currentX, currentY)
 			initialLiving = append(initialLiving, GameboardLocation{X: currentX, Y: currentY - 1})
 			initialLiving = append(initialLiving, GameboardLocation{X: currentX, Y: currentY})
@@ -69,17 +69,53 @@ func Blinkers(gameboard *Gameboard) []GameboardLocation {
 }
 
 func Toads(gameboard *Gameboard) []GameboardLocation {
-	initialLiving := make([]GameboardLocation, 0)
 
 	// TODO
 	// Period 1
-	// -111
-	// 111-
+	// -000
+	// 000-
 	// Period 2
-	// --1-
-	// 1--1
-	// 1--1
-	// -1--
+	// --0-
+	// 0--0
+	// 0--0
+	// -0--
+
+	const (
+		HEIGHT = 5
+	)
+
+	numPerRow := gameboard.Dims.Width / HEIGHT
+	numPerCol := gameboard.Dims.Height / HEIGHT
+
+	// Special case for when the spacer is not needed
+	if numPerRow == 0 && gameboard.Dims.Height == HEIGHT-1 {
+		numPerRow = 1
+	}
+	if numPerCol == 0 && gameboard.Dims.Width == HEIGHT-1 {
+		numPerCol = 1
+	}
+	fmt.Printf(">>>> numPerRow = %d\n", numPerRow)
+	fmt.Printf(">>>> numPerCol = %d\n", numPerCol)
+
+	initialLiving := make([]GameboardLocation, 0)
+
+	for row := 0; row < numPerCol; row++ {
+		currentY := (row * HEIGHT)
+
+		for col := 0; col < numPerRow; col++ {
+			currentX := (col * HEIGHT)
+			// fmt.Printf("X: %d, Y: %d\n", currentX, currentY)
+			// ROW 1
+			initialLiving = append(initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 1})
+			initialLiving = append(initialLiving, GameboardLocation{X: currentX + 2, Y: currentY + 1})
+			initialLiving = append(initialLiving, GameboardLocation{X: currentX + 3, Y: currentY + 1})
+			// ROW 2
+			initialLiving = append(initialLiving, GameboardLocation{X: currentX, Y: currentY + 2})
+			initialLiving = append(initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 2})
+			initialLiving = append(initialLiving, GameboardLocation{X: currentX + 2, Y: currentY + 2})
+		}
+
+	}
 
 	return initialLiving
 }
