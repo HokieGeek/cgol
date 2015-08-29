@@ -190,6 +190,19 @@ func (t *Gameboard) GetAllNeighbors(location GameboardLocation) []GameboardLocat
 	return neighbors
 }
 
+func (t *Gameboard) Equals(rhs *Gameboard) bool {
+	rhsSnapshot := rhs.getGameboardSnapshot()
+	thisSnapshot := t.getGameboardSnapshot()
+	for row := t.Dims.Height - 1; row >= 0; row-- {
+		for col := t.Dims.Width - 1; col >= 0; col-- {
+			if thisSnapshot[row][col] != rhsSnapshot[row][col] {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (t *Gameboard) String() string {
 	var buf bytes.Buffer
 
