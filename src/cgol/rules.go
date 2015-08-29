@@ -20,19 +20,16 @@ func Standard(numNeighbors int, isAlive bool) bool {
 	)
 
 	// Rule #4
-	/*
-		if numNeighbors < 0 && numNeighbors == STD_REVIVE {
-			// fmt.Printf("Reviving: %s\n", organism.String())
-			return true
+	if !isAlive && numNeighbors == STD_REVIVE {
+		// fmt.Printf("Reviving: %s\n", organism.String())
+		return true
 
-		} else
-	*/
-	if numNeighbors >= 0 &&
+	} else if numNeighbors >= 0 &&
 		(numNeighbors < STD_UNDERPOPULATION || numNeighbors > STD_OVERCROWDING) {
 		// Rules #1 and #3
 		// fmt.Printf("Killing: %s\n", organism.String())
 		return false
 	}
 
-	return true
+	return isAlive
 }

@@ -60,16 +60,14 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 
 	///// Start processing stuffs /////
 
-	// numToProcess := pond.GetNumLiving() // FIXME Is this correct?
 	fmt.Printf(" living = %v\n", pond.living)
-	// fmt.Printf(" numToProcess = %d\n", numToProcess)
 	processingQueue := make(chan GameboardLocation, pond.gameboard.Dims.GetCapacity()+pond.GetNumLiving()+10)
 	// processingQueue := make(chan GameboardLocation)
 	doneProcessing := make(chan bool, 1)
 
 	// Process the queue
 	go func() {
-		for { //i := 0; i < numToProcess; i++ {
+		for {
 			// Retrieve organism from channel, get its neighbors and see if it is alive
 			organism, more := <-processingQueue
 			if more {
@@ -122,8 +120,7 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 			// Now process the neighbors!
 			_, neighbors := pond.calculateNeighborCount(organism)
 			for _, neighbor := range neighbors {
-				// processingQueue <- neighbor
-				// numToProcess++
+				processingQueue <- neighbor
 				fmt.Printf("    > processingQueue <- neighbor: %s\n", neighbor.String())
 			}
 		}
