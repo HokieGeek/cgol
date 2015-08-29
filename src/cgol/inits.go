@@ -1,7 +1,7 @@
 package cgol
 
 import (
-	"fmt"
+	// "fmt"
 	"math/rand"
 	"time"
 )
@@ -70,7 +70,6 @@ func Blinkers(gameboard *Gameboard) []GameboardLocation {
 
 func Toads(gameboard *Gameboard) []GameboardLocation {
 
-	// TODO
 	// Period 1
 	// -000
 	// 000-
@@ -94,8 +93,8 @@ func Toads(gameboard *Gameboard) []GameboardLocation {
 	if numPerCol == 0 && gameboard.Dims.Width == HEIGHT-1 {
 		numPerCol = 1
 	}
-	fmt.Printf(">>>> numPerRow = %d\n", numPerRow)
-	fmt.Printf(">>>> numPerCol = %d\n", numPerCol)
+	// fmt.Printf(">>>> numPerRow = %d\n", numPerRow)
+	// fmt.Printf(">>>> numPerCol = %d\n", numPerCol)
 
 	initialLiving := make([]GameboardLocation, 0)
 
