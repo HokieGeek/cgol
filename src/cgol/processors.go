@@ -1,12 +1,14 @@
 package cgol
 
 import (
+	"io/ioutil"
 	"log"
-	"os"
+	// "os"
 )
 
 func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
-	logger := log.New(os.Stderr, "DEBUG: ", log.Ltime)
+	// logger := log.New(os.Stderr, "DEBUG: ", log.Ltime)
+	logger := log.New(ioutil.Discard, "DEBUG: ", log.Ltime)
 	logger.Printf("SimultaneousProcessor()\n")
 	// For each living organism, push to processing channel
 	//	calculate num neighbors
@@ -15,14 +17,6 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 
 	// Blocks the completion of this function
 	done := make(chan bool, 1)
-
-	////// Ensures no duplication occurs /////
-	type ProcessingCandidate struct {
-		loc  GameboardLocation
-		resp chan bool
-	}
-	go func() {
-	}()
 
 	////// Modifications handler /////
 	type ModifiedOrganism struct {
@@ -108,13 +102,11 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 				}
 
 				// Now process the neighbors!
-				/*
-					for _, neighbor := range neighbors {
-						// processingQueue <- neighbor
-						// numToProcess++
-						logger.Printf("TODO   processingQueue <- neighbor: %s\n", neighbor.String())
-					}
-				*/
+				// TODO: make this work. Need to somehow figure out when to close the channel
+				// for _, neighbor := range neighbors {
+				// 	processingQueue <- neighbor
+				// 	logger.Printf("    > processingQueue <- neighbor: %s\n", neighbor.String())
+				// }
 			} else {
 				logger.Printf("   No longer processing organisms\n")
 				close(queueModification)
@@ -123,6 +115,19 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 			}
 		}
 	}()
+
+	////// Ensures no duplication occurs /////
+	/*
+		type ProcessingCandidate struct {
+			loc  GameboardLocation
+			resp chan bool
+		}
+		queueForProcessing := make(chan ProcessingCandidate, pond.gameboard.Dims.GetCapacity()*2)
+		go func() {
+			for {
+			}
+		}()
+	*/
 
 	// Add living organisms to processing queue
 	logger.Printf("processing >%d living< organisms\n", len(pond.living))
