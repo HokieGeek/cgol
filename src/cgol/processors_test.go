@@ -28,6 +28,7 @@ func TestProcessorSimultaneousStandardBlinker(t *testing.T) {
 	}
 }
 
+/*
 func TestProcessorSimultaneousStandardToad(t *testing.T) {
 	size := GameboardDims{Height: 4, Width: 4}
 
@@ -59,3 +60,4 @@ func TestProcessorSimultaneousStandardToad(t *testing.T) {
 		t.FailNow()
 	}
 }
+*/
