@@ -6,7 +6,8 @@ bin/cgol: src/cgol.go src/cgol/pond.go src/cgol/inits.go src/cgol/rules.go src/c
 	go build -o $@ src/cgol.go 
 
 test:
-	go test cgol
+	@echo "[Running unit tests]"
+	@go test cgol
 
 clean:
 	rm -rf bin
