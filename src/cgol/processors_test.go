@@ -33,36 +33,57 @@ func generateBlinkers() (GameboardDims, func(GameboardDims) []GameboardLocation,
 	size := GameboardDims{Height: 3, Width: 3}
 
 	// Build the expected gameboard
-	expected := NewGameboard(size)
+	expected := make([]*Gameboard, 2)
+
+	// Period 2
+	expected[0] = NewGameboard(size)
 	for i := 0; i < 3; i++ {
-		expected.SetValue(GameboardLocation{X: 1, Y: i}, 0)
+		expected[0].SetValue(GameboardLocation{X: 1, Y: i}, 0)
 	}
 
-	return size, Blinkers, []*Gameboard{expected}
+	// Period 1
+	expected[1] = NewGameboard(size)
+	for _, val := range Blinkers(size) {
+		expected[1].SetValue(val, 0)
+	}
+
+	return size, Blinkers, expected
 }
 
 func generateToads() (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 4, Width: 4}
 
 	// Build the expected gameboard
-	expected := NewGameboard(size)
-	expected.SetValue(GameboardLocation{X: 2, Y: 0}, 0)
+	expected := make([]*Gameboard, 2)
+
+	// Period 2
+	expected[0] = NewGameboard(size)
+	expected[0].SetValue(GameboardLocation{X: 2, Y: 0}, 0)
 
 	for row := 1; row <= 2; row++ {
-		expected.SetValue(GameboardLocation{X: 0, Y: row}, 0)
-		expected.SetValue(GameboardLocation{X: 3, Y: row}, 0)
+		expected[0].SetValue(GameboardLocation{X: 0, Y: row}, 0)
+		expected[0].SetValue(GameboardLocation{X: 3, Y: row}, 0)
 	}
 
-	expected.SetValue(GameboardLocation{X: 1, Y: 3}, 0)
+	expected[0].SetValue(GameboardLocation{X: 1, Y: 3}, 0)
 
-	return size, Toads, []*Gameboard{expected}
+	// Period 1
+	expected[1] = NewGameboard(size)
+	for _, val := range Toads(size) {
+		expected[1].SetValue(val, 0)
+	}
+
+	return size, Toads, expected
 }
 
 func generateBeacons() (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 4, Width: 4}
 
 	// Build the expected gameboard
-	expected := NewGameboard(size)
+	expected := make([]*Gameboard, 2)
+
+	// Period 2
+	expected[0] = NewGameboard(size)
 	for row := 0; row < 4; row++ {
 		adjust := 0
 		if row == 2 || row == 3 {
@@ -70,18 +91,24 @@ func generateBeacons() (GameboardDims, func(GameboardDims) []GameboardLocation, 
 		}
 
 		for i := 0; i < 2; i++ {
-			expected.SetValue(GameboardLocation{X: i + adjust, Y: row}, 0)
+			expected[0].SetValue(GameboardLocation{X: i + adjust, Y: row}, 0)
 		}
 	}
 
-	return size, Beacons, []*Gameboard{expected}
+	// Period 1
+	expected[1] = NewGameboard(size)
+	for _, val := range Beacons(size) {
+		expected[1].SetValue(val, 0)
+	}
+
+	return size, Beacons, expected
 }
 
 func generatePulsar() (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 15, Width: 15}
 
 	// Build the expected gameboard
-	expected := make([]*Gameboard, 2)
+	expected := make([]*Gameboard, 3)
 
 	// Period 2
 	expected[0] = NewGameboard(size)
@@ -157,6 +184,12 @@ func generatePulsar() (GameboardDims, func(GameboardDims) []GameboardLocation, [
 		}
 	}
 
+	// Period 1
+	expected[2] = NewGameboard(size)
+	for _, val := range Pulsar(size) {
+		expected[2].SetValue(val, 0)
+	}
+
 	return size, Pulsar, expected
 }
 
@@ -164,14 +197,18 @@ func generateBlocks() (GameboardDims, func(GameboardDims) []GameboardLocation, [
 	size := GameboardDims{Height: 4, Width: 4}
 
 	// Build the expected gameboard
-	expected := NewGameboard(size)
-	for row := 0; row < 2; row++ {
-		for col := 0; col < 2; col++ {
-			expected.SetValue(GameboardLocation{X: col, Y: row}, 0)
+	expected := make([]*Gameboard, 4)
+
+	for period := 0; period < len(expected); period++ {
+		expected[period] = NewGameboard(size)
+		for row := 0; row < 2; row++ {
+			for col := 0; col < 2; col++ {
+				expected[period].SetValue(GameboardLocation{X: col, Y: row}, 0)
+			}
 		}
 	}
 
-	return size, Blocks, []*Gameboard{expected}
+	return size, Blocks, expected
 }
 
 //////////////////////// Simultaneous processor ////////////////////////
