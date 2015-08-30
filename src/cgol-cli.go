@@ -48,30 +48,22 @@ func main() {
 		random.Start()
 	*/
 
-	fmt.Println("===== Starting blinkers sim =====")
-	blinkers := cgol.NewStrategy("Standard,Blinkers",
-		cgol.NewPond(9, 9, cgol.NEIGHBORS_ALL),
-		cgol.Blinkers,
-		cgol.Standard,
-		cgol.SimultaneousProcessor)
-	displayPond(blinkers)
-
 	/*
-		fmt.Println("===== Starting toads sim =====")
-		toads := cgol.NewStrategy("Standard,Toads",
-			// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
-			cgol.NewPond(4, 4, cgol.NEIGHBORS_ALL),
-			cgol.Toads,
+		fmt.Println("===== Starting blinkers sim =====")
+		blinkers := cgol.NewStrategy("Standard,Blinkers",
+			cgol.NewPond(9, 9, cgol.NEIGHBORS_ALL),
+			cgol.Blinkers,
 			cgol.Standard,
 			cgol.SimultaneousProcessor)
-		// displayPond(toads)
+		displayPond(blinkers)
 	*/
 
-	/*
-		fmt.Println(toads)
-		toads.Start()
-		time.Sleep(toads.UpdateRate * 1)
-		toads.Stop()
-		fmt.Println(toads)
-	*/
+	fmt.Println("===== Starting toads sim =====")
+	toads := cgol.NewStrategy("Standard,Toads",
+		// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
+		cgol.NewPond(4, 4, cgol.NEIGHBORS_ALL),
+		cgol.Toads,
+		cgol.Standard,
+		cgol.SimultaneousProcessor)
+	displayPond(toads)
 }

@@ -24,11 +24,12 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 		val int
 	}
 
-	modifications := make(chan ModifiedOrganism, pond.gameboard.Dims.GetCapacity())
+	modifications := make(chan ModifiedOrganism, pond.gameboard.Dims.GetCapacity()*2)
 	blockModifications := make(chan bool, 1)
 	numModifications := 0
 
-	queueModification := make(chan ModifiedOrganism)
+	// queueModification := make(chan ModifiedOrganism)
+	queueModification := make(chan ModifiedOrganism, pond.gameboard.Dims.GetCapacity()*2)
 	go func() {
 		for {
 			mod, more := <-queueModification
