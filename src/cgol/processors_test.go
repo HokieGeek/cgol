@@ -2,25 +2,39 @@ package cgol
 
 import "testing"
 
-func testProcessorSimultaneousRulesConwayLife(t *testing.T,
+func testProcessor(t *testing.T,
+	processor func(pond *Pond, rules func(int, bool) bool),
+	rules func(int, bool) bool,
 	size GameboardDims,
 	init func(GameboardDims) []GameboardLocation,
-	expected *Gameboard,
-	numGenerations int) {
+	expected []Gameboard) {
 
 	// Build the initial pond
 	pond := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
 	pond.init(init(size))
 
 	// Go through one generation
-	for i := 0; i < numGenerations; i++ {
-		SimultaneousProcessor(pond, RulesConwayLife)
-	}
+	for i := 0; i < len(expected); i++ {
+		processor(pond, rules)
 
-	// Compare the pond with the expected version
-	if !pond.gameboard.Equals(expected) {
-		t.Fatalf("Actual gameboard:\n%s\ndoes not match expected:\n%s\n", pond.gameboard.String(), expected.String())
+		// Compare the pond with the expected version
+		if !pond.gameboard.Equals(&expected[i]) {
+			t.Fatalf("Actual gameboard:\n%s\ndoes not match expected:\n%s\n", pond.gameboard.String(), expected[i].String())
+		}
 	}
+}
+
+func testProcessorSimultaneousRulesConwayLife(t *testing.T,
+	size GameboardDims,
+	init func(GameboardDims) []GameboardLocation,
+	expected []Gameboard) {
+
+	testProcessor(t,
+		SimultaneousProcessor,
+		RulesConwayLife,
+		size,
+		init,
+		expected)
 }
 
 func TestProcessorSimultaneousRulesConwayLifeBlinker(t *testing.T) {
@@ -32,7 +46,7 @@ func TestProcessorSimultaneousRulesConwayLifeBlinker(t *testing.T) {
 	expected.SetValue(GameboardLocation{X: 1, Y: 1}, 0)
 	expected.SetValue(GameboardLocation{X: 2, Y: 1}, 0)
 
-	testProcessorSimultaneousRulesConwayLife(t, size, Blinkers, expected, 1)
+	testProcessorSimultaneousRulesConwayLife(t, size, Blinkers, []Gameboard{*expected})
 }
 
 func TestProcessorSimultaneousRulesConwayLifeToad(t *testing.T) {
@@ -47,7 +61,7 @@ func TestProcessorSimultaneousRulesConwayLifeToad(t *testing.T) {
 	expected.SetValue(GameboardLocation{X: 3, Y: 2}, 0)
 	expected.SetValue(GameboardLocation{X: 1, Y: 3}, 0)
 
-	testProcessorSimultaneousRulesConwayLife(t, size, Toads, expected, 1)
+	testProcessorSimultaneousRulesConwayLife(t, size, Toads, []Gameboard{*expected})
 }
 
 func TestProcessorSimultaneousRulesConwayLifeBeacon(t *testing.T) {
@@ -64,7 +78,7 @@ func TestProcessorSimultaneousRulesConwayLifeBeacon(t *testing.T) {
 	expected.SetValue(GameboardLocation{X: 2, Y: 3}, 0)
 	expected.SetValue(GameboardLocation{X: 3, Y: 3}, 0)
 
-	testProcessorSimultaneousRulesConwayLife(t, size, Beacons, expected, 1)
+	testProcessorSimultaneousRulesConwayLife(t, size, Beacons, []Gameboard{*expected})
 }
 
 func TestProcessorSimultaneousRulesConwayLifeBlock(t *testing.T) {
@@ -77,5 +91,5 @@ func TestProcessorSimultaneousRulesConwayLifeBlock(t *testing.T) {
 	expected.SetValue(GameboardLocation{X: 0, Y: 1}, 0)
 	expected.SetValue(GameboardLocation{X: 1, Y: 1}, 0)
 
-	testProcessorSimultaneousRulesConwayLife(t, size, Blocks, expected, 1)
+	testProcessorSimultaneousRulesConwayLife(t, size, Blocks, []Gameboard{*expected})
 }

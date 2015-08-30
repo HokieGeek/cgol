@@ -10,6 +10,16 @@ type GameboardLocation struct {
 	Y int
 }
 
+func (t *GameboardLocation) Equals(rhs *GameboardLocation) bool {
+	if t.X != rhs.X {
+		return false
+	}
+	if t.Y != rhs.Y {
+		return false
+	}
+	return true
+}
+
 func (t *GameboardLocation) String() string {
 	var buf bytes.Buffer
 	buf.WriteString("[")

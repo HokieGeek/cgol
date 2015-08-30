@@ -143,12 +143,12 @@ func (t *Pond) String() string {
 func NewPond(rows int, cols int, neighbors NeighborsSelector) *Pond {
 	p := new(Pond)
 
-	// Default values
+	// Create values
 	p.NumLiving = 0
 	p.Status = Active
-	p.gameboard = NewGameboard(GameboardDims{Height: rows, Width: cols})
 
 	// Add the given values
+	p.gameboard = NewGameboard(GameboardDims{Height: rows, Width: cols})
 	p.neighborsSelector = neighbors
 
 	return p
