@@ -24,7 +24,7 @@ func TestProcessorSimultaneousStandardBlinker(t *testing.T) {
 
 	// Compare the pond with the expected version
 	if !pond.gameboard.Equals(expected) {
-		t.FailNow()
+		t.Fatalf("Actual gameboard:\n%s\ndoes not match expected:\n%s\n", pond.gameboard.String(), expected.String())
 	}
 }
 
@@ -57,7 +57,7 @@ func TestProcessorSimultaneousStandardToad(t *testing.T) {
 
 	// Compare the pond with the expected version
 	if !pond.gameboard.Equals(expected) {
-		t.FailNow()
+		t.Fatalf("Actual gameboard:\n%s\ndoes not match expected:\n%s\n", pond.gameboard.String(), expected.String())
 	}
 }
 */
