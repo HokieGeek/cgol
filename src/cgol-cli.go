@@ -77,4 +77,16 @@ func main() {
 			cgol.SimultaneousProcessor)
 		displayPond(beacons)
 	*/
+
+	/*
+		fmt.Println("===== Starting pulsa sim =====")
+		pulsar := cgol.NewStrategy("RulesConwayLife,Pulsar",
+			// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
+			cgol.NewPond(15, 15, cgol.NEIGHBORS_ALL),
+			cgol.Pulsar,
+			cgol.RulesConwayLife,
+			cgol.SimultaneousProcessor)
+		displayPond(pulsar)
+	*/
+	// fmt.Print(pulsar)
 }
