@@ -2,7 +2,6 @@ package cgol
 
 import (
 	"bytes"
-	// "fmt"
 	"strconv"
 )
 
@@ -21,7 +20,6 @@ func (t *GameboardLocation) String() string {
 	return buf.String()
 }
 
-// TODO: make use of this
 type GameboardDims struct {
 	Height int
 	Width  int
@@ -55,8 +53,6 @@ type gameboardWriteOp struct {
 }
 
 type Gameboard struct {
-	Rows               int
-	Cols               int
 	Dims               GameboardDims
 	gameboardReads     chan *gameboardReadOp
 	gameboardWrites    chan *gameboardWriteOp
@@ -65,12 +61,12 @@ type Gameboard struct {
 
 func (t *Gameboard) gameboard() {
 	// Initialize the gameboard
-	var gameboard = make([][]int, t.Rows)
-	completion := make(chan bool, t.Rows)
-	for i := 0; i < t.Rows; i++ {
+	var gameboard = make([][]int, t.Dims.Height)
+	completion := make(chan bool, t.Dims.Height)
+	for i := 0; i < t.Dims.Height; i++ {
 		go func(row int, c chan bool) {
-			gameboard[row] = make([]int, t.Cols)
-			for j := 0; j < t.Cols; j++ {
+			gameboard[row] = make([]int, t.Dims.Width)
+			for j := 0; j < t.Dims.Width; j++ {
 				gameboard[row][j] = -1
 			}
 			c <- true
@@ -80,7 +76,7 @@ func (t *Gameboard) gameboard() {
 	for c := range completion {
 		if c {
 			completed++
-			if completed >= t.Rows {
+			if completed >= t.Dims.Height {
 				close(completion)
 			}
 		}
@@ -100,35 +96,31 @@ func (t *Gameboard) gameboard() {
 	}
 }
 
-func (t *Gameboard) GetGameboardValue(location GameboardLocation) int {
-	// fmt.Printf("\tGetGameboardValue(%s)\n", location.String())
+func (t *Gameboard) GetValue(location GameboardLocation) int {
 	read := &gameboardReadOp{loc: location, resp: make(chan int)}
 	t.gameboardReads <- read
 	val := <-read.resp
 	return val
 }
 
-func (t *Gameboard) getGameboardSnapshot() [][]int {
+func (t *Gameboard) getSnapshot() [][]int {
 	snapshot := &gameboardSnapshotOp{resp: make(chan [][]int)}
 	t.gameboardSnapshots <- snapshot
 	val := <-snapshot.resp
 	return val
 }
 
-func (t *Gameboard) SetGameboardValue(location GameboardLocation, val int) {
-	// fmt.Printf("\tSetGameboardValue(%s, %d)\n", location.String(), val)
+func (t *Gameboard) SetValue(location GameboardLocation, val int) {
 	// Write the value to the gameboard
 	write := &gameboardWriteOp{loc: location, val: val, resp: make(chan bool)}
 	t.gameboardWrites <- write
 	<-write.resp
 }
 
-// FIXME: using X for row and Y for col is idiotic
 func (t *Gameboard) GetOrthogonalNeighbors(location GameboardLocation) []GameboardLocation {
 	neighbors := make([]GameboardLocation, 0)
 
 	// Determine the offsets
-	// ROWS = Y, COLS = X
 	left := location.X - 1
 	right := location.X + 1
 	above := location.Y - 1
@@ -138,7 +130,7 @@ func (t *Gameboard) GetOrthogonalNeighbors(location GameboardLocation) []Gameboa
 		neighbors = append(neighbors, GameboardLocation{X: location.X, Y: above})
 	}
 
-	if below < t.Rows {
+	if below < t.Dims.Height {
 		neighbors = append(neighbors, GameboardLocation{X: location.X, Y: below})
 	}
 
@@ -146,7 +138,7 @@ func (t *Gameboard) GetOrthogonalNeighbors(location GameboardLocation) []Gameboa
 		neighbors = append(neighbors, GameboardLocation{X: left, Y: location.Y})
 	}
 
-	if right < t.Cols {
+	if right < t.Dims.Width {
 		neighbors = append(neighbors, GameboardLocation{X: right, Y: location.Y})
 	}
 
@@ -167,16 +159,16 @@ func (t *Gameboard) GetObliqueNeighbors(location GameboardLocation) []GameboardL
 		if left >= 0 {
 			neighbors = append(neighbors, GameboardLocation{X: left, Y: above})
 		}
-		if right < t.Cols {
+		if right < t.Dims.Width {
 			neighbors = append(neighbors, GameboardLocation{X: right, Y: above})
 		}
 	}
 
-	if below < t.Rows {
+	if below < t.Dims.Height {
 		if left >= 0 {
 			neighbors = append(neighbors, GameboardLocation{X: left, Y: below})
 		}
-		if right < t.Cols {
+		if right < t.Dims.Width {
 			neighbors = append(neighbors, GameboardLocation{X: right, Y: below})
 		}
 	}
@@ -191,8 +183,8 @@ func (t *Gameboard) GetAllNeighbors(location GameboardLocation) []GameboardLocat
 }
 
 func (t *Gameboard) Equals(rhs *Gameboard) bool {
-	rhsSnapshot := rhs.getGameboardSnapshot()
-	thisSnapshot := t.getGameboardSnapshot()
+	rhsSnapshot := rhs.getSnapshot()
+	thisSnapshot := t.getSnapshot()
 	for row := t.Dims.Height - 1; row >= 0; row-- {
 		for col := t.Dims.Width - 1; col >= 0; col-- {
 			if thisSnapshot[row][col] != rhsSnapshot[row][col] {
@@ -207,15 +199,15 @@ func (t *Gameboard) String() string {
 	var buf bytes.Buffer
 
 	buf.WriteString("Gameboard size: ")
-	buf.WriteString(strconv.Itoa(t.Rows))
+	buf.WriteString(strconv.Itoa(t.Dims.Height))
 	buf.WriteString("x")
-	buf.WriteString(strconv.Itoa(t.Cols))
+	buf.WriteString(strconv.Itoa(t.Dims.Width))
 	buf.WriteString("\n")
 
 	// Draw out the matrix
-	snapshot := t.getGameboardSnapshot()
-	for i := 0; i < t.Rows; i++ {
-		for j := 0; j < t.Cols; j++ {
+	snapshot := t.getSnapshot()
+	for i := 0; i < t.Dims.Height; i++ {
+		for j := 0; j < t.Dims.Width; j++ {
 			val := snapshot[i][j]
 			if val >= 0 {
 				buf.WriteString(strconv.Itoa(val))
@@ -232,8 +224,6 @@ func (t *Gameboard) String() string {
 func NewGameboard(dims GameboardDims) *Gameboard {
 	g := new(Gameboard)
 	g.Dims = dims
-	g.Rows = dims.Height
-	g.Cols = dims.Width
 
 	// Initialize the gameboard and its channels
 	g.gameboardReads = make(chan *gameboardReadOp)

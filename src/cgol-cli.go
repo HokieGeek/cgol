@@ -37,10 +37,10 @@ func displayPond(strategy *cgol.Strategy) {
 func main() {
 	/*
 		fmt.Println("===== Starting random sim =====")
-		random := cgol.NewStrategy("Standard,Random",
+		random := cgol.NewStrategy("RulesConwayLife,Random",
 			cgol.NewPond(5, 20, cgol.NEIGHBORS_ALL),
-			func(pond *cgol.Pond) []cgol.GameboardLocation { return cgol.InitRandom(pond, 80) },
-			cgol.Standard,
+			func(dimensions *GameboardDims) []cgol.GameboardLocation { return cgol.InitRandom(dimensions, 80) },
+			cgol.RulesConwayLife,
 			cgol.NewQueueProcessor())
 
 		fmt.Print(random)
@@ -50,20 +50,31 @@ func main() {
 
 	/*
 		fmt.Println("===== Starting blinkers sim =====")
-		blinkers := cgol.NewStrategy("Standard,Blinkers",
+		blinkers := cgol.NewStrategy("RulesConwayLife,Blinkers",
 			cgol.NewPond(9, 9, cgol.NEIGHBORS_ALL),
 			cgol.Blinkers,
-			cgol.Standard,
+			cgol.RulesConwayLife,
 			cgol.SimultaneousProcessor)
 		displayPond(blinkers)
 	*/
 
 	fmt.Println("===== Starting toads sim =====")
-	toads := cgol.NewStrategy("Standard,Toads",
+	toads := cgol.NewStrategy("RulesConwayLife,Toads",
 		// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
 		cgol.NewPond(4, 4, cgol.NEIGHBORS_ALL),
 		cgol.Toads,
-		cgol.Standard,
+		cgol.RulesConwayLife,
 		cgol.SimultaneousProcessor)
 	displayPond(toads)
+
+	/*
+		fmt.Println("===== Starting beacons sim =====")
+		beacons := cgol.NewStrategy("RulesConwayLife,Beacons",
+			// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
+			cgol.NewPond(4, 4, cgol.NEIGHBORS_ALL),
+			cgol.Beacons,
+			cgol.RulesConwayLife,
+			cgol.SimultaneousProcessor)
+		displayPond(beacons)
+	*/
 }

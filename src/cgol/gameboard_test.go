@@ -21,7 +21,7 @@ func TestGameboardCreation(t *testing.T) {
 	}
 
 	// Now check the size of the gameboard itself
-	snapshot := gameboard.getGameboardSnapshot()
+	snapshot := gameboard.getSnapshot()
 	if len(snapshot) != size.Height {
 		t.Fatal("The gameboard is not the correct number of rows")
 	}
@@ -39,13 +39,13 @@ func TestGameboardSettingValue(t *testing.T) {
 	// Set a good value and retrieve it
 	loc := GameboardLocation{X: 0, Y: 0}
 	testVal := 42
-	gameboard.SetGameboardValue(loc, testVal)
+	gameboard.SetValue(loc, testVal)
 
-	realVal := gameboard.GetGameboardValue(loc)
+	realVal := gameboard.GetValue(loc)
 	if realVal != testVal {
 		t.Fatalf("Found value %d but expected %d\n", realVal, testVal)
 	}
 
 	// Attempt to retrieve from a non-existent location
-	// TODO: gameboard.GetGameboardValue(GameboardLocation{X: 1, Y: 1})
+	// TODO: gameboard.GetValue(GameboardLocation{X: 1, Y: 1})
 }

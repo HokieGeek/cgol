@@ -2,14 +2,13 @@ package cgol
 
 import (
 	"bytes"
-	"fmt"
 	"time"
 )
 
 type StrategyStats struct {
 	OrganismsCreated int
 	OrganismsKilled  int
-	Iterations       int
+	Generations      int
 }
 
 type Strategy struct {
@@ -23,10 +22,7 @@ type Strategy struct {
 	ticker           *time.Ticker
 }
 
-// FIXME: this method shouldn't exist at all, really
 func (t *Strategy) process() {
-	// TODO: if have been stable for a while stop processing
-	// TODO: does this stuff belong here or in the processor?
 	// startingLivingCount := t.pond.GetNumLiving()
 
 	// Process any organisms that need to be
@@ -34,7 +30,7 @@ func (t *Strategy) process() {
 
 	// Update the pond's statistics
 	// if stillProcessing {
-	// 	t.Statistics.Iterations++
+	t.Statistics.Generations++
 
 	// 	// Update the statistics
 	// 	organismsDelta := t.pond.NumLiving - startingLivingCount
@@ -77,7 +73,6 @@ func (t *Strategy) String() string {
 	buf.WriteString("[")
 	buf.WriteString(t.Label)
 	buf.WriteString("]\n")
-	// TODO: fmt.Printf("Ruleset: %s\n", t.ruleset)
 	buf.WriteString(t.pond.String())
 
 	return buf.String()
@@ -85,7 +80,7 @@ func (t *Strategy) String() string {
 
 func NewStrategy(label string,
 	pond *Pond,
-	initializer func(*Gameboard) []GameboardLocation,
+	initializer func(GameboardDims) []GameboardLocation,
 	rules func(int, bool) bool,
 	processor func(pond *Pond, rules func(int, bool) bool)) *Strategy {
 	s := new(Strategy)
@@ -99,8 +94,7 @@ func NewStrategy(label string,
 	s.UpdateRate = time.Millisecond * 250
 
 	// Initialize the pond and schedule the currently living organisms
-	s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.gameboard)...)
-	fmt.Printf("NewStrategy(): initialOrganisms = %d\n", s.initialOrganisms)
+	s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.gameboard.Dims)...)
 	s.pond.init(s.initialOrganisms)
 	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
 
