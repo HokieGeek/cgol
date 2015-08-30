@@ -51,13 +51,14 @@ func (t *Strategy) process() {
 	}
 }
 
-func (t *Strategy) Start() {
+func (t *Strategy) Start(updateAlert chan bool) {
 	t.ticker = time.NewTicker(t.UpdateRate)
 	go func() {
 		for {
 			select {
 			case <-t.ticker.C:
 				t.process()
+				updateAlert <- true
 			}
 		}
 	}()
@@ -65,6 +66,10 @@ func (t *Strategy) Start() {
 
 func (t *Strategy) Stop() {
 	t.ticker.Stop()
+}
+
+func (t *Strategy) GetPondDims() GameboardDims {
+	return t.pond.gameboard.Dims
 }
 
 func (t *Strategy) String() string {
