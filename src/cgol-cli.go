@@ -60,8 +60,7 @@ func main() {
 
 	fmt.Println("===== Starting toads sim =====")
 	toads := cgol.NewStrategy("RulesConwayLife,Toads",
-		// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
-		cgol.NewPond(4, 4, cgol.NEIGHBORS_ALL),
+		cgol.NewPond(10, 10, cgol.NEIGHBORS_ALL),
 		cgol.Toads,
 		cgol.RulesConwayLife,
 		cgol.SimultaneousProcessor)

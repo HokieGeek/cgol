@@ -34,9 +34,9 @@ func generateBlinkers() (GameboardDims, func(GameboardDims) []GameboardLocation,
 
 	// Build the expected gameboard
 	expected := NewGameboard(size)
-	expected.SetValue(GameboardLocation{X: 0, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 1, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 2, Y: 1}, 0)
+	for i := 0; i < 3; i++ {
+		expected.SetValue(GameboardLocation{X: 1, Y: i}, 0)
+	}
 
 	return size, Blinkers, []*Gameboard{expected}
 }
@@ -47,10 +47,12 @@ func generateToads() (GameboardDims, func(GameboardDims) []GameboardLocation, []
 	// Build the expected gameboard
 	expected := NewGameboard(size)
 	expected.SetValue(GameboardLocation{X: 2, Y: 0}, 0)
-	expected.SetValue(GameboardLocation{X: 0, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 3, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 0, Y: 2}, 0)
-	expected.SetValue(GameboardLocation{X: 3, Y: 2}, 0)
+
+	for row := 1; row <= 2; row++ {
+		expected.SetValue(GameboardLocation{X: 0, Y: row}, 0)
+		expected.SetValue(GameboardLocation{X: 3, Y: row}, 0)
+	}
+
 	expected.SetValue(GameboardLocation{X: 1, Y: 3}, 0)
 
 	return size, Toads, []*Gameboard{expected}
@@ -61,14 +63,16 @@ func generateBeacons() (GameboardDims, func(GameboardDims) []GameboardLocation, 
 
 	// Build the expected gameboard
 	expected := NewGameboard(size)
-	expected.SetValue(GameboardLocation{X: 0, Y: 0}, 0)
-	expected.SetValue(GameboardLocation{X: 1, Y: 0}, 0)
-	expected.SetValue(GameboardLocation{X: 0, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 1, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 2, Y: 2}, 0)
-	expected.SetValue(GameboardLocation{X: 3, Y: 2}, 0)
-	expected.SetValue(GameboardLocation{X: 2, Y: 3}, 0)
-	expected.SetValue(GameboardLocation{X: 3, Y: 3}, 0)
+	for row := 0; row < 4; row++ {
+		adjust := 0
+		if row == 2 || row == 3 {
+			adjust = 2
+		}
+
+		for i := 0; i < 2; i++ {
+			expected.SetValue(GameboardLocation{X: i + adjust, Y: row}, 0)
+		}
+	}
 
 	return size, Beacons, []*Gameboard{expected}
 }
@@ -161,10 +165,11 @@ func generateBlocks() (GameboardDims, func(GameboardDims) []GameboardLocation, [
 
 	// Build the expected gameboard
 	expected := NewGameboard(size)
-	expected.SetValue(GameboardLocation{X: 0, Y: 0}, 0)
-	expected.SetValue(GameboardLocation{X: 1, Y: 0}, 0)
-	expected.SetValue(GameboardLocation{X: 0, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 1, Y: 1}, 0)
+	for row := 0; row < 2; row++ {
+		for col := 0; col < 2; col++ {
+			expected.SetValue(GameboardLocation{X: col, Y: row}, 0)
+		}
+	}
 
 	return size, Blocks, []*Gameboard{expected}
 }

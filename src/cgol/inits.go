@@ -27,6 +27,7 @@ func getCountsForDimensions(dimensions GameboardDims, width int, height int) (in
 
 func getRepeatingPattern(dimensions GameboardDims, height int, width int,
 	pattern func(*[]GameboardLocation, int, int)) []GameboardLocation {
+
 	numPerRow, numPerCol := getCountsForDimensions(dimensions, width, height)
 
 	initialLiving := make([]GameboardLocation, 0)
@@ -71,9 +72,9 @@ func Blinkers(dimensions GameboardDims) []GameboardLocation {
 	const HEIGHT = 4 // 3 for the line itself and 1 for the spacer
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
 		func(initialLiving *[]GameboardLocation, currentX int, currentY int) {
-			*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 1, Y: currentY})
-			*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 1})
-			*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 2})
+			for i := 0; i < 3; i++ {
+				*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + i, Y: currentY + 1})
+			}
 		})
 
 }
@@ -89,13 +90,19 @@ func Toads(dimensions GameboardDims) []GameboardLocation {
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
 		func(initialLiving *[]GameboardLocation, currentX int, currentY int) {
 			// ROW 1
-			*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 1})
-			*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 2, Y: currentY + 1})
-			*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 3, Y: currentY + 1})
+			for i := 1; i < 4; i++ {
+				*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + i, Y: currentY + 1})
+			}
+			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 1})
+			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 2, Y: currentY + 1})
+			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 3, Y: currentY + 1})
 			// ROW 2
-			*initialLiving = append(*initialLiving, GameboardLocation{X: currentX, Y: currentY + 2})
-			*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 2})
-			*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 2, Y: currentY + 2})
+			for i := 0; i < 3; i++ {
+				*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + i, Y: currentY + 2})
+			}
+			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX, Y: currentY + 2})
+			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 2})
+			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 2, Y: currentY + 2})
 		})
 }
 
