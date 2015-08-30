@@ -6,24 +6,7 @@ import (
 	"time"
 )
 
-/////////////////// RANDOM ///////////////////
-
-func InitRandom(dimensions GameboardDims, percent int) []GameboardLocation {
-	initialLiving := make([]GameboardLocation, 0)
-
-	for i := 0; i < dimensions.Height; i++ {
-		rand.Seed(time.Now().UnixNano())
-		for j := 0; j < dimensions.Width; j++ {
-			if rand.Intn(100) > percent {
-				initialLiving = append(initialLiving, GameboardLocation{X: i, Y: j})
-			}
-		}
-	}
-
-	return initialLiving
-}
-
-/////////////////// OSCILLATORS ///////////////////
+/////////////////////////// COMMON ///////////////////////////
 
 func getCountsForDimensions(dimensions GameboardDims, width int, height int) (int, int) {
 	numPerRow := dimensions.Width / height
@@ -58,6 +41,25 @@ func getRepeatingPattern(dimensions GameboardDims, height int, width int,
 
 	return initialLiving
 }
+
+/////////////////// RANDOM ///////////////////
+
+func InitRandom(dimensions GameboardDims, percent int) []GameboardLocation {
+	initialLiving := make([]GameboardLocation, 0)
+
+	for i := 0; i < dimensions.Height; i++ {
+		rand.Seed(time.Now().UnixNano())
+		for j := 0; j < dimensions.Width; j++ {
+			if rand.Intn(100) > percent {
+				initialLiving = append(initialLiving, GameboardLocation{X: i, Y: j})
+			}
+		}
+	}
+
+	return initialLiving
+}
+
+/////////////////// OSCILLATORS ///////////////////
 
 func Blinkers(dimensions GameboardDims) []GameboardLocation {
 	// put in as many lengthx1 vertical lines as you can fit
