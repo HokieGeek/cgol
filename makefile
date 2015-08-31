@@ -15,8 +15,13 @@ test:
 	@echo "[Running unit tests]"
 	@go test cgol/core
 
+coverage:
+	go test -covermode=count -coverprofile=/tmp/cgol.coverout cgol/core
+	go tool cover -func=/tmp/cgol.coverout
+	go tool cover -html=/tmp/cgol.coverout
+
 clean:
 	go clean
 	rm -rf bin
 
-.PHONY: all run test clean
+.PHONY: all run test coverage clean
