@@ -81,7 +81,14 @@ func (t *Pond) GetNumLiving() int {
 
 func (t *Pond) GetOrganismValue(organism GameboardLocation) int {
 	// fmt.Printf("\tgetNeighborCount(%s)\n", organism.String())
-	return t.gameboard.GetValue(organism)
+	val, err := t.gameboard.GetValue(organism)
+
+	if err != nil {
+		// TODO: print the error
+		return -1
+	}
+
+	return val
 }
 
 func (t *Pond) setOrganismValue(organism GameboardLocation, num int) {

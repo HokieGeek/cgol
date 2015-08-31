@@ -107,11 +107,20 @@ func (t *Gameboard) gameboard() {
 	}
 }
 
-func (t *Gameboard) GetValue(location GameboardLocation) int {
+func (t *Gameboard) GetValue(location GameboardLocation) (int, error) {
+	// Check that the given location is valid
+	if location.X < 0 || location.X > t.Dims.Width {
+		return -1, errors.New("Given location is out of bounds")
+	}
+	if location.Y < 0 || location.Y > t.Dims.Height {
+		return -1, errors.New("Given location is out of bounds")
+	}
+
 	read := &gameboardReadOp{loc: location, resp: make(chan int)}
 	t.gameboardReads <- read
 	val := <-read.resp
-	return val
+
+	return val, nil
 }
 
 func (t *Gameboard) getSnapshot() [][]int {
@@ -121,11 +130,21 @@ func (t *Gameboard) getSnapshot() [][]int {
 	return val
 }
 
-func (t *Gameboard) SetValue(location GameboardLocation, val int) {
+func (t *Gameboard) SetValue(location GameboardLocation, val int) error {
+	// Check that the given location is valid
+	if location.X < 0 || location.X > t.Dims.Width {
+		return errors.New("Given location is out of bounds")
+	}
+	if location.Y < 0 || location.Y > t.Dims.Height {
+		return errors.New("Given location is out of bounds")
+	}
+
 	// Write the value to the gameboard
 	write := &gameboardWriteOp{loc: location, val: val, resp: make(chan bool)}
 	t.gameboardWrites <- write
 	<-write.resp
+
+	return nil
 }
 
 func (t *Gameboard) GetOrthogonalNeighbors(location GameboardLocation) []GameboardLocation {
@@ -233,7 +252,7 @@ func (t *Gameboard) String() string {
 }
 
 func NewGameboard(dims GameboardDims) (*Gameboard, error) {
-	if dims.Height == 0 || dims.Width == 0 {
+	if dims.Height <= 0 || dims.Width <= 0 {
 		return nil, errors.New("Dimensions must be greater than 0")
 	}
 
