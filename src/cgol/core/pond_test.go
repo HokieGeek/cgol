@@ -24,7 +24,7 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 }
 
 func TestPondNeighborSelection(t *testing.T) {
-	// TODO
+	t.Skip("This will essentially just retest the gameboard tests.")
 }
 
 func TestPondOrganismValue(t *testing.T) {
@@ -41,9 +41,58 @@ func TestPondOrganismValue(t *testing.T) {
 }
 
 func TestPondGetNumLiving(t *testing.T) {
-	// TODO
+	pond := NewPond(3, 3, NEIGHBORS_ALL)
+
+	// Create a pattern and call the pond's init function
+	initialLiving := make([]GameboardLocation, 2)
+	initialLiving[0] = GameboardLocation{X: 0, Y: 0}
+	initialLiving[1] = GameboardLocation{X: 1, Y: 1}
+	pond.init(initialLiving)
+
+	numLiving := pond.GetNumLiving()
+
+	if numLiving != len(initialLiving) {
+		t.Fatalf("Retrieved actual %d living orgnamisms instead of expected %d\n", numLiving, len(initialLiving))
+	}
 }
 
 func TestPondNeighborCountCalutation(t *testing.T) {
-	// TODO
+	pond := NewPond(3, 3, NEIGHBORS_ALL)
+
+	// Create a pattern and call the pond's init function
+	initialLiving := make([]GameboardLocation, 2)
+	initialLiving[0] = GameboardLocation{X: 0, Y: 0}
+	initialLiving[1] = GameboardLocation{X: 1, Y: 1}
+	pond.init(initialLiving)
+
+	expectedNeighbors := make([]GameboardLocation, 5)
+	expectedNeighbors[0] = GameboardLocation{X: 0, Y: 0}
+	expectedNeighbors[1] = GameboardLocation{X: 1, Y: 0}
+	expectedNeighbors[2] = GameboardLocation{X: 1, Y: 1}
+	expectedNeighbors[3] = GameboardLocation{X: 0, Y: 2}
+	expectedNeighbors[4] = GameboardLocation{X: 1, Y: 2}
+
+	expectedNeighborCount := len(initialLiving)
+	actualNeighborCount, actualNeighbors := pond.calculateNeighborCount(GameboardLocation{X: 0, Y: 1})
+
+	if actualNeighborCount != expectedNeighborCount {
+		t.Fatalf("Retrieved %d neighbor count instead of expected %d\n", actualNeighborCount, expectedNeighborCount)
+	}
+
+	if len(actualNeighbors) != len(expectedNeighbors) {
+		t.Fatalf("Retrieved %d neighbors instead of expected %d\n", len(actualNeighbors), expectedNeighborCount)
+	}
+
+	for _, neighbor := range actualNeighbors {
+		found := false
+		for _, expected := range expectedNeighbors {
+			if expected.Equals(&neighbor) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("Found unexpected neighbor %s\n", neighbor.String())
+		}
+	}
 }

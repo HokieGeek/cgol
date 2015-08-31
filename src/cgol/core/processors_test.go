@@ -261,14 +261,24 @@ func testProcessorSimultaneousRulesConwayLife(t *testing.T,
 		expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeRamdom(t *testing.T) {
-	t.Skip("TODO")
-	// Run it through a bunch of iterations, I guess? Won't be expecting anything, though
-
+func TestProcessorSimultaneousRulesConwayLifeRandom(t *testing.T) {
 	// Build the initial pond
 	size := GameboardDims{Height: 16, Width: 16}
-	pond := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
-	pond.init(Random(size, 80))
+	initialLocations := Random(size, 80)
+
+	pondInitialSnapshot := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	pondInitialSnapshot.init(initialLocations)
+
+	pondWorker := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	pondWorker.init(initialLocations)
+
+	// Go through one generation
+	SimultaneousProcessor(pondWorker, RulesConwayLife)
+
+	// Compare the pond with the expected version
+	if pondWorker.gameboard.Equals(pondInitialSnapshot.gameboard) {
+		t.Error("Gameboard did not change after one generation of random intialization")
+	}
 }
 
 func TestProcessorSimultaneousRulesConwayLifeBlinkers(t *testing.T) {
@@ -295,4 +305,17 @@ func TestProcessorSimultaneousRulesConwayLifePulsar(t *testing.T) {
 func TestProcessorSimultaneousRulesConwayLifeBlock(t *testing.T) {
 	size, init, expected := generateBlocks(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+}
+
+func BenchmarkProcessorSimultaneousRulesConwayLifeBlinker(b *testing.B) {
+	// Build the initial pond
+	size := GameboardDims{Height: 33, Width: 33}
+	pond := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	pond.init(Blinkers(size))
+
+	// Ok, do the benchmark now
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		SimultaneousProcessor(pond, RulesConwayLife)
+	}
 }

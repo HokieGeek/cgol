@@ -20,8 +20,11 @@ coverage:
 	go tool cover -func=/tmp/cgol.coverout
 	go tool cover -html=/tmp/cgol.coverout
 
+benchmark:
+	go test -bench . cgol/core
+
 clean:
 	go clean
 	rm -rf bin
 
-.PHONY: all run test coverage clean
+.PHONY: all run test coverage benchmark clean

@@ -75,10 +75,22 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 
 	// Process the queue
 	go func() {
+		// TODO: processed := make(map[int][]int)
 		for {
 			// Retrieve organism from channel, get its neighbors and see if it is alive
 			organism, more := <-processingQueue
 			// TODO: should not process an organism which has already been processed
+			// for colIdx,col := range processed {
+			//	if colIdx == organism.X {
+			//    for rowIdx,row := range col {
+			//      if rowIdx == organism.Y {
+			//        break OUT OF THE WHOLE THING
+			//      }
+			//    }
+			//  }
+			// }
+			// TODO: processedRow := processed[organism.Y]
+			// processedRow = append(processedRow, organism.X)
 			if more {
 				// numNeighbors, neighbors := pond.calculateNeighborCount(organism)
 				numNeighbors, _ := pond.calculateNeighborCount(organism)
