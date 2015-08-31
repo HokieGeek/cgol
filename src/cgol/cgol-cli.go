@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cgol"
+	"cgol/core"
 	"fmt"
 	// "time"
 )
