@@ -29,20 +29,27 @@ func testProcessor(t *testing.T,
 	}
 }
 
-func generateBlinkers() (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+func generateBlinkers(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 3, Width: 3}
 
 	// Build the expected gameboard
 	expected := make([]*Gameboard, 2)
 
 	// Period 2
-	expected[0] = NewGameboard(size)
+	var err error
+	expected[0], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	for i := 0; i < 3; i++ {
 		expected[0].SetValue(GameboardLocation{X: 1, Y: i}, 0)
 	}
 
 	// Period 1
-	expected[1] = NewGameboard(size)
+	expected[1], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	for _, val := range Blinkers(size) {
 		expected[1].SetValue(val, 0)
 	}
@@ -50,14 +57,18 @@ func generateBlinkers() (GameboardDims, func(GameboardDims) []GameboardLocation,
 	return size, Blinkers, expected
 }
 
-func generateToads() (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+func generateToads(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 4, Width: 4}
 
 	// Build the expected gameboard
 	expected := make([]*Gameboard, 2)
 
 	// Period 2
-	expected[0] = NewGameboard(size)
+	var err error
+	expected[0], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	expected[0].SetValue(GameboardLocation{X: 2, Y: 0}, 0)
 
 	for row := 1; row <= 2; row++ {
@@ -68,7 +79,10 @@ func generateToads() (GameboardDims, func(GameboardDims) []GameboardLocation, []
 	expected[0].SetValue(GameboardLocation{X: 1, Y: 3}, 0)
 
 	// Period 1
-	expected[1] = NewGameboard(size)
+	expected[1], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	for _, val := range Toads(size) {
 		expected[1].SetValue(val, 0)
 	}
@@ -76,14 +90,18 @@ func generateToads() (GameboardDims, func(GameboardDims) []GameboardLocation, []
 	return size, Toads, expected
 }
 
-func generateBeacons() (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+func generateBeacons(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 4, Width: 4}
 
 	// Build the expected gameboard
 	expected := make([]*Gameboard, 2)
 
 	// Period 2
-	expected[0] = NewGameboard(size)
+	var err error
+	expected[0], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	for row := 0; row < 4; row++ {
 		adjust := 0
 		if row == 2 || row == 3 {
@@ -96,7 +114,10 @@ func generateBeacons() (GameboardDims, func(GameboardDims) []GameboardLocation, 
 	}
 
 	// Period 1
-	expected[1] = NewGameboard(size)
+	expected[1], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	for _, val := range Beacons(size) {
 		expected[1].SetValue(val, 0)
 	}
@@ -104,14 +125,18 @@ func generateBeacons() (GameboardDims, func(GameboardDims) []GameboardLocation, 
 	return size, Beacons, expected
 }
 
-func generatePulsar() (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+func generatePulsar(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 15, Width: 15}
 
 	// Build the expected gameboard
 	expected := make([]*Gameboard, 3)
 
 	// Period 2
-	expected[0] = NewGameboard(size)
+	var err error
+	expected[0], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	for i := 0; i < size.Height; i++ {
 		switch i {
 		case 0, 1, 2, 6, 8, 12, 13, 14:
@@ -140,7 +165,10 @@ func generatePulsar() (GameboardDims, func(GameboardDims) []GameboardLocation, [
 	}
 
 	// Period 3
-	expected[1] = NewGameboard(size)
+	expected[1], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	for i := 0; i < size.Height; i++ {
 		switch i {
 		case 1, 13:
@@ -185,7 +213,10 @@ func generatePulsar() (GameboardDims, func(GameboardDims) []GameboardLocation, [
 	}
 
 	// Period 1
-	expected[2] = NewGameboard(size)
+	expected[2], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	for _, val := range Pulsar(size) {
 		expected[2].SetValue(val, 0)
 	}
@@ -193,14 +224,18 @@ func generatePulsar() (GameboardDims, func(GameboardDims) []GameboardLocation, [
 	return size, Pulsar, expected
 }
 
-func generateBlocks() (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+func generateBlocks(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 4, Width: 4}
 
 	// Build the expected gameboard
 	expected := make([]*Gameboard, 4)
 
+	var err error
 	for period := 0; period < len(expected); period++ {
-		expected[period] = NewGameboard(size)
+		expected[period], err = NewGameboard(size)
+		if err != nil {
+			t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+		}
 		for row := 0; row < 2; row++ {
 			for col := 0; col < 2; col++ {
 				expected[period].SetValue(GameboardLocation{X: col, Y: row}, 0)
@@ -232,27 +267,27 @@ func TestProcessorSimultaneousRulesConwayLifeRamdom(t *testing.T) {
 }
 
 func TestProcessorSimultaneousRulesConwayLifeBlinkers(t *testing.T) {
-	size, init, expected := generateBlinkers()
+	size, init, expected := generateBlinkers(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
 func TestProcessorSimultaneousRulesConwayLifeToads(t *testing.T) {
-	size, init, expected := generateToads()
+	size, init, expected := generateToads(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
 func TestProcessorSimultaneousRulesConwayLifeBeacons(t *testing.T) {
-	size, init, expected := generateBeacons()
+	size, init, expected := generateBeacons(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
 func TestProcessorSimultaneousRulesConwayLifePulsar(t *testing.T) {
 	t.Skip("Skipping as this currently breaks!")
-	size, init, expected := generatePulsar()
+	size, init, expected := generatePulsar(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
 func TestProcessorSimultaneousRulesConwayLifeBlock(t *testing.T) {
-	size, init, expected := generateBlocks()
+	size, init, expected := generateBlocks(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }

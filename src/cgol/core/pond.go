@@ -148,7 +148,12 @@ func NewPond(rows int, cols int, neighbors NeighborsSelector) *Pond {
 	p.Status = Active
 
 	// Add the given values
-	p.gameboard = NewGameboard(GameboardDims{Height: rows, Width: cols})
+	var err error
+	p.gameboard, err = NewGameboard(GameboardDims{Height: rows, Width: cols})
+	if err != nil {
+		// TODO: return nil,errors.New(blah)
+		// t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 	p.neighborsSelector = neighbors
 
 	return p

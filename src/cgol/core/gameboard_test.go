@@ -2,24 +2,21 @@ package cgol
 
 import (
 	"math/rand"
-	"strconv"
-	"strings"
 	"testing"
 	"time"
 )
 
 func TestGameboardLocationString(t *testing.T) {
-	expectedX := 4
-	expectedY := 2
-	loc := GameboardLocation{X: expectedX, Y: expectedY}
-	out := loc.String()
-
-	// Test the output string
-	if !strings.Contains(out, strconv.Itoa(expectedX)) {
-		t.Errorf("The GameboardLocation Strings() function doesn't contain the expected X value (%d):\n%s\n", expectedX, out)
+	loc := GameboardLocation{X: 1, Y: 1}
+	if len(loc.String()) == 0 {
+		t.Error("The GameboardLocation Strings() function unexpectedly returned an empty string")
 	}
-	if !strings.Contains(out, strconv.Itoa(expectedY)) {
-		t.Errorf("The GameboardLocation Strings() function doesn't contain the expected Y value (%d):\n%s\n", expectedY, out)
+}
+
+func TestGameboardDimsString(t *testing.T) {
+	dims := GameboardDims{Height: 1, Width: 1}
+	if len(dims.String()) == 0 {
+		t.Error("The GameboardDims Strings() function unexpectedly returned an empty string")
 	}
 }
 
@@ -27,7 +24,10 @@ func TestGameboardCreation(t *testing.T) {
 	// Create a gameboard of random size
 	rand.Seed(time.Now().UnixNano())
 	size := GameboardDims{Height: rand.Intn(100), Width: rand.Intn(100)}
-	gameboard := NewGameboard(size)
+	gameboard, err := NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
 
 	// Test that the values were stored correctly
 	if gameboard.Dims.Height != size.Height {
@@ -49,9 +49,17 @@ func TestGameboardCreation(t *testing.T) {
 	}
 }
 
+func TestGameboardCreateNosize(t *testing.T) {
+	t.Skip("TODO")
+}
+
 func TestGameboardSettingValue(t *testing.T) {
 	// Create the test gameboard
-	gameboard := NewGameboard(GameboardDims{Height: 1, Width: 1})
+	dims := GameboardDims{Height: 1, Width: 1}
+	gameboard, err := NewGameboard(dims)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", dims.String())
+	}
 
 	// Set a good value and retrieve it
 	loc := GameboardLocation{X: 0, Y: 0}
@@ -111,7 +119,11 @@ func TestGameboardGetOrthogonalNeighbors(t *testing.T) {
 	expected[3] = GameboardLocation{X: 1, Y: 2}
 
 	// Initialize a gameboard
-	gameboard := NewGameboard(GameboardDims{Height: 3, Width: 3})
+	dims := GameboardDims{Height: 3, Width: 3}
+	gameboard, err := NewGameboard(dims)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", dims.String())
+	}
 	for i := 0; i < len(expected); i++ {
 		gameboard.SetValue(expected[i], 0)
 	}
@@ -131,7 +143,11 @@ func TestGameboardGetObliqueNeighbors(t *testing.T) {
 	expected[3] = GameboardLocation{X: 2, Y: 2}
 
 	// Initialize a gameboard
-	gameboard := NewGameboard(GameboardDims{Height: 3, Width: 3})
+	dims := GameboardDims{Height: 3, Width: 3}
+	gameboard, err := NewGameboard(dims)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", dims.String())
+	}
 	for i := 0; i < len(expected); i++ {
 		gameboard.SetValue(expected[i], 0)
 	}
@@ -158,7 +174,11 @@ func TestGameboardGetAllNeighbors(t *testing.T) {
 	}
 
 	// Initialize a gameboard
-	gameboard := NewGameboard(GameboardDims{Height: 3, Width: 3})
+	dims := GameboardDims{Height: 3, Width: 3}
+	gameboard, err := NewGameboard(dims)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", dims.String())
+	}
 	for i := 0; i < len(expected); i++ {
 		gameboard.SetValue(expected[i], 0)
 	}
@@ -176,7 +196,10 @@ func TestGameboardGetSnapshot(t *testing.T) {
 	locations[0] = GameboardLocation{X: 1, Y: 0}
 	locations[1] = GameboardLocation{X: 0, Y: 1}
 
-	gameboard := NewGameboard(dims)
+	gameboard, err := NewGameboard(dims)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", dims.String())
+	}
 	for _, loc := range locations {
 		gameboard.SetValue(loc, 0)
 	}
@@ -209,7 +232,10 @@ func TestGameboardEquals(t *testing.T) {
 	locations[0] = GameboardLocation{X: 1, Y: 0}
 	locations[1] = GameboardLocation{X: 0, Y: 1}
 
-	gameboard := NewGameboard(dims)
+	gameboard, err := NewGameboard(dims)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", dims.String())
+	}
 	for _, loc := range locations {
 		gameboard.SetValue(loc, 0)
 	}

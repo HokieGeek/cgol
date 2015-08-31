@@ -2,6 +2,7 @@ package cgol
 
 import (
 	"bytes"
+	"errors"
 	"strconv"
 )
 
@@ -231,7 +232,11 @@ func (t *Gameboard) String() string {
 	return buf.String()
 }
 
-func NewGameboard(dims GameboardDims) *Gameboard {
+func NewGameboard(dims GameboardDims) (*Gameboard, error) {
+	if dims.Height == 0 || dims.Width == 0 {
+		return nil, errors.New("Dimensions must be greater than 0")
+	}
+
 	g := new(Gameboard)
 	g.Dims = dims
 
@@ -241,5 +246,5 @@ func NewGameboard(dims GameboardDims) *Gameboard {
 	g.gameboardSnapshots = make(chan *gameboardSnapshotOp)
 	go g.gameboard()
 
-	return g
+	return g, nil
 }
