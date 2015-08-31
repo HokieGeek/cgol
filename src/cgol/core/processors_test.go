@@ -226,6 +226,11 @@ func testProcessorSimultaneousRulesConwayLife(t *testing.T,
 		expected)
 }
 
+func TestProcessorSimultaneousRulesConwayLifeRamdom(t *testing.T) {
+	t.Skip("TODO")
+	// Run it through a bunch of iterations, I guess? Won't be expecting anything, though
+}
+
 func TestProcessorSimultaneousRulesConwayLifeBlinkers(t *testing.T) {
 	size, init, expected := generateBlinkers()
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)

@@ -2,9 +2,26 @@ package cgol
 
 import (
 	"math/rand"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 )
+
+func TestGameboardLocationString(t *testing.T) {
+	expectedX := 4
+	expectedY := 2
+	loc := GameboardLocation{X: expectedX, Y: expectedY}
+	out := loc.String()
+
+	// Test the output string
+	if !strings.Contains(out, strconv.Itoa(expectedX)) {
+		t.Errorf("The GameboardLocation Strings() function doesn't contain the expected X value (%d):\n%s\n", expectedX, out)
+	}
+	if !strings.Contains(out, strconv.Itoa(expectedY)) {
+		t.Errorf("The GameboardLocation Strings() function doesn't contain the expected Y value (%d):\n%s\n", expectedY, out)
+	}
+}
 
 func TestGameboardCreation(t *testing.T) {
 	// Create a gameboard of random size
