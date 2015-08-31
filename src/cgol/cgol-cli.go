@@ -39,7 +39,7 @@ func main() {
 		fmt.Println("===== Starting random sim =====")
 		random := cgol.NewStrategy("RulesConwayLife,Random",
 			cgol.NewPond(5, 20, cgol.NEIGHBORS_ALL),
-			func(dimensions *GameboardDims) []cgol.GameboardLocation { return cgol.InitRandom(dimensions, 80) },
+			func(dimensions *GameboardDims) []cgol.GameboardLocation { return cgol.Random(dimensions, 80) },
 			cgol.RulesConwayLife,
 			cgol.NewQueueProcessor())
 

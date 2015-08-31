@@ -264,6 +264,11 @@ func testProcessorSimultaneousRulesConwayLife(t *testing.T,
 func TestProcessorSimultaneousRulesConwayLifeRamdom(t *testing.T) {
 	t.Skip("TODO")
 	// Run it through a bunch of iterations, I guess? Won't be expecting anything, though
+
+	// Build the initial pond
+	size := GameboardDims{Height: 16, Width: 16}
+	pond := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	pond.init(Random(size, 80))
 }
 
 func TestProcessorSimultaneousRulesConwayLifeBlinkers(t *testing.T) {

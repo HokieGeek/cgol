@@ -23,7 +23,7 @@ func TestGameboardDimsString(t *testing.T) {
 func TestGameboardCreation(t *testing.T) {
 	// Create a gameboard of random size
 	rand.Seed(time.Now().UnixNano())
-	size := GameboardDims{Height: rand.Intn(100), Width: rand.Intn(100)}
+	size := GameboardDims{Height: rand.Intn(100) + 1, Width: rand.Intn(100) + 1}
 	gameboard, err := NewGameboard(size)
 	if err != nil {
 		t.Fatalf("Gameboard of size %s could not be created\n", size.String())

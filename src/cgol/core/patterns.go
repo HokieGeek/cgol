@@ -45,7 +45,7 @@ func getRepeatingPattern(dimensions GameboardDims, height int, width int,
 
 /////////////////// RANDOM ///////////////////
 
-func InitRandom(dimensions GameboardDims, percent int) []GameboardLocation {
+func Random(dimensions GameboardDims, percent int) []GameboardLocation {
 	initialLiving := make([]GameboardLocation, 0)
 
 	for i := 0; i < dimensions.Height; i++ {
