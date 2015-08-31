@@ -93,16 +93,10 @@ func Toads(dimensions GameboardDims) []GameboardLocation {
 			for i := 1; i < 4; i++ {
 				*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + i, Y: currentY + 1})
 			}
-			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 1})
-			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 2, Y: currentY + 1})
-			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 3, Y: currentY + 1})
 			// ROW 2
 			for i := 0; i < 3; i++ {
 				*initialLiving = append(*initialLiving, GameboardLocation{X: currentX + i, Y: currentY + 2})
 			}
-			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX, Y: currentY + 2})
-			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 1, Y: currentY + 2})
-			// *initialLiving = append(*initialLiving, GameboardLocation{X: currentX + 2, Y: currentY + 2})
 		})
 }
 
