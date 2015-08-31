@@ -21,14 +21,6 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 			t.Fatalf("Seed organism is not alive!: %s\n", loc.String())
 		}
 	}
-
-	/*
-		for row := rows-1; rows >= 0; rows-- {
-			for col := cols-1; cols >= 0;
-			if !isOrganismAlive(loc) {
-			}
-		}
-	*/
 }
 
 func TestPondNeighborSelection(t *testing.T) {
@@ -36,7 +28,16 @@ func TestPondNeighborSelection(t *testing.T) {
 }
 
 func TestPondOrganismValue(t *testing.T) {
-	// TODO
+	expectedVal := 2
+	pos := GameboardLocation{X: 0, Y: 0}
+	pond := NewPond(1, 1, NEIGHBORS_ALL)
+	pond.setOrganismValue(pos, expectedVal)
+
+	actualVal := pond.GetOrganismValue(pos)
+
+	if actualVal != expectedVal {
+		t.Fatalf("Retrieved actual value %d instead of expected value %d\n", actualVal, expectedVal)
+	}
 }
 
 func TestPondGetNumLiving(t *testing.T) {

@@ -84,18 +84,18 @@ func (t *Pond) GetOrganismValue(organism GameboardLocation) int {
 	return t.gameboard.GetValue(organism)
 }
 
-func (t *Pond) setOrganismValue(organism GameboardLocation, numNeighbors int) {
-	// fmt.Printf("\tsetNeighborCount(%s, %d)\n", organism.String(), numNeighbors)
-	originalNumNeighbors := t.GetOrganismValue(organism)
+func (t *Pond) setOrganismValue(organism GameboardLocation, num int) {
+	// fmt.Printf("\tsetNeighborCount(%s, %d)\n", organism.String(), num)
+	originalNum := t.GetOrganismValue(organism)
 
 	// Write the value to the gameboard
-	t.gameboard.SetValue(organism, numNeighbors)
+	t.gameboard.SetValue(organism, num)
 
 	// Update the living count if organism changed living state
-	if originalNumNeighbors < 0 && numNeighbors >= 0 {
+	if originalNum < 0 && num >= 0 {
 		// TODO: add to 'living'
 		t.NumLiving++
-	} else if originalNumNeighbors >= 0 && numNeighbors < 0 {
+	} else if originalNum >= 0 && num < 0 {
 		t.NumLiving--
 		// TODO: remove from 'living'
 	}
