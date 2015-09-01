@@ -1,14 +1,14 @@
 package cgol
 
 import (
-	"io/ioutil"
+	// "io/ioutil"
 	"log"
-	// "os"
+	"os"
 )
 
 func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
-	// logger := log.New(os.Stderr, "DEBUG: ", log.Ltime)
-	logger := log.New(ioutil.Discard, "DEBUG: ", log.Ltime)
+	logger := log.New(os.Stderr, "DEBUG: ", log.Ltime)
+	// logger := log.New(ioutil.Discard, "DEBUG: ", log.Ltime)
 	logger.Printf("SimultaneousProcessor()\n")
 	// For each living organism, push to processing channel
 	//	calculate num neighbors
@@ -80,6 +80,11 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 			// Retrieve organism from channel, get its neighbors and see if it is alive
 			organism, more := <-processingQueue
 			if more {
+				/*
+					pondClone.setOrganismValue(organism, 9)
+					logger.Print(pondClone.String())
+				*/
+
 				unprocessed := true
 				// Should not process an organism which has already been processed
 				row, rowExists := processed[organism.Y]

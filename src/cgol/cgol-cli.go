@@ -68,6 +68,21 @@ func main() {
 		displayPond(toads, -1)
 	*/
 
+	fmt.Println("===== Starting pulsar sim =====")
+	pulsar := cgol.NewStrategy("RulesConwayLife,Pulsar",
+		// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
+		cgol.NewPond(15, 15, cgol.NEIGHBORS_ALL),
+		cgol.Pulsar,
+		cgol.RulesConwayLife,
+		cgol.SimultaneousProcessor)
+	displayPond(pulsar)
+
+	go func() {
+		time.Sleep(pulsar.UpdateRate * 3)
+		pulsar.Stop()
+	}()
+	pulsar.Start(make(chan bool))
+
 	/*
 		fmt.Println("===== Starting pulsar sim =====")
 		pulsar := cgol.NewStrategy("RulesConwayLife,Pulsar",
