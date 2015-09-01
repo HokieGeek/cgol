@@ -9,7 +9,7 @@ import (
 func TestGameboardLocationString(t *testing.T) {
 	loc := GameboardLocation{X: 1, Y: 1}
 	if len(loc.String()) == 0 {
-		t.Error("The GameboardLocation Strings() function unexpectedly returned an empty string")
+		t.Error("The GameboardLocation String() function unexpectedly returned an empty string")
 	}
 }
 
@@ -108,11 +108,17 @@ func TestGameboardSetValueOutOfBounds(t *testing.T) {
 		t.Fatalf("Gameboard of size %s could not be created\n", dims.String())
 	}
 
-	// Check for out of bounds
+	// Check for out of bounds (X)
 	loc := GameboardLocation{X: 2, Y: 0}
 	testVal := 42
 	err = gameboard.SetValue(loc, testVal)
+	if err == nil {
+		t.Error("Gameboard did not return an error when setting a value at an out-of-bounds location")
+	}
 
+	// Check for out of bounds (Y)
+	loc = GameboardLocation{X: 0, Y: 2}
+	err = gameboard.SetValue(loc, testVal)
 	if err == nil {
 		t.Error("Gameboard did not return an error when setting a value at an out-of-bounds location")
 	}
@@ -126,10 +132,16 @@ func TestGameboardGetValueOutOfBounds(t *testing.T) {
 		t.Fatalf("Gameboard of size %s could not be created\n", dims.String())
 	}
 
-	// Check for out of bounds
+	// Check for out of bounds (X)
 	loc := GameboardLocation{X: 2, Y: 0}
 	_, err = gameboard.GetValue(loc)
+	if err == nil {
+		t.Error("Gameboard did not return an error when retrieving a value at an out-of-bounds location")
+	}
 
+	// Check for out of bounds (Y)
+	loc = GameboardLocation{X: 0, Y: 2}
+	_, err = gameboard.GetValue(loc)
 	if err == nil {
 		t.Error("Gameboard did not return an error when retrieving a value at an out-of-bounds location")
 	}
@@ -338,5 +350,20 @@ func TestGameboardNotEquals(t *testing.T) {
 	// The two should not be equal to each other
 	if gameboardLeft.Equals(gameboardRight) {
 		t.Fatalf("Equality function is definitely broken. This gameboard: \n%s\nshould not be equal to this one:\n%s\n", gameboardLeft.String(), gameboardRight.String())
+	}
+}
+
+func TestGameboardString(t *testing.T) {
+	// Create the test gameboard
+	dims := GameboardDims{Height: 2, Width: 2}
+	gameboard, err := NewGameboard(dims)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", dims.String())
+	}
+	gameboard.SetValue(GameboardLocation{X: 0, Y: 0}, 0)
+
+	// Now test the string call
+	if len(gameboard.String()) == 0 {
+		t.Error("The Gameboard String() function unexpectedly returned an empty string")
 	}
 }

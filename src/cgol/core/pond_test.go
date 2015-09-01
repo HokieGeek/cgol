@@ -2,6 +2,44 @@ package cgol
 
 import "testing"
 
+func TestPondStatusString(t *testing.T) {
+	var status PondStatus
+
+	status = Active
+	if len(status.String()) <= 0 {
+		t.Error("Unexpectedly retrieved empty string from PondStatus object")
+	}
+
+	status = Stable
+	if len(status.String()) <= 0 {
+		t.Error("Unexpectedly retrieved empty string from PondStatus object")
+	}
+
+	status = Dead
+	if len(status.String()) <= 0 {
+		t.Error("Unexpectedly retrieved empty string from PondStatus object")
+	}
+}
+
+func TestNeighborSelectorString(t *testing.T) {
+	var selector NeighborsSelector
+
+	selector = NEIGHBORS_ORTHOGONAL
+	if len(selector.String()) <= 0 {
+		t.Error("Unexpectedly retrieved empty string from Pondselector object")
+	}
+
+	selector = NEIGHBORS_OBLIQUE
+	if len(selector.String()) <= 0 {
+		t.Error("Unexpectedly retrieved empty string from Pondselector object")
+	}
+
+	selector = NEIGHBORS_ALL
+	if len(selector.String()) <= 0 {
+		t.Error("Unexpectedly retrieved empty string from PondStatus object")
+	}
+}
+
 func TestPondSettingInitialPatterns(t *testing.T) {
 	rows := 3
 	cols := 3
@@ -25,6 +63,19 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 
 func TestPondNeighborSelection(t *testing.T) {
 	t.Skip("This will essentially just retest the gameboard tests.")
+}
+
+func TestPondNeighborSelectionError(t *testing.T) {
+	t.Skip("Bad location should be the test")
+	/*
+		fake_selector := 999
+		pond := NewPond(1, 1, fake_selector)
+
+		neighbors, err := pond.GetNeighbors(GameboardLocation{X: 0, Y: 0})
+		if err != nil {
+			t.Error("Did not encounter error when retrieving neighbors using bogus selector")
+		}
+	*/
 }
 
 func TestPondOrganismValue(t *testing.T) {
@@ -94,5 +145,12 @@ func TestPondNeighborCountCalutation(t *testing.T) {
 		if !found {
 			t.Fatalf("Found unexpected neighbor %s\n", neighbor.String())
 		}
+	}
+}
+
+func TestPondString(t *testing.T) {
+	pond := NewPond(3, 3, NEIGHBORS_ALL)
+	if len(pond.String()) <= 0 {
+		t.Error("Unexpectly retrieved empty string from Pond string function")
 	}
 }

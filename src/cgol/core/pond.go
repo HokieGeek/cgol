@@ -68,7 +68,7 @@ func (t *Pond) GetNeighbors(organism GameboardLocation) []GameboardLocation {
 		return t.gameboard.GetAllNeighbors(organism)
 	}
 
-	return make([]GameboardLocation, 0)
+	return nil
 }
 
 func (t *Pond) isOrganismAlive(organism GameboardLocation) bool {
