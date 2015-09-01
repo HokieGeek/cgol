@@ -12,6 +12,14 @@ type StrategyStats struct {
 	Generations      int
 }
 
+func (t *StrategyStats) String() string {
+	var buf bytes.Buffer
+	buf.WriteString("Generation: ")
+	buf.WriteString(strconv.Itoa(t.Generations))
+
+	return buf.String()
+}
+
 type Strategy struct {
 	Label            string
 	Statistics       StrategyStats
@@ -65,17 +73,13 @@ func (t *Strategy) Stop() {
 	t.ticker.Stop()
 }
 
-func (t *Strategy) GetPondDims() GameboardDims {
-	return t.pond.gameboard.Dims
-}
-
 func (t *Strategy) String() string {
 	var buf bytes.Buffer
 	buf.WriteString("[")
 	buf.WriteString(t.Label)
 	buf.WriteString("]\n")
 	buf.WriteString("Generation: ")
-	buf.WriteString(strconv.Itoa(t.Statistics.Generations))
+	buf.WriteString(t.Statistics.String())
 	buf.WriteString("\n")
 	buf.WriteString(t.pond.String())
 
