@@ -166,13 +166,28 @@ func Pulsar(dimensions GameboardDims) []GameboardLocation {
 		})
 }
 
+/////////////////// GLIDERS ///////////////////
+
+func Gliders(dimensions GameboardDims) []GameboardLocation {
+	// Period 1   Period 2   Period 3   Period 4
+	// -0--       ----       ----       ----
+	// --0-       0-0-       --0-       -0--
+	// 000-       -00-       0-0-       --00
+	// ----       -0--       -00-       -00-
+
+	const (
+		HEIGHT = 3
+		WIDTH  = 4
+	)
+	var seed []GameboardLocation
+	return seed
+}
+
 /////////////////// STILLS ///////////////////
 
 func Blocks(dimensions GameboardDims) []GameboardLocation {
-	// ----
-	// -00-
-	// -00-
-	// ----
+	// 00
+	// 00
 
 	const HEIGHT = 5
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
@@ -186,4 +201,18 @@ func Blocks(dimensions GameboardDims) []GameboardLocation {
 		})
 }
 
-/////////////////// GLIDERS ///////////////////
+// Beehive
+// -00-
+// 0--0
+// -00-
+
+// Loaf
+// -00-
+// 0--0
+// -0-0
+// --0-
+
+// Boat
+// 00-
+// 0-0
+// -0-
