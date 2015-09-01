@@ -75,6 +75,7 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 
 	// Process the queue
 	go func() {
+		// pondClone := pond.gameboard.Clone()
 		processed := make(map[int][]int)
 		for {
 			// Retrieve organism from channel, get its neighbors and see if it is alive
