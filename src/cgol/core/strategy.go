@@ -2,6 +2,7 @@ package cgol
 
 import (
 	"bytes"
+	"strconv"
 	"time"
 )
 
@@ -73,6 +74,9 @@ func (t *Strategy) String() string {
 	buf.WriteString("[")
 	buf.WriteString(t.Label)
 	buf.WriteString("]\n")
+	buf.WriteString("Generation: ")
+	buf.WriteString(strconv.Itoa(t.Statistics.Generations))
+	buf.WriteString("\n")
 	buf.WriteString(t.pond.String())
 
 	return buf.String()
