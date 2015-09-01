@@ -75,60 +75,60 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 
 	// Process the queue
 	go func() {
-		// TODO: processed := make(map[int]map[int]int)
+		processed := make(map[int][]int)
 		for {
 			// Retrieve organism from channel, get its neighbors and see if it is alive
 			organism, more := <-processingQueue
-			// TODO: should not process an organism which has already been processed
-			// row,rowExists := processed[organism.Y]
-			// if rowExists {
-			//   _,colExists := processed[organism.X]
-			//   if colExists {
-			//        break OUT OF THE WHOLE THING
-			//   }
-			//
-			//   or
-			//
-			//   for colIdx,col := range processed[organism.Y] {
-			//	   if colIdx == organism.X {
-			//        break OUT OF THE WHOLE THING
-			//     }
-			//   }
-			// } else {
-			//   processed[organism.Y] = make(map[int]int)
-			// }
-			//
-			// processedRow := processed[organism.Y]
-			// processedRow = append(processedRow, organism.X)
 			if more {
-				// numNeighbors, neighbors := pond.calculateNeighborCount(organism)
-				numNeighbors, _ := pond.calculateNeighborCount(organism)
-				currentlyAlive := pond.isOrganismAlive(organism)
-				logger.Printf("======= processing organism at %s with %d neighbors and alive status of '%t'\n", organism.String(), numNeighbors, currentlyAlive)
-
-				// Check with the ruleset what this organism's current status is
-				organismStatus := rules(numNeighbors, currentlyAlive)
-				logger.Printf("   ruleset isalive verdict: %t\n", organismStatus)
-
-				if currentlyAlive != organismStatus { // If its status has changed, then we do stuff
-					pond.Status = Active
-					logger.Printf("   organism will be modified\n")
-
-					if organismStatus { // If is alive
-						queueModification <- ModifiedOrganism{loc: organism, val: 0}
-					} else {
-						queueModification <- ModifiedOrganism{loc: organism, val: -1}
+				unprocessed := true
+				// Should not process an organism which has already been processed
+				row, rowExists := processed[organism.Y]
+				if rowExists {
+					for colIdx := range row {
+						if colIdx == organism.X {
+							unprocessed = false
+						}
 					}
 				} else {
-					logger.Printf("   nothing to do for organism\n")
+					processed[organism.Y] = make([]int, 0)
 				}
 
-				// Now process the neighbors!
-				// TODO: make this work. Need to somehow figure out when to close the channel
-				// for _, neighbor := range neighbors {
-				// 	processingQueue <- neighbor
-				// 	logger.Printf("    > processingQueue <- neighbor: %s\n", neighbor.String())
-				// }
+				if unprocessed {
+					// Add organism to list of processed
+					processedRow := processed[organism.Y]
+					processedRow = append(processedRow, organism.X)
+
+					// Retrieve all the infos
+					// numNeighbors, neighbors := pond.calculateNeighborCount(organism)
+					numNeighbors, _ := pond.calculateNeighborCount(organism)
+					currentlyAlive := pond.isOrganismAlive(organism)
+					logger.Printf("======= processing organism at %s with %d neighbors and alive status of '%t'\n", organism.String(), numNeighbors, currentlyAlive)
+
+					// Check with the ruleset what this organism's current status is
+					organismStatus := rules(numNeighbors, currentlyAlive)
+					logger.Printf("   ruleset isalive verdict: %t\n", organismStatus)
+
+					if currentlyAlive != organismStatus { // If its status has changed, then we do stuff
+						pond.Status = Active
+						logger.Printf("   organism will be modified\n")
+
+						if organismStatus { // If is alive
+							queueModification <- ModifiedOrganism{loc: organism, val: 0}
+						} else {
+							queueModification <- ModifiedOrganism{loc: organism, val: -1}
+						}
+					} else {
+						logger.Printf("   nothing to do for organism\n")
+					}
+
+					// Now process the neighbors!
+					// TODO: make this work. Need to somehow figure out when to close the channel
+					// for _, neighbor := range neighbors {
+					// 	processingQueue <- neighbor
+					// 	logger.Printf("    > processingQueue <- neighbor: %s\n", neighbor.String())
+					// }
+
+				}
 			} else {
 				logger.Printf("   No longer processing organisms\n")
 				close(queueModification)
