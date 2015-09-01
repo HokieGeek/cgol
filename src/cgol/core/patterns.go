@@ -179,8 +179,17 @@ func Gliders(dimensions GameboardDims) []GameboardLocation {
 		HEIGHT = 3
 		WIDTH  = 4
 	)
-	var seed []GameboardLocation
-	return seed
+	return getRepeatingPattern(dimensions, HEIGHT, WIDTH,
+		func(seed *[]GameboardLocation, currentX int, currentY int) {
+			// ROW 1
+			*seed = append(*seed, GameboardLocation{X: currentX + 1, Y: currentY})
+			// ROW 2
+			*seed = append(*seed, GameboardLocation{X: currentX + 2, Y: currentY + 1})
+			// ROW 3
+			for i := 0; i < 3; i++ {
+				*seed = append(*seed, GameboardLocation{X: currentX + i, Y: currentY + 2})
+			}
+		})
 }
 
 /////////////////// STILLS ///////////////////
