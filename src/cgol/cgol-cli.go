@@ -57,7 +57,7 @@ func main() {
 		cgol.Toads,
 		cgol.RulesConwayLife,
 		cgol.SimultaneousProcessor)
-	displayPond(toads, 2, false)
+	displayPond(toads, -1, true)
 
 	/*
 		fmt.Println("===== Starting glider sim =====")

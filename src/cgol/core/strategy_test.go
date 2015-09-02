@@ -59,3 +59,7 @@ func TestStrategyString(t *testing.T) {
 		t.Error("String function unexpectly returned an empty string")
 	}
 }
+
+func TestStrategyLongTime(t *testing.T) {
+	t.Skip("TODO")
+}

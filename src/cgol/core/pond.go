@@ -3,10 +3,10 @@ package cgol
 import (
 	"bytes"
 	// "fmt"
-	"strconv"
-	// "io/ioutil"
+	"io/ioutil"
 	"log"
-	"os"
+	"strconv"
+	// "os"
 )
 
 type PondStatus int
@@ -87,8 +87,8 @@ type LivingTracker struct {
 func (t *LivingTracker) living() {
 	var livingMap = make(map[int]map[int]GameboardLocation)
 	var count int
-	logger := log.New(os.Stderr, "LivingTracker: ", log.Ltime)
-	// logger := log.New(ioutil.Discard, "LivingTracker: ", log.Ltime)
+	// logger := log.New(os.Stderr, "LivingTracker: ", log.Ltime)
+	logger := log.New(ioutil.Discard, "LivingTracker: ", log.Ltime)
 
 	for {
 		select {
