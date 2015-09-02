@@ -4,6 +4,9 @@ import (
 	"bytes"
 	// "fmt"
 	"strconv"
+	// "io/ioutil"
+	"log"
+	"os"
 )
 
 type PondStatus int
@@ -69,39 +72,59 @@ type livingTrackerGetAllOp struct {
 	resp chan []GameboardLocation
 }
 
+type livingTrackerCountOp struct {
+	resp chan int
+}
+
 type LivingTracker struct {
 	trackerAdd    chan *livingTrackerAddOp
 	trackerRemove chan *livingTrackerRemoveOp
 	trackerTest   chan *livingTrackerTestOp
 	trackerGetAll chan *livingTrackerGetAllOp
+	trackerCount  chan *livingTrackerCountOp
 }
 
 func (t *LivingTracker) living() {
 	var livingMap = make(map[int]map[int]GameboardLocation)
-	// TODO var count int
+	var count int
+	logger := log.New(os.Stderr, "LivingTracker: ", log.Ltime)
+	// logger := log.New(ioutil.Discard, "LivingTracker: ", log.Ltime)
 
 	for {
 		select {
 		case add := <-t.trackerAdd:
+			logger.Println("Adding")
+			added := true
 			_, keyExists := livingMap[add.loc.Y]
 			if !keyExists {
 				livingMap[add.loc.Y] = make(map[int]GameboardLocation)
 			}
-			livingMap[add.loc.Y][add.loc.X] = add.loc
-			add.resp <- true
+			_, keyExists = livingMap[add.loc.Y][add.loc.X]
+			if !keyExists {
+				livingMap[add.loc.Y][add.loc.X] = add.loc
+				count++
+			}
+			add.resp <- added
 		case remove := <-t.trackerRemove:
+			logger.Println("Removing")
+			removed := false
 			_, keyExists := livingMap[remove.loc.Y]
 			if keyExists {
 				_, keyExists = livingMap[remove.loc.Y][remove.loc.X]
 				if keyExists {
 					delete(livingMap[remove.loc.Y], remove.loc.X)
-					if len(livingMap[remove.loc.Y]) <= 0 {
-						delete(livingMap, remove.loc.Y)
-					}
+					removed = true
+					count--
+
+					// TODO Delete the row if it has no children?
+					// if len(livingMap[remove.loc.Y]) <= 0 {
+					// 	delete(livingMap, remove.loc.Y)
+					// }
 				}
 			}
-			remove.resp <- true
+			remove.resp <- removed
 		case test := <-t.trackerTest:
+			logger.Println("Testing")
 			_, keyExists := livingMap[test.loc.Y]
 			if keyExists {
 				_, keyExists = livingMap[test.loc.Y][test.loc.X]
@@ -114,6 +137,7 @@ func (t *LivingTracker) living() {
 				test.resp <- false
 			}
 		case getall := <-t.trackerGetAll:
+			logger.Println("All")
 			all := make([]GameboardLocation, 0)
 			for rowNum := range livingMap {
 				for _, col := range livingMap[rowNum] {
@@ -121,6 +145,9 @@ func (t *LivingTracker) living() {
 				}
 			}
 			getall.resp <- all
+		case countOp := <-t.trackerCount:
+			logger.Println("Count")
+			countOp.resp <- count
 		}
 	}
 }
@@ -153,6 +180,14 @@ func (t *LivingTracker) GetAll() []GameboardLocation {
 	return val
 }
 
+func (t *LivingTracker) GetCount() int {
+	count := &livingTrackerCountOp{resp: make(chan int)}
+	t.trackerCount <- count
+	val := <-count.resp
+
+	return val
+}
+
 func NewLivingTracker() *LivingTracker {
 	t := new(LivingTracker)
 
@@ -160,6 +195,7 @@ func NewLivingTracker() *LivingTracker {
 	t.trackerRemove = make(chan *livingTrackerRemoveOp)
 	t.trackerTest = make(chan *livingTrackerTestOp)
 	t.trackerGetAll = make(chan *livingTrackerGetAllOp)
+	t.trackerCount = make(chan *livingTrackerCountOp)
 
 	go t.living()
 
@@ -168,11 +204,9 @@ func NewLivingTracker() *LivingTracker {
 
 type Pond struct {
 	gameboard         *Gameboard
-	NumLiving         int
 	Status            PondStatus
 	neighborsSelector NeighborsSelector
-	Living            map[int]map[int]GameboardLocation
-	// living            *LivingTracker
+	living            *LivingTracker
 }
 
 func (t *Pond) GetNeighbors(organism GameboardLocation) []GameboardLocation {
@@ -193,7 +227,7 @@ func (t *Pond) isOrganismAlive(organism GameboardLocation) bool {
 }
 
 func (t *Pond) GetNumLiving() int {
-	return len(t.Living)
+	return t.living.GetCount()
 }
 
 func (t *Pond) GetOrganismValue(organism GameboardLocation) int {
@@ -217,13 +251,9 @@ func (t *Pond) setOrganismValue(organism GameboardLocation, num int) {
 
 	// Update the living count if organism changed living state
 	if originalNum < 0 && num >= 0 {
-		// TODO: add to 'living'
-		// t.living.Set(organism)
-		t.NumLiving++
+		t.living.Set(organism)
 	} else if originalNum >= 0 && num < 0 {
-		t.NumLiving--
-		// TODO: remove from 'living'
-		// t.living.Remove(organism)
+		t.living.Remove(organism)
 	}
 }
 
@@ -238,16 +268,9 @@ func (t *Pond) calculateNeighborCount(organism GameboardLocation) (int, []Gamebo
 	return numNeighbors, neighbors
 }
 
-func (t *Pond) init(initialLiving []GameboardLocation) {
+func (t *Pond) SetOrganisms(organisms []GameboardLocation) {
 	// Initialize the first organisms and set their neighbor counts
-	t.Living = make(map[int]map[int]GameboardLocation)
-	for _, organism := range initialLiving {
-		// TODO: this logic needs to move into its own place function with channel accessors
-		_, keyExists := t.Living[organism.Y]
-		if !keyExists {
-			t.Living[organism.Y] = make(map[int]GameboardLocation)
-		}
-		t.Living[organism.Y][organism.X] = organism
+	for _, organism := range organisms {
 		t.setOrganismValue(organism, 0)
 	}
 }
@@ -257,12 +280,11 @@ func (t *Pond) Clone() *Pond {
 		t.gameboard.Dims.Width,
 		t.neighborsSelector)
 
-	shadowPond.NumLiving = t.NumLiving
 	shadowPond.Status = t.Status
 
 	// TODO
-	// shadowPond.init(t.Living)
-	// Living            map[int]map[int]GameboardLocation
+	// shadowPond.SetOrganisms(t.living.GetAll())
+	// living
 
 	return shadowPond
 }
@@ -272,7 +294,7 @@ func (t *Pond) String() string {
 	buf.WriteString("Neighbor selection: ")
 	buf.WriteString(t.neighborsSelector.String())
 	buf.WriteString("\nLiving organisms: ")
-	buf.WriteString(strconv.Itoa(t.NumLiving))
+	buf.WriteString(strconv.Itoa(t.living.GetCount()))
 	buf.WriteString("\tStatus: ")
 	buf.WriteString(t.Status.String())
 	buf.WriteString("\n")
@@ -285,8 +307,8 @@ func NewPond(rows int, cols int, neighbors NeighborsSelector) *Pond {
 	p := new(Pond)
 
 	// Create values
-	p.NumLiving = 0
 	p.Status = Active
+	p.living = NewLivingTracker()
 
 	// Add the given values
 	var err error

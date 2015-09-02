@@ -1,15 +1,14 @@
 package cgol
 
 import (
-	// "io/ioutil"
+	"io/ioutil"
 	"log"
-	"os"
+	// "os"
 )
 
 func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
-	logger := log.New(os.Stderr, "DEBUG: ", log.Ltime)
-	// logger := log.New(ioutil.Discard, "DEBUG: ", log.Ltime)
-	logger.Printf("SimultaneousProcessor()\n")
+	// logger := log.New(os.Stderr, "SimultaneousProcessor: ", log.Ltime)
+	logger := log.New(ioutil.Discard, "SimultaneousProcessor: ", log.Ltime)
 	// For each living organism, push to processing channel
 	//	calculate num neighbors
 	//	if living and over or under pop, push to kill channel and send neighbors to processing channel
@@ -83,7 +82,8 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 			if more {
 				/*
 					pondClone.setOrganismValue(organism, 9)
-					logger.Print(pondClone.String())
+					logger.Println("----------------------------------------------------------")
+					logger.Print(pondClone)
 				*/
 
 				unprocessed := true
@@ -116,15 +116,15 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 
 					if currentlyAlive != organismStatus { // If its status has changed, then we do stuff
 						pond.Status = Active
-						logger.Printf("   organism will be modified\n")
+						// logger.Printf("   organism will be modified\n")
 
 						if organismStatus { // If is alive
 							queueModification <- ModifiedOrganism{loc: organism, val: 0}
 						} else {
 							queueModification <- ModifiedOrganism{loc: organism, val: -1}
 						}
-					} else {
-						logger.Printf("   nothing to do for organism\n")
+						// } else {
+						// logger.Printf("   nothing to do for organism\n")
 					}
 
 					// Now process the neighbors!
@@ -136,7 +136,7 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 
 				}
 			} else {
-				logger.Printf("   No longer processing organisms\n")
+				// logger.Printf("   No longer processing organisms\n")
 				close(queueModification)
 				doneProcessing <- true
 				break
@@ -158,18 +158,16 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 	*/
 
 	// Add living organisms to processing queue
-	logger.Printf("processing >%d living< organisms\n", len(pond.Living))
-	for _, row := range pond.Living {
-		for _, organism := range row {
-			processingQueue <- organism
-			logger.Printf(">> processingQueue <- organism: %s\n", organism.String())
+	logger.Printf("processing >%d living< organisms\n", pond.GetNumLiving())
+	for _, organism := range pond.living.GetAll() {
+		processingQueue <- organism
+		logger.Printf(">> processingQueue <- organism: %s\n", organism.String())
 
-			// Now process the neighbors!
-			_, neighbors := pond.calculateNeighborCount(organism)
-			for _, neighbor := range neighbors {
-				processingQueue <- neighbor
-				logger.Printf("    > processingQueue <- neighbor: %s\n", neighbor.String())
-			}
+		// Now process the neighbors!
+		_, neighbors := pond.calculateNeighborCount(organism)
+		for _, neighbor := range neighbors {
+			processingQueue <- neighbor
+			logger.Printf("    > processingQueue <- neighbor: %s\n", neighbor.String())
 		}
 	}
 	close(processingQueue)
@@ -179,7 +177,7 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 	// Start processing modifications
 	blockModifications <- false
 
-	if pond.NumLiving > 0 {
+	if pond.GetNumLiving() > 0 {
 		pond.Status = Stable
 	} else {
 		pond.Status = Dead

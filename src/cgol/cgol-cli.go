@@ -51,33 +51,33 @@ func main() {
 		random.Start()
 	*/
 
+	fmt.Println("===== Starting toads sim =====")
+	toads := cgol.NewStrategy("RulesConwayLife,Toads",
+		cgol.NewPond(10, 10, cgol.NEIGHBORS_ALL),
+		cgol.Toads,
+		cgol.RulesConwayLife,
+		cgol.SimultaneousProcessor)
+	displayPond(toads, 2, false)
+
 	/*
-		fmt.Println("===== Starting toads sim =====")
-		toads := cgol.NewStrategy("RulesConwayLife,Toads",
+		fmt.Println("===== Starting glider sim =====")
+		glider := cgol.NewStrategy("RulesConwayLife,Glider",
 			cgol.NewPond(10, 10, cgol.NEIGHBORS_ALL),
-			cgol.Toads,
+			func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
+				return cgol.Gliders(cgol.GameboardDims{Height: 4, Width: 4})
+			},
 			cgol.RulesConwayLife,
 			cgol.SimultaneousProcessor)
-		displayPond(toads, -1, true)
+		glider.UpdateRate = time.Second * 2
+		displayPond(glider, 2, false)
+
+		fmt.Println("===== Starting pulsar sim =====")
+		pulsar := cgol.NewStrategy("RulesConwayLife,Pulsar",
+			// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
+			cgol.NewPond(15, 15, cgol.NEIGHBORS_ALL),
+			cgol.Pulsar,
+			cgol.RulesConwayLife,
+			cgol.SimultaneousProcessor)
+		displayPond(pulsar, 3, false)
 	*/
-
-	fmt.Println("===== Starting glider sim =====")
-	glider := cgol.NewStrategy("RulesConwayLife,Glider",
-		cgol.NewPond(10, 10, cgol.NEIGHBORS_ALL),
-		func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
-			return cgol.Gliders(cgol.GameboardDims{Height: 4, Width: 4})
-		},
-		cgol.RulesConwayLife,
-		cgol.SimultaneousProcessor)
-	glider.UpdateRate = time.Second * 2
-	displayPond(glider, 2, false)
-
-	fmt.Println("===== Starting pulsar sim =====")
-	pulsar := cgol.NewStrategy("RulesConwayLife,Pulsar",
-		// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
-		cgol.NewPond(15, 15, cgol.NEIGHBORS_ALL),
-		cgol.Pulsar,
-		cgol.RulesConwayLife,
-		cgol.SimultaneousProcessor)
-	displayPond(pulsar, 3, false)
 }

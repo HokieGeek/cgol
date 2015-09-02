@@ -103,7 +103,7 @@ func NewStrategy(label string,
 
 	// Initialize the pond and schedule the currently living organisms
 	s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.gameboard.Dims)...)
-	s.pond.init(s.initialOrganisms)
+	s.pond.SetOrganisms(s.initialOrganisms)
 	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
 
 	return s

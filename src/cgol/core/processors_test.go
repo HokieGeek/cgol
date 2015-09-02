@@ -16,7 +16,7 @@ func testProcessor(t *testing.T,
 
 	// Build the initial pond
 	pond := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
-	pond.init(init(size))
+	pond.SetOrganisms(init(size))
 
 	// Go through one generation
 	for i := 0; i < len(expected); i++ {
@@ -353,10 +353,10 @@ func TestProcessorSimultaneousRulesConwayLifeRandom(t *testing.T) {
 	initialLocations := Random(size, 80)
 
 	pondInitialSnapshot := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
-	pondInitialSnapshot.init(initialLocations)
+	pondInitialSnapshot.SetOrganisms(initialLocations)
 
 	pondWorker := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
-	pondWorker.init(initialLocations)
+	pondWorker.SetOrganisms(initialLocations)
 
 	// Go through one generation
 	SimultaneousProcessor(pondWorker, RulesConwayLife)
@@ -403,7 +403,7 @@ func BenchmarkProcessorSimultaneousRulesConwayLifeBlinker(b *testing.B) {
 	// Build the initial pond
 	size := GameboardDims{Height: 33, Width: 33}
 	pond := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
-	pond.init(Blinkers(size))
+	pond.SetOrganisms(Blinkers(size))
 
 	// Ok, do the benchmark now
 	b.ResetTimer()

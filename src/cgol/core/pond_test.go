@@ -131,6 +131,36 @@ func TestLivingTrackerGetAll(t *testing.T) {
 	}
 }
 
+func TestLivingTrackerCount(t *testing.T) {
+	tracker := NewLivingTracker()
+
+	// Create the expected values
+	expectedLocations := make([]GameboardLocation, 3)
+	expectedLocations[0] = GameboardLocation{X: 42, Y: 42}
+	expectedLocations[1] = GameboardLocation{X: 11, Y: 11}
+	expectedLocations[2] = GameboardLocation{X: 12, Y: 34}
+
+	// Ok, set the values
+	for _, l := range expectedLocations {
+		tracker.Set(l)
+	}
+
+	// Test the counter
+	expectedCount := len(expectedLocations)
+	count := tracker.GetCount()
+	if count != expectedCount {
+		t.Fatalf("Retrieved count of %d instead of expected %d\n", count, expectedCount)
+	}
+
+	// Now remove a location and try again
+	tracker.Remove(expectedLocations[2])
+	expectedCount--
+	count = tracker.GetCount()
+	if count != expectedCount {
+		t.Fatalf("Retrieved count of %d instead of expected %d after remove a location\n", count, expectedCount)
+	}
+}
+
 func TestPondSettingInitialPatterns(t *testing.T) {
 	rows := 3
 	cols := 3
@@ -142,7 +172,7 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 	initialLiving[1] = GameboardLocation{X: 1, Y: 1}
 	initialLiving[2] = GameboardLocation{X: 2, Y: 2}
 
-	pond.init(initialLiving)
+	pond.SetOrganisms(initialLiving)
 
 	// Check each expected value
 	for _, loc := range initialLiving {
@@ -189,7 +219,7 @@ func TestPondGetNumLiving(t *testing.T) {
 	initialLiving := make([]GameboardLocation, 2)
 	initialLiving[0] = GameboardLocation{X: 0, Y: 0}
 	initialLiving[1] = GameboardLocation{X: 1, Y: 1}
-	pond.init(initialLiving)
+	pond.SetOrganisms(initialLiving)
 
 	numLiving := pond.GetNumLiving()
 
@@ -205,7 +235,7 @@ func TestPondNeighborCountCalutation(t *testing.T) {
 	initialLiving := make([]GameboardLocation, 2)
 	initialLiving[0] = GameboardLocation{X: 0, Y: 0}
 	initialLiving[1] = GameboardLocation{X: 1, Y: 1}
-	pond.init(initialLiving)
+	pond.SetOrganisms(initialLiving)
 
 	expectedNeighbors := make([]GameboardLocation, 5)
 	expectedNeighbors[0] = GameboardLocation{X: 0, Y: 0}
