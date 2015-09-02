@@ -78,6 +78,7 @@ type LivingTracker struct {
 
 func (t *LivingTracker) living() {
 	var livingMap = make(map[int]map[int]GameboardLocation)
+	// TODO var count int
 
 	for {
 		select {
@@ -217,10 +218,12 @@ func (t *Pond) setOrganismValue(organism GameboardLocation, num int) {
 	// Update the living count if organism changed living state
 	if originalNum < 0 && num >= 0 {
 		// TODO: add to 'living'
+		// t.living.Set(organism)
 		t.NumLiving++
 	} else if originalNum >= 0 && num < 0 {
 		t.NumLiving--
 		// TODO: remove from 'living'
+		// t.living.Remove(organism)
 	}
 }
 
