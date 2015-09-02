@@ -224,6 +224,67 @@ func generatePulsar(t *testing.T) (GameboardDims, func(GameboardDims) []Gameboar
 	return size, Pulsar, expected
 }
 
+func generateGlider(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+	size := GameboardDims{Height: 4, Width: 4}
+
+	// Build the expected gameboard
+	expected := make([]*Gameboard, 3)
+
+	var err error
+	// Period 2
+	expected[0], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
+	// Row 1
+	expected[0].SetValue(GameboardLocation{X: 0, Y: 1}, 0)
+	expected[0].SetValue(GameboardLocation{X: 2, Y: 1}, 0)
+	// Row 2
+	expected[0].SetValue(GameboardLocation{X: 1, Y: 2}, 0)
+	expected[0].SetValue(GameboardLocation{X: 2, Y: 2}, 0)
+	// Row 3
+	expected[0].SetValue(GameboardLocation{X: 1, Y: 3}, 0)
+
+	// Period 3
+	expected[1], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
+	// Row 1
+	expected[1].SetValue(GameboardLocation{X: 2, Y: 1}, 0)
+	// Row 2
+	expected[1].SetValue(GameboardLocation{X: 0, Y: 2}, 0)
+	expected[1].SetValue(GameboardLocation{X: 2, Y: 2}, 0)
+	// Row 3
+	expected[1].SetValue(GameboardLocation{X: 1, Y: 3}, 0)
+	expected[1].SetValue(GameboardLocation{X: 2, Y: 3}, 0)
+
+	// Period 4
+	expected[2], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
+	// Row 1
+	expected[2].SetValue(GameboardLocation{X: 1, Y: 1}, 0)
+	// Row 2
+	expected[2].SetValue(GameboardLocation{X: 2, Y: 2}, 0)
+	expected[2].SetValue(GameboardLocation{X: 3, Y: 2}, 0)
+	// Row 3
+	expected[2].SetValue(GameboardLocation{X: 1, Y: 3}, 0)
+	expected[2].SetValue(GameboardLocation{X: 2, Y: 3}, 0)
+
+	// Period 5
+	expected[3], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
+	for _, val := range Gliders(size) {
+		expected[3].SetValue(val, 0)
+	}
+
+	return size, Gliders, expected
+}
+
 func generateBlocks(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 4, Width: 4}
 
@@ -299,6 +360,12 @@ func TestProcessorSimultaneousRulesConwayLifeBeacons(t *testing.T) {
 func TestProcessorSimultaneousRulesConwayLifePulsar(t *testing.T) {
 	t.Skip("Skipping as this currently breaks!")
 	size, init, expected := generatePulsar(t)
+	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+}
+
+func TestProcessorSimultaneousRulesConwayLifeGliders(t *testing.T) {
+	t.Skip("Skipping as this currently breaks!")
+	size, init, expected := generateGlider(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
