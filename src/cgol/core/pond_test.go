@@ -40,6 +40,22 @@ func TestNeighborSelectorString(t *testing.T) {
 	}
 }
 
+func TestLivingTrackerSet(t *testing.T) {
+	t.Skip("TODO")
+}
+
+func TestLivingTrackerRemove(t *testing.T) {
+	t.Skip("TODO")
+}
+
+func TestLivingTrackerTest(t *testing.T) {
+	t.Skip("TODO")
+}
+
+func TestLivingTrackerGetAll(t *testing.T) {
+	t.Skip("TODO")
+}
+
 func TestPondSettingInitialPatterns(t *testing.T) {
 	rows := 3
 	cols := 3

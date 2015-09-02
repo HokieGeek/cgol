@@ -35,10 +35,10 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 			mod, more := <-queueModification
 			if more {
 				modifications <- mod
-				logger.Printf(" queued up organism mod: %s, %d\n", mod.loc.String(), mod.val)
+				// logger.Printf(" queued up organism mod: %s, %d\n", mod.loc.String(), mod.val)
 				numModifications++
 			} else {
-				logger.Printf(" stopped accepting modifications\n")
+				// logger.Printf(" stopped accepting modifications\n")
 				close(modifications)
 				break
 			}
@@ -46,36 +46,36 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 	}()
 
 	go func() {
-		logger.Println("blocking modifications...")
+		// logger.Println("blocking modifications...")
 		<-blockModifications
 
-		logger.Printf("making %d modifications...\n", numModifications)
+		// logger.Printf("making %d modifications...\n", numModifications)
 		for {
 			mod, more := <-modifications
 			if more {
 				logger.Printf("%d\n", mod)
 				pond.setOrganismValue(mod.loc, mod.val)
 			} else {
-				logger.Println("no more modifications")
+				// logger.Println("no more modifications")
 				break
 			}
 		}
 
 		// Send a value to notify that we're done.
-		logger.Println("done")
+		// logger.Println("done")
 		done <- true
 	}()
 
 	///// Start processing stuffs /////
 
-	logger.Printf(" living = %v\n", pond.living)
+	// logger.Printf(" living = %v\n", pond.living)
 	processingQueue := make(chan GameboardLocation, pond.gameboard.Dims.GetCapacity()+pond.GetNumLiving()+10)
 	// processingQueue := make(chan GameboardLocation)
 	doneProcessing := make(chan bool, 1)
 
 	// Process the queue
 	go func() {
-		// pondClone := pond.gameboard.Clone()
+		// pondClone := pond.Clone()
 		processed := make(map[int][]int)
 		for {
 			// Retrieve organism from channel, get its neighbors and see if it is alive
@@ -158,8 +158,8 @@ func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
 	*/
 
 	// Add living organisms to processing queue
-	logger.Printf("processing >%d living< organisms\n", len(pond.living))
-	for _, row := range pond.living {
+	logger.Printf("processing >%d living< organisms\n", len(pond.Living))
+	for _, row := range pond.Living {
 		for _, organism := range row {
 			processingQueue <- organism
 			logger.Printf(">> processingQueue <- organism: %s\n", organism.String())

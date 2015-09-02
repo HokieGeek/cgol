@@ -78,7 +78,7 @@ func main() {
 	displayPond(pulsar)
 
 	go func() {
-		time.Sleep(pulsar.UpdateRate * 3)
+		time.Sleep(pulsar.UpdateRate * 2)
 		pulsar.Stop()
 	}()
 	pulsar.Start(make(chan bool))

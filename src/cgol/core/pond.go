@@ -50,12 +50,109 @@ func (t NeighborsSelector) String() string {
 	return s
 }
 
+type livingTrackerAddOp struct {
+	loc GameboardLocation
+}
+
+type livingTrackerRemoveOp struct {
+	loc GameboardLocation
+}
+
+type livingTrackerTestOp struct {
+	loc  GameboardLocation
+	resp chan bool
+}
+
+type livingTrackerGetAllOp struct {
+	resp chan []GameboardLocation
+}
+
+type LivingTracker struct {
+	trackerAdd    chan *livingTrackerAddOp
+	trackerRemove chan *livingTrackerRemoveOp
+	trackerTest   chan *livingTrackerTestOp
+	trackerGetAll chan *livingTrackerGetAllOp
+}
+
+func (t *LivingTracker) living() {
+	var livingMap = make(map[int]map[int]GameboardLocation)
+
+	for {
+		select {
+		case add := <-t.trackerAdd:
+			_, keyExists := livingMap[add.loc.Y]
+			if !keyExists {
+				livingMap[add.loc.Y] = make(map[int]GameboardLocation)
+			}
+			livingMap[add.loc.Y][add.loc.X] = add.loc
+		case remove := <-t.trackerRemove:
+			_, keyExists := livingMap[remove.loc.Y]
+			if keyExists {
+				_, keyExists = livingMap[remove.loc.Y][remove.loc.X]
+				if keyExists {
+					delete(livingMap[remove.loc.Y], remove.loc.X)
+					if len(livingMap[remove.loc.Y]) <= 0 {
+						delete(livingMap, remove.loc.Y)
+					}
+				}
+			}
+		case test := <-t.trackerTest:
+			_, keyExists := livingMap[test.loc.Y]
+			if keyExists {
+				_, keyExists = livingMap[test.loc.Y][test.loc.X]
+				if !keyExists {
+					test.resp <- false
+				} else {
+					test.resp <- true
+				}
+			} else {
+				test.resp <- false
+			}
+		case getall := <-t.trackerGetAll:
+			all := make([]GameboardLocation, 0)
+			for rowNum := range livingMap {
+				for _, col := range livingMap[rowNum] {
+					all = append(all, col)
+				}
+			}
+			getall.resp <- all
+		}
+	}
+}
+
+func (t *LivingTracker) Set(location GameboardLocation) {
+	add := &livingTrackerAddOp{loc: location}
+	t.trackerAdd <- add
+}
+
+func (t *LivingTracker) Remove(location GameboardLocation) {
+	remove := &livingTrackerRemoveOp{loc: location}
+	t.trackerRemove <- remove
+}
+
+func (t *LivingTracker) Test(location GameboardLocation) bool {
+	read := &livingTrackerTestOp{loc: location, resp: make(chan bool)}
+	t.trackerTest <- read
+	val := <-read.resp
+
+	return val
+}
+
+func (t *LivingTracker) GetAll() []GameboardLocation {
+	get := &livingTrackerGetAllOp{resp: make(chan []GameboardLocation)}
+	t.trackerGetAll <- get
+	val := <-get.resp
+
+	return val
+}
+
 type Pond struct {
 	gameboard         *Gameboard
 	NumLiving         int
 	Status            PondStatus
 	neighborsSelector NeighborsSelector
-	living            map[int]map[int]GameboardLocation
+	Living            map[int]map[int]GameboardLocation
+	// living            *LivingTracker
 }
 
 func (t *Pond) GetNeighbors(organism GameboardLocation) []GameboardLocation {
@@ -76,7 +173,7 @@ func (t *Pond) isOrganismAlive(organism GameboardLocation) bool {
 }
 
 func (t *Pond) GetNumLiving() int {
-	return len(t.living)
+	return len(t.Living)
 }
 
 func (t *Pond) GetOrganismValue(organism GameboardLocation) int {
@@ -121,16 +218,31 @@ func (t *Pond) calculateNeighborCount(organism GameboardLocation) (int, []Gamebo
 
 func (t *Pond) init(initialLiving []GameboardLocation) {
 	// Initialize the first organisms and set their neighbor counts
-	t.living = make(map[int]map[int]GameboardLocation)
+	t.Living = make(map[int]map[int]GameboardLocation)
 	for _, organism := range initialLiving {
 		// TODO: this logic needs to move into its own place function with channel accessors
-		_, keyExists := t.living[organism.Y]
+		_, keyExists := t.Living[organism.Y]
 		if !keyExists {
-			t.living[organism.Y] = make(map[int]GameboardLocation)
+			t.Living[organism.Y] = make(map[int]GameboardLocation)
 		}
-		t.living[organism.Y][organism.X] = organism
+		t.Living[organism.Y][organism.X] = organism
 		t.setOrganismValue(organism, 0)
 	}
+}
+
+func (t *Pond) Clone() *Pond {
+	shadowPond := NewPond(t.gameboard.Dims.Height,
+		t.gameboard.Dims.Width,
+		t.neighborsSelector)
+
+	shadowPond.NumLiving = t.NumLiving
+	shadowPond.Status = t.Status
+
+	// TODO
+	// shadowPond.init(t.Living)
+	// Living            map[int]map[int]GameboardLocation
+
+	return shadowPond
 }
 
 func (t *Pond) String() string {

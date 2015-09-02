@@ -97,6 +97,7 @@ func (t *Gameboard) gameboard() {
 	for {
 		select {
 		case read := <-t.gameboardReads:
+			// FIXME: what if there is no value?
 			read.resp <- gameboard[read.loc.Y][read.loc.X]
 		case write := <-t.gameboardWrites:
 			gameboard[write.loc.Y][write.loc.X] = write.val
