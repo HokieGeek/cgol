@@ -383,13 +383,11 @@ func TestProcessorSimultaneousRulesConwayLifeBeacons(t *testing.T) {
 }
 
 func TestProcessorSimultaneousRulesConwayLifePulsar(t *testing.T) {
-	t.Skip("Skipping as this currently breaks!")
 	size, init, expected := generatePulsar(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
 func TestProcessorSimultaneousRulesConwayLifeGliders(t *testing.T) {
-	t.Skip("Skipping as this currently fails!")
 	size, init, expected := generateGlider(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
