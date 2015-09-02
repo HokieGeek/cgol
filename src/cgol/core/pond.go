@@ -1,8 +1,8 @@
 package cgol
 
 import (
-	// "fmt"
 	"bytes"
+	// "fmt"
 	"strconv"
 )
 
@@ -51,11 +51,13 @@ func (t NeighborsSelector) String() string {
 }
 
 type livingTrackerAddOp struct {
-	loc GameboardLocation
+	loc  GameboardLocation
+	resp chan bool
 }
 
 type livingTrackerRemoveOp struct {
-	loc GameboardLocation
+	loc  GameboardLocation
+	resp chan bool
 }
 
 type livingTrackerTestOp struct {
@@ -85,6 +87,7 @@ func (t *LivingTracker) living() {
 				livingMap[add.loc.Y] = make(map[int]GameboardLocation)
 			}
 			livingMap[add.loc.Y][add.loc.X] = add.loc
+			add.resp <- true
 		case remove := <-t.trackerRemove:
 			_, keyExists := livingMap[remove.loc.Y]
 			if keyExists {
@@ -96,6 +99,7 @@ func (t *LivingTracker) living() {
 					}
 				}
 			}
+			remove.resp <- true
 		case test := <-t.trackerTest:
 			_, keyExists := livingMap[test.loc.Y]
 			if keyExists {
@@ -121,13 +125,15 @@ func (t *LivingTracker) living() {
 }
 
 func (t *LivingTracker) Set(location GameboardLocation) {
-	add := &livingTrackerAddOp{loc: location}
+	add := &livingTrackerAddOp{loc: location, resp: make(chan bool)}
 	t.trackerAdd <- add
+	<-add.resp
 }
 
 func (t *LivingTracker) Remove(location GameboardLocation) {
-	remove := &livingTrackerRemoveOp{loc: location}
+	remove := &livingTrackerRemoveOp{loc: location, resp: make(chan bool)}
 	t.trackerRemove <- remove
+	<-remove.resp
 }
 
 func (t *LivingTracker) Test(location GameboardLocation) bool {
@@ -144,6 +150,19 @@ func (t *LivingTracker) GetAll() []GameboardLocation {
 	val := <-get.resp
 
 	return val
+}
+
+func NewLivingTracker() *LivingTracker {
+	t := new(LivingTracker)
+
+	t.trackerAdd = make(chan *livingTrackerAddOp)
+	t.trackerRemove = make(chan *livingTrackerRemoveOp)
+	t.trackerTest = make(chan *livingTrackerTestOp)
+	t.trackerGetAll = make(chan *livingTrackerGetAllOp)
+
+	go t.living()
+
+	return t
 }
 
 type Pond struct {
