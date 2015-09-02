@@ -24,7 +24,7 @@ func testProcessor(t *testing.T,
 
 		// Compare the pond with the expected version
 		if !pond.gameboard.Equals(expected[i]) {
-			t.Fatalf("Actual gameboard:\n%s\ndoes not match expected:\n%s\n", pond.gameboard.String(), expected[i].String())
+			t.Fatalf("At iteration %d, actual gameboard\n%s\ndoes not match expected\n%s\n", len(expected), pond.gameboard.String(), expected[i].String())
 		}
 	}
 }
@@ -225,13 +225,13 @@ func generatePulsar(t *testing.T) (GameboardDims, func(GameboardDims) []Gameboar
 }
 
 func generateGlider(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
-	size := GameboardDims{Height: 4, Width: 4}
+	size := GameboardDims{Height: 5, Width: 4}
 
 	// Build the expected gameboard
-	expected := make([]*Gameboard, 3)
+	expected := make([]*Gameboard, 5)
 
 	var err error
-	// Period 2
+	////// Period 2
 	expected[0], err = NewGameboard(size)
 	if err != nil {
 		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
@@ -245,7 +245,7 @@ func generateGlider(t *testing.T) (GameboardDims, func(GameboardDims) []Gameboar
 	// Row 3
 	expected[0].SetValue(GameboardLocation{X: 1, Y: 3}, 0)
 
-	// Period 3
+	////// Period 3
 	expected[1], err = NewGameboard(size)
 	if err != nil {
 		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
@@ -259,7 +259,7 @@ func generateGlider(t *testing.T) (GameboardDims, func(GameboardDims) []Gameboar
 	expected[1].SetValue(GameboardLocation{X: 1, Y: 3}, 0)
 	expected[1].SetValue(GameboardLocation{X: 2, Y: 3}, 0)
 
-	// Period 4
+	////// Period 4
 	expected[2], err = NewGameboard(size)
 	if err != nil {
 		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
@@ -273,14 +273,39 @@ func generateGlider(t *testing.T) (GameboardDims, func(GameboardDims) []Gameboar
 	expected[2].SetValue(GameboardLocation{X: 1, Y: 3}, 0)
 	expected[2].SetValue(GameboardLocation{X: 2, Y: 3}, 0)
 
-	// Period 5
+	////// Period 5
+	// This is the same seed except shifted over
 	expected[3], err = NewGameboard(size)
 	if err != nil {
 		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
 	}
-	for _, val := range Gliders(size) {
-		expected[3].SetValue(val, 0)
+	// Row 1
+	expected[3].SetValue(GameboardLocation{X: 2, Y: 1}, 0)
+	// Row 2
+	expected[3].SetValue(GameboardLocation{X: 3, Y: 2}, 0)
+	// Row 3
+	for i := 1; i < 4; i++ {
+		expected[3].SetValue(GameboardLocation{X: i, Y: 3}, 0)
 	}
+
+	////// Period 6
+	// -0--       ----       ----       ----      ----      ----
+	// --0-       0-0-       --0-       -0--      --0-      ----
+	// 000-       -00-       0-0-       --00      ---0      -0-0
+	// ----       -0--       -00-       -00-      -000      --00
+	// ----       ----       ----       ----      ----      --0-
+	expected[4], err = NewGameboard(size)
+	if err != nil {
+		t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+	}
+	// Row 1
+	expected[4].SetValue(GameboardLocation{X: 1, Y: 2}, 0)
+	expected[4].SetValue(GameboardLocation{X: 3, Y: 2}, 0)
+	// Row 2
+	expected[4].SetValue(GameboardLocation{X: 2, Y: 3}, 0)
+	expected[4].SetValue(GameboardLocation{X: 3, Y: 3}, 0)
+	// Row 3
+	expected[4].SetValue(GameboardLocation{X: 2, Y: 4}, 0)
 
 	return size, Gliders, expected
 }
@@ -364,7 +389,7 @@ func TestProcessorSimultaneousRulesConwayLifePulsar(t *testing.T) {
 }
 
 func TestProcessorSimultaneousRulesConwayLifeGliders(t *testing.T) {
-	t.Skip("Skipping as this currently breaks!")
+	t.Skip("Skipping as this currently fails!")
 	size, init, expected := generateGlider(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }

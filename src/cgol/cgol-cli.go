@@ -3,11 +3,11 @@ package main
 import (
 	"cgol/core"
 	"fmt"
-	// "time"
+	"time"
 )
 
 // TODO: Use variadic arguments to add a stop?
-func displayPond(strategy *cgol.Strategy) {
+func displayPond(strategy *cgol.Strategy, iterations time.Duration) {
 	// Clear the screen and put the cursor on the top left
 	fmt.Print("\033[2J")
 	fmt.Print("\033[H")
@@ -18,12 +18,12 @@ func displayPond(strategy *cgol.Strategy) {
 	updates := make(chan bool)
 	strategy.Start(updates)
 
-	/*
+	if iterations > -1 {
 		go func() {
-			time.Sleep(strategy.UpdateRate * 2)
+			time.Sleep(strategy.UpdateRate * iterations)
 			strategy.Stop()
 		}()
-	*/
+	}
 
 	for {
 		select {
@@ -55,37 +55,39 @@ func main() {
 			cgol.Blinkers,
 			cgol.RulesConwayLife,
 			cgol.SimultaneousProcessor)
-		displayPond(blinkers)
+		displayPond(blinkers, -1)
 	*/
 
-	fmt.Println("===== Starting toads sim =====")
-	toads := cgol.NewStrategy("RulesConwayLife,Toads",
-		cgol.NewPond(10, 10, cgol.NEIGHBORS_ALL),
-		cgol.Toads,
-		cgol.RulesConwayLife,
-		cgol.SimultaneousProcessor)
-	displayPond(toads)
-
 	/*
-		fmt.Println("===== Starting beacons sim =====")
-		beacons := cgol.NewStrategy("RulesConwayLife,Beacons",
-			// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
-			cgol.NewPond(4, 4, cgol.NEIGHBORS_ALL),
-			cgol.Beacons,
+		fmt.Println("===== Starting toads sim =====")
+		toads := cgol.NewStrategy("RulesConwayLife,Toads",
+			cgol.NewPond(10, 10, cgol.NEIGHBORS_ALL),
+			cgol.Toads,
 			cgol.RulesConwayLife,
 			cgol.SimultaneousProcessor)
-		displayPond(beacons)
+		displayPond(toads, -1)
 	*/
 
 	/*
-		fmt.Println("===== Starting pulsa sim =====")
+		fmt.Println("===== Starting pulsar sim =====")
 		pulsar := cgol.NewStrategy("RulesConwayLife,Pulsar",
 			// cgol.NewPond(10, 15, cgol.NEIGHBORS_ALL),
 			cgol.NewPond(15, 15, cgol.NEIGHBORS_ALL),
 			cgol.Pulsar,
 			cgol.RulesConwayLife,
 			cgol.SimultaneousProcessor)
-		displayPond(pulsar)
+		displayPond(pulsar, 3)
 	*/
 	// fmt.Print(pulsar)
+
+	fmt.Println("===== Starting glider sim =====")
+	glider := cgol.NewStrategy("RulesConwayLife,Glider",
+		cgol.NewPond(20, 20, cgol.NEIGHBORS_ALL),
+		func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
+			return cgol.Gliders(cgol.GameboardDims{Height: 4, Width: 4})
+		},
+		cgol.RulesConwayLife,
+		cgol.SimultaneousProcessor)
+	glider.UpdateRate = time.Second * 2
+	displayPond(glider, -1)
 }
