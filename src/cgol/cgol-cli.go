@@ -6,13 +6,14 @@ import (
 	"time"
 )
 
-// TODO: Use variadic arguments to add a stop?
-func displayPond(strategy *cgol.Strategy, iterations time.Duration) {
+func displayPond(strategy *cgol.Strategy, iterations time.Duration, static bool) {
 	// Clear the screen and put the cursor on the top left
-	fmt.Print("\033[2J")
-	fmt.Print("\033[H")
+	if static {
+		fmt.Print("\033[2J")
+		fmt.Print("\033[H")
+	}
 
-	// Seed
+	// Print the seed
 	fmt.Print(strategy)
 
 	updates := make(chan bool)
@@ -28,7 +29,9 @@ func displayPond(strategy *cgol.Strategy, iterations time.Duration) {
 	for {
 		select {
 		case <-updates:
-			fmt.Print("\033[H")
+			if static {
+				fmt.Print("\033[H")
+			}
 			fmt.Print(strategy)
 		}
 	}
@@ -49,35 +52,25 @@ func main() {
 	*/
 
 	/*
-		fmt.Println("===== Starting blinkers sim =====")
-		blinkers := cgol.NewStrategy("RulesConwayLife,Blinkers",
-			cgol.NewPond(9, 9, cgol.NEIGHBORS_ALL),
-			cgol.Blinkers,
-			cgol.RulesConwayLife,
-			cgol.SimultaneousProcessor)
-		displayPond(blinkers, -1)
-	*/
-
-	/*
 		fmt.Println("===== Starting toads sim =====")
 		toads := cgol.NewStrategy("RulesConwayLife,Toads",
 			cgol.NewPond(10, 10, cgol.NEIGHBORS_ALL),
 			cgol.Toads,
 			cgol.RulesConwayLife,
 			cgol.SimultaneousProcessor)
-		displayPond(toads)
+		displayPond(toads, -1, true)
 	*/
 
 	fmt.Println("===== Starting glider sim =====")
 	glider := cgol.NewStrategy("RulesConwayLife,Glider",
-		cgol.NewPond(20, 20, cgol.NEIGHBORS_ALL),
+		cgol.NewPond(10, 10, cgol.NEIGHBORS_ALL),
 		func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
 			return cgol.Gliders(cgol.GameboardDims{Height: 4, Width: 4})
 		},
 		cgol.RulesConwayLife,
 		cgol.SimultaneousProcessor)
 	glider.UpdateRate = time.Second * 2
-	displayPond(glider, 2)
+	displayPond(glider, 2, false)
 
 	fmt.Println("===== Starting pulsar sim =====")
 	pulsar := cgol.NewStrategy("RulesConwayLife,Pulsar",
@@ -86,5 +79,5 @@ func main() {
 		cgol.Pulsar,
 		cgol.RulesConwayLife,
 		cgol.SimultaneousProcessor)
-	displayPond(pulsar, 3)
+	displayPond(pulsar, 3, false)
 }
