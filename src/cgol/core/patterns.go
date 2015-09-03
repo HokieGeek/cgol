@@ -25,6 +25,7 @@ func getCountsForDimensions(dimensions GameboardDims, width int, height int) (in
 	return numPerRow, numPerCol
 }
 
+// , startingLocation GameboardLocation,
 func getRepeatingPattern(dimensions GameboardDims, height int, width int,
 	pattern func(*[]GameboardLocation, int, int)) []GameboardLocation {
 
@@ -33,9 +34,11 @@ func getRepeatingPattern(dimensions GameboardDims, height int, width int,
 	seed := make([]GameboardLocation, 0)
 	for row := 0; row < numPerCol; row++ {
 		currentY := (row * height)
+		// currentY := (row * height) + startingLocation.Y
 
 		for col := 0; col < numPerRow; col++ {
 			currentX := (col * width)
+			// currentX := (col * width) + startingLocation.X
 			pattern(&seed, currentX, currentY)
 		}
 	}
@@ -62,6 +65,7 @@ func Random(dimensions GameboardDims, percent int) []GameboardLocation {
 
 /////////////////// OSCILLATORS ///////////////////
 
+// func Blinkers(dimensions GameboardDims, startingLocation GameboardLocation) []GameboardLocation {
 func Blinkers(dimensions GameboardDims) []GameboardLocation {
 	// put in as many lengthx1 vertical lines as you can fit
 	// Period 1   Period 2
@@ -211,17 +215,68 @@ func Blocks(dimensions GameboardDims) []GameboardLocation {
 }
 
 // Beehive
-// -00-
-// 0--0
-// -00-
+func Beehive(dimensions GameboardDims) []GameboardLocation {
+	// -00-
+	// 0--0
+	// -00-
 
-// Loaf
-// -00-
-// 0--0
-// -0-0
-// --0-
+	const (
+		HEIGHT = 3
+		WIDTH  = 4
+	)
+	return getRepeatingPattern(dimensions, HEIGHT, WIDTH,
+		func(seed *[]GameboardLocation, currentX int, currentY int) {
+			for row := 0; row < 3; row++ {
+				switch row {
+				case 0, 2:
+					*seed = append(*seed, GameboardLocation{X: currentX + 1, Y: currentY + row})
+					*seed = append(*seed, GameboardLocation{X: currentX + 2, Y: currentY + row})
+				case 1:
+					*seed = append(*seed, GameboardLocation{X: currentX, Y: currentY + row})
+					*seed = append(*seed, GameboardLocation{X: currentX + 3, Y: currentY + row})
+				}
+			}
+		})
+}
 
-// Boat
-// 00-
-// 0-0
-// -0-
+func Loaf(dimensions GameboardDims) []GameboardLocation {
+	// -00-
+	// 0--0
+	// -0-0
+	// --0-
+
+	const HEIGHT = 4
+	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
+		func(seed *[]GameboardLocation, currentX int, currentY int) {
+			// ROW 1
+			*seed = append(*seed, GameboardLocation{X: currentX + 1, Y: currentY})
+			*seed = append(*seed, GameboardLocation{X: currentX + 2, Y: currentY})
+			// ROW 2
+			*seed = append(*seed, GameboardLocation{X: currentX, Y: currentY + 1})
+			*seed = append(*seed, GameboardLocation{X: currentX + 3, Y: currentY + 1})
+			// ROW 3
+			*seed = append(*seed, GameboardLocation{X: currentX + 1, Y: currentY + 2})
+			*seed = append(*seed, GameboardLocation{X: currentX + 3, Y: currentY + 2})
+			// ROW 4
+			*seed = append(*seed, GameboardLocation{X: currentX + 2, Y: currentY + 3})
+		})
+}
+
+func Boat(dimensions GameboardDims) []GameboardLocation {
+	// 00-
+	// 0-0
+	// -0-
+
+	const HEIGHT = 3
+	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
+		func(seed *[]GameboardLocation, currentX int, currentY int) {
+			// ROW 1
+			*seed = append(*seed, GameboardLocation{X: currentX, Y: currentY})
+			*seed = append(*seed, GameboardLocation{X: currentX + 1, Y: currentY})
+			// ROW 2
+			*seed = append(*seed, GameboardLocation{X: currentX, Y: currentY + 1})
+			*seed = append(*seed, GameboardLocation{X: currentX + 2, Y: currentY + 1})
+			// ROW 3
+			*seed = append(*seed, GameboardLocation{X: currentX + 1, Y: currentY + 2})
+		})
+}
