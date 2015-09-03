@@ -32,7 +32,7 @@ type Strategy struct {
 }
 
 func (t *Strategy) process() {
-	// startingLivingCount := t.pond.GetNumLiving()
+	startingLivingCount := t.pond.GetNumLiving()
 
 	// Process any organisms that need to be
 	t.processor(t.pond, t.ruleset)
@@ -41,13 +41,13 @@ func (t *Strategy) process() {
 	// if stillProcessing {
 	t.Statistics.Generations++
 
-	// 	// Update the statistics
-	// 	organismsDelta := t.pond.NumLiving - startingLivingCount
-	// 	if organismsDelta > 0 {
-	// 		t.Statistics.OrganismsCreated += organismsDelta
-	// 	} else if organismsDelta < 0 {
-	// 		t.Statistics.OrganismsKilled += (organismsDelta * -1) // FIXME
-	// 	}
+	// Update the statistics
+	organismsDelta := t.pond.GetNumLiving() - startingLivingCount
+	if organismsDelta > 0 {
+		t.Statistics.OrganismsCreated += organismsDelta
+	} else if organismsDelta < 0 {
+		t.Statistics.OrganismsKilled += (organismsDelta * -1)
+	}
 	// }
 
 	// If the pond is dead, let's just stop doing things
@@ -56,9 +56,20 @@ func (t *Strategy) process() {
 	}
 }
 
+// func (t *Strategy) Start(updateAlert chan bool, updateRate time.Duration) {
 func (t *Strategy) Start(updateAlert chan bool) {
-	t.ticker = time.NewTicker(t.UpdateRate)
 	go func() {
+		/*
+			        if updateRate > 0 {
+				    	for {
+			                t.process()
+			                updateAlert <- true
+			                // TODO: need to figure out a way to stop this
+				    		}
+				    	}
+			        } else {
+		*/
+		t.ticker = time.NewTicker(t.UpdateRate)
 		for {
 			select {
 			case <-t.ticker.C:
@@ -66,6 +77,7 @@ func (t *Strategy) Start(updateAlert chan bool) {
 				updateAlert <- true
 			}
 		}
+		// }
 	}()
 }
 
@@ -73,8 +85,33 @@ func (t *Strategy) Stop() {
 	t.ticker.Stop()
 }
 
+/*
 func (t *Strategy) GetGameboard() [][]int {
 	return t.pond.GetGameboard()
+}
+*/
+
+type Generation struct {
+	num    int
+	living []GameboardLocation
+	// stats...
+}
+
+func (t *Strategy) GetGeneration(num int) *Generation {
+	var p *Pond
+	if num == t.Statistics.Generations {
+		p = t.pond
+	} else {
+		cloned := t.pond.Clone()
+		cloned.SetOrganisms(t.initialOrganisms)
+		for i := 0; i < num; i++ {
+			t.processor(cloned, t.ruleset)
+		}
+
+		p = cloned
+	}
+
+	return &Generation{num: num, living: p.living.GetAll()}
 }
 
 func (t *Strategy) String() string {
@@ -106,7 +143,8 @@ func NewStrategy(label string,
 	s.UpdateRate = time.Millisecond * 250
 
 	// Initialize the pond and schedule the currently living organisms
-	s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.gameboard.Dims)...)
+	// s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.gameboard.Dims)...)
+	s.initialOrganisms = initializer(s.pond.gameboard.Dims)
 	s.pond.SetOrganisms(s.initialOrganisms)
 	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
 
