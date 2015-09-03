@@ -38,6 +38,23 @@ func displayPond(strategy *cgol.Strategy, iterations time.Duration, static bool)
 	}
 }
 
+func displayTestPond(width int, height int, rate time.Duration, initializer func(GameboardDims) []GameboardLocation) {
+	pond,err := cgol.NewPond(height, width, cgol.NEIGHBORS_ALL)
+    if err == nil {
+	    strategy := cgol.NewStrategy("Test",
+	    	pond,
+	    	intializer,
+	    	cgol.RulesConwayLife,
+	    	cgol.SimultaneousProcessor)
+	    if rate > 0 {
+	    	strategy.UpdateRate = rate
+	    }
+	    displayPond(strategy, -1, true)
+    } else {
+        fmt.Printf("Could not create: %s\n", err)
+    }
+}
+
 func main() {
 
 	patternPtr := flag.String("pattern", "blinkers", "Specify the pattern to run")
@@ -58,15 +75,7 @@ func main() {
 			height = *heightPtr
 		}
 
-		blinkers := cgol.NewStrategy("RulesConwayLife,Blinkers",
-			cgol.NewPond(height, width, cgol.NEIGHBORS_ALL),
-			cgol.Blinkers,
-			cgol.RulesConwayLife,
-			cgol.SimultaneousProcessor)
-		if *ratePtr > 0 {
-			blinkers.UpdateRate = *ratePtr
-		}
-		displayPond(blinkers, -1, true)
+        displayTestPond(width, height, *ratePtr, cgol.Blinkers)
 	case "toads":
 		width := 10
 		if *widthPtr > width {
@@ -77,15 +86,7 @@ func main() {
 			height = *heightPtr
 		}
 
-		toads := cgol.NewStrategy("RulesConwayLife,Toads",
-			cgol.NewPond(height, width, cgol.NEIGHBORS_ALL),
-			cgol.Toads,
-			cgol.RulesConwayLife,
-			cgol.SimultaneousProcessor)
-		if *ratePtr > 0 {
-			toads.UpdateRate = *ratePtr
-		}
-		displayPond(toads, -1, true)
+        displayTestPond(width, height, *ratePtr, cgol.Toads)
 	case "glider":
 		width := 30
 		if *widthPtr > width {
@@ -96,17 +97,11 @@ func main() {
 			height = *heightPtr
 		}
 
-		glider := cgol.NewStrategy("RulesConwayLife,Glider",
-			cgol.NewPond(height, width, cgol.NEIGHBORS_ALL),
+        displayTestPond(width, height, *ratePtr, 
 			func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
 				return cgol.Gliders(cgol.GameboardDims{Height: 4, Width: 4})
-			},
-			cgol.RulesConwayLife,
-			cgol.SimultaneousProcessor)
-		if *ratePtr > 0 {
-			glider.UpdateRate = *ratePtr
-		}
-		displayPond(glider, -1, true)
+			})
+
 	case "pulsar":
 		width := 15
 		if *widthPtr > width {
@@ -117,15 +112,7 @@ func main() {
 			height = *heightPtr
 		}
 
-		pulsar := cgol.NewStrategy("RulesConwayLife,Pulsar",
-			cgol.NewPond(height, width, cgol.NEIGHBORS_ALL),
-			cgol.Pulsar,
-			cgol.RulesConwayLife,
-			cgol.SimultaneousProcessor)
-		if *ratePtr > 0 {
-			pulsar.UpdateRate = *ratePtr
-		}
-		displayPond(pulsar, -1, true)
+        displayTestPond(width, height, *ratePtr, cgol.Pulsar)
 	default:
 		width := 10
 		if *widthPtr > width {
@@ -136,14 +123,8 @@ func main() {
 			height = *heightPtr
 		}
 
-		random := cgol.NewStrategy("RulesConwayLife,Random",
-			cgol.NewPond(height, width, cgol.NEIGHBORS_ALL),
-			func(dimensions cgol.GameboardDims) []cgol.GameboardLocation { return cgol.Random(dimensions, 80) },
-			cgol.RulesConwayLife,
-			cgol.SimultaneousProcessor)
-		if *ratePtr > 0 {
-			random.UpdateRate = *ratePtr
-		}
-		displayPond(random, -1, true)
+        displayTestPond(width, height, *ratePtr, 
+			func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
+				return cgol.Random(dimensions, 80)})
 	}
 }
