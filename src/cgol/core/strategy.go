@@ -73,6 +73,10 @@ func (t *Strategy) Stop() {
 	t.ticker.Stop()
 }
 
+func (t *Strategy) GetGameboard() [][]int {
+	return t.pond.GetGameboard()
+}
+
 func (t *Strategy) String() string {
 	var buf bytes.Buffer
 	buf.WriteString("[")

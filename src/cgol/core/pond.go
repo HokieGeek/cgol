@@ -270,6 +270,10 @@ func (t *Pond) SetOrganisms(organisms []GameboardLocation) {
 	}
 }
 
+func (t *Pond) GetGameboard() [][]int {
+	return t.gameboard.getSnapshot()
+}
+
 /*
 func (t *Pond) Clone() *Pond {
 	shadowPond := NewPond(t.gameboard.Dims.Height,
