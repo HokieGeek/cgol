@@ -275,9 +275,13 @@ func (t *Pond) GetGameboard() [][]int {
 }
 
 func (t *Pond) Clone() *Pond {
-	shadowPond := NewPond(t.gameboard.Dims.Height,
+	shadowPond, err := NewPond(t.gameboard.Dims.Height,
 		t.gameboard.Dims.Width,
 		t.neighborsSelector)
+
+	if err != nil {
+		// TODO: error... multiple value for this?
+	}
 
 	shadowPond.Status = t.Status
 	shadowPond.neighborsSelector = t.neighborsSelector
@@ -314,7 +318,7 @@ func (t *Pond) String() string {
 	return buf.String()
 }
 
-func NewPond(rows int, cols int, neighbors NeighborsSelector) *Pond {
+func NewPond(rows int, cols int, neighbors NeighborsSelector) (*Pond, error) {
 	p := new(Pond)
 
 	// Create values
@@ -325,10 +329,9 @@ func NewPond(rows int, cols int, neighbors NeighborsSelector) *Pond {
 	var err error
 	p.gameboard, err = NewGameboard(GameboardDims{Height: rows, Width: cols})
 	if err != nil {
-		// TODO: return nil,errors.New(blah)
-		// t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+		return nil, err
 	}
 	p.neighborsSelector = neighbors
 
-	return p
+	return p, nil
 }

@@ -164,7 +164,10 @@ func TestLivingTrackerCount(t *testing.T) {
 func TestPondSettingInitialPatterns(t *testing.T) {
 	rows := 3
 	cols := 3
-	pond := NewPond(rows, cols, NEIGHBORS_ALL)
+	pond, err := NewPond(rows, cols, NEIGHBORS_ALL)
+	if err != nil {
+		t.Fatal("Unable to create pond")
+	}
 
 	// Create a pattern and call the pond's init function
 	initialLiving := make([]GameboardLocation, 3)
@@ -202,7 +205,10 @@ func TestPondNeighborSelectionError(t *testing.T) {
 func TestPondOrganismValue(t *testing.T) {
 	expectedVal := 2
 	pos := GameboardLocation{X: 0, Y: 0}
-	pond := NewPond(1, 1, NEIGHBORS_ALL)
+	pond, err := NewPond(1, 1, NEIGHBORS_ALL)
+	if err != nil {
+		t.Fatal("Unable to create pond")
+	}
 	pond.setOrganismValue(pos, expectedVal)
 
 	actualVal := pond.GetOrganismValue(pos)
@@ -213,7 +219,10 @@ func TestPondOrganismValue(t *testing.T) {
 }
 
 func TestPondGetNumLiving(t *testing.T) {
-	pond := NewPond(3, 3, NEIGHBORS_ALL)
+	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
+	if err != nil {
+		t.Fatal("Unable to create pond")
+	}
 
 	// Create a pattern and call the pond's init function
 	initialLiving := make([]GameboardLocation, 2)
@@ -229,7 +238,10 @@ func TestPondGetNumLiving(t *testing.T) {
 }
 
 func TestPondNeighborCountCalutation(t *testing.T) {
-	pond := NewPond(3, 3, NEIGHBORS_ALL)
+	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
+	if err != nil {
+		t.Fatal("Unable to create pond")
+	}
 
 	// Create a pattern and call the pond's init function
 	initialLiving := make([]GameboardLocation, 2)
@@ -270,7 +282,10 @@ func TestPondNeighborCountCalutation(t *testing.T) {
 }
 
 func TestPondString(t *testing.T) {
-	pond := NewPond(3, 3, NEIGHBORS_ALL)
+	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
+	if err != nil {
+		t.Fatal("Unable to create pond")
+	}
 	if len(pond.String()) <= 0 {
 		t.Error("Unexpectly retrieved empty string from Pond string function")
 	}
