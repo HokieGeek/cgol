@@ -15,7 +15,10 @@ func testProcessor(t *testing.T,
 	expected []*Gameboard) {
 
 	// Build the initial pond
-	pond := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	pond, err := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	if err != nil {
+		t.Fatalf("Unable to create pond: %s\n", err)
+	}
 	pond.SetOrganisms(init(size))
 
 	// Go through one generation
@@ -310,7 +313,7 @@ func generateGlider(t *testing.T) (GameboardDims, func(GameboardDims) []Gameboar
 	return size, Gliders, expected
 }
 
-func generateBlocks(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+func generateBlock(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
 	size := GameboardDims{Height: 4, Width: 4}
 
 	// Build the expected gameboard
@@ -330,6 +333,86 @@ func generateBlocks(t *testing.T) (GameboardDims, func(GameboardDims) []Gameboar
 	}
 
 	return size, Blocks, expected
+}
+
+func generateBeehive(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+	size := GameboardDims{Height: 4, Width: 4}
+
+	// Build the expected gameboard
+	expected := make([]*Gameboard, 4)
+
+	var err error
+	for period := 0; period < len(expected); period++ {
+		expected[period], err = NewGameboard(size)
+		if err != nil {
+			t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+		}
+		for row := 0; row < 3; row++ {
+			switch row {
+			case 0, 2:
+				expected[period].SetValue(GameboardLocation{X: 1, Y: row}, 0)
+				expected[period].SetValue(GameboardLocation{X: 2, Y: row}, 0)
+			case 1:
+				expected[period].SetValue(GameboardLocation{X: 0, Y: row}, 0)
+				expected[period].SetValue(GameboardLocation{X: 3, Y: row}, 0)
+			}
+		}
+	}
+
+	return size, Beehive, expected
+}
+
+func generateLoaf(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+	size := GameboardDims{Height: 4, Width: 4}
+
+	// Build the expected gameboard
+	expected := make([]*Gameboard, 4)
+
+	var err error
+	for period := 0; period < len(expected); period++ {
+		expected[period], err = NewGameboard(size)
+		if err != nil {
+			t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+		}
+		// ROW 1
+		expected[period].SetValue(GameboardLocation{X: 1, Y: 0}, 0)
+		expected[period].SetValue(GameboardLocation{X: 2, Y: 0}, 0)
+		// ROW 2
+		expected[period].SetValue(GameboardLocation{X: 0, Y: 1}, 0)
+		expected[period].SetValue(GameboardLocation{X: 3, Y: 1}, 0)
+		// ROW 3
+		expected[period].SetValue(GameboardLocation{X: 1, Y: 2}, 0)
+		expected[period].SetValue(GameboardLocation{X: 3, Y: 2}, 0)
+		// ROW 4
+		expected[period].SetValue(GameboardLocation{X: 2, Y: 3}, 0)
+	}
+
+	return size, Loaf, expected
+}
+
+func generateBoat(t *testing.T) (GameboardDims, func(GameboardDims) []GameboardLocation, []*Gameboard) {
+	size := GameboardDims{Height: 4, Width: 4}
+
+	// Build the expected gameboard
+	expected := make([]*Gameboard, 4)
+
+	var err error
+	for period := 0; period < len(expected); period++ {
+		expected[period], err = NewGameboard(size)
+		if err != nil {
+			t.Fatalf("Gameboard of size %s could not be created\n", size.String())
+		}
+		// ROW 1
+		expected[period].SetValue(GameboardLocation{X: 0, Y: 0}, 0)
+		expected[period].SetValue(GameboardLocation{X: 1, Y: 0}, 0)
+		// ROW 2
+		expected[period].SetValue(GameboardLocation{X: 0, Y: 1}, 0)
+		expected[period].SetValue(GameboardLocation{X: 2, Y: 1}, 0)
+		// ROW 3
+		expected[period].SetValue(GameboardLocation{X: 1, Y: 2}, 0)
+	}
+
+	return size, Boat, expected
 }
 
 //////////////////////// Simultaneous processor ////////////////////////
@@ -352,10 +435,16 @@ func TestProcessorSimultaneousRulesConwayLifeRandom(t *testing.T) {
 	size := GameboardDims{Height: 16, Width: 16}
 	initialLocations := Random(size, 80)
 
-	pondInitialSnapshot := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	pondInitialSnapshot, err := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	if err != nil {
+		t.Fatalf("Unable to create pond: %s\n", err)
+	}
 	pondInitialSnapshot.SetOrganisms(initialLocations)
 
-	pondWorker := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	pondWorker, err := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	if err != nil {
+		t.Fatalf("Unable to create pond: %s\n", err)
+	}
 	pondWorker.SetOrganisms(initialLocations)
 
 	// Go through one generation
@@ -367,18 +456,38 @@ func TestProcessorSimultaneousRulesConwayLifeRandom(t *testing.T) {
 	}
 }
 
-func TestProcessorSimultaneousRulesConwayLifeBlinkers(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayLifeBlinker(t *testing.T) {
 	size, init, expected := generateBlinkers(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeToads(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayLifeToad(t *testing.T) {
 	size, init, expected := generateToads(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeBeacons(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayLifeBeacon(t *testing.T) {
 	size, init, expected := generateBeacons(t)
+	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+}
+
+func TestProcessorSimultaneousRulesConwayLifeBlock(t *testing.T) {
+	size, init, expected := generateBlock(t)
+	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+}
+
+func TestProcessorSimultaneousRulesConwayLifeBeehive(t *testing.T) {
+	size, init, expected := generateBeehive(t)
+	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+}
+
+func TestProcessorSimultaneousRulesConwayLifeLoaf(t *testing.T) {
+	size, init, expected := generateLoaf(t)
+	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+}
+
+func TestProcessorSimultaneousRulesConwayLifeBoat(t *testing.T) {
+	size, init, expected := generateBoat(t)
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
@@ -392,15 +501,13 @@ func TestProcessorSimultaneousRulesConwayLifeGliders(t *testing.T) {
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeBlock(t *testing.T) {
-	size, init, expected := generateBlocks(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
-}
-
 func BenchmarkProcessorSimultaneousRulesConwayLifePulsar(b *testing.B) {
 	// Build the initial pond
 	size := GameboardDims{Height: 33, Width: 33}
-	pond := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	pond, err := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
+	if err != nil {
+		b.Fatalf("Unable to create pond: %s\n", err)
+	}
 	pond.SetOrganisms(Pulsar(size))
 
 	// Ok, do the benchmark now
