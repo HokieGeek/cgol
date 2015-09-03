@@ -3,8 +3,8 @@ package cgol
 import (
 	"bytes"
 	// "fmt"
-	"io/ioutil"
-	"log"
+	// "io/ioutil"
+	// "log"
 	"strconv"
 	// "os"
 )
@@ -88,12 +88,11 @@ func (t *LivingTracker) living() {
 	var livingMap = make(map[int]map[int]GameboardLocation)
 	var count int
 	// logger := log.New(os.Stderr, "LivingTracker: ", log.Ltime)
-	logger := log.New(ioutil.Discard, "LivingTracker: ", log.Ltime)
+	// logger := log.New(ioutil.Discard, "LivingTracker: ", log.Ltime)
 
 	for {
 		select {
 		case add := <-t.trackerAdd:
-			logger.Println("Adding")
 			added := true
 			_, keyExists := livingMap[add.loc.Y]
 			if !keyExists {
@@ -106,7 +105,6 @@ func (t *LivingTracker) living() {
 			}
 			add.resp <- added
 		case remove := <-t.trackerRemove:
-			logger.Println("Removing")
 			removed := false
 			_, keyExists := livingMap[remove.loc.Y]
 			if keyExists {
@@ -124,7 +122,6 @@ func (t *LivingTracker) living() {
 			}
 			remove.resp <- removed
 		case test := <-t.trackerTest:
-			logger.Println("Testing")
 			_, keyExists := livingMap[test.loc.Y]
 			if keyExists {
 				_, keyExists = livingMap[test.loc.Y][test.loc.X]
@@ -137,7 +134,6 @@ func (t *LivingTracker) living() {
 				test.resp <- false
 			}
 		case getall := <-t.trackerGetAll:
-			logger.Println("All")
 			all := make([]GameboardLocation, 0)
 			for rowNum := range livingMap {
 				for _, col := range livingMap[rowNum] {
@@ -146,7 +142,6 @@ func (t *LivingTracker) living() {
 			}
 			getall.resp <- all
 		case countOp := <-t.trackerCount:
-			logger.Println("Count")
 			countOp.resp <- count
 		}
 	}
@@ -275,6 +270,7 @@ func (t *Pond) SetOrganisms(organisms []GameboardLocation) {
 	}
 }
 
+/*
 func (t *Pond) Clone() *Pond {
 	shadowPond := NewPond(t.gameboard.Dims.Height,
 		t.gameboard.Dims.Width,
@@ -288,6 +284,7 @@ func (t *Pond) Clone() *Pond {
 
 	return shadowPond
 }
+*/
 
 func (t *Pond) String() string {
 	var buf bytes.Buffer

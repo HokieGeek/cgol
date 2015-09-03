@@ -397,11 +397,11 @@ func TestProcessorSimultaneousRulesConwayLifeBlock(t *testing.T) {
 	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
 }
 
-func BenchmarkProcessorSimultaneousRulesConwayLifeBlinker(b *testing.B) {
+func BenchmarkProcessorSimultaneousRulesConwayLifePulsar(b *testing.B) {
 	// Build the initial pond
 	size := GameboardDims{Height: 33, Width: 33}
 	pond := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
-	pond.SetOrganisms(Blinkers(size))
+	pond.SetOrganisms(Pulsar(size))
 
 	// Ok, do the benchmark now
 	b.ResetTimer()
