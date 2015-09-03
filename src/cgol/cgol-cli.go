@@ -38,21 +38,21 @@ func displayPond(strategy *cgol.Strategy, iterations time.Duration, static bool)
 	}
 }
 
-func displayTestPond(width int, height int, rate time.Duration, initializer func(GameboardDims) []GameboardLocation) {
-	pond,err := cgol.NewPond(height, width, cgol.NEIGHBORS_ALL)
-    if err == nil {
-	    strategy := cgol.NewStrategy("Test",
-	    	pond,
-	    	intializer,
-	    	cgol.RulesConwayLife,
-	    	cgol.SimultaneousProcessor)
-	    if rate > 0 {
-	    	strategy.UpdateRate = rate
-	    }
-	    displayPond(strategy, -1, true)
-    } else {
-        fmt.Printf("Could not create: %s\n", err)
-    }
+func displayTestPond(width int, height int, rate time.Duration, initializer func(cgol.GameboardDims) []cgol.GameboardLocation) {
+	pond, err := cgol.NewPond(height, width, cgol.NEIGHBORS_ALL)
+	if err == nil {
+		strategy := cgol.NewStrategy("Test",
+			pond,
+			initializer,
+			cgol.RulesConwayLife,
+			cgol.SimultaneousProcessor)
+		if rate > 0 {
+			strategy.UpdateRate = rate
+		}
+		displayPond(strategy, -1, true)
+	} else {
+		fmt.Printf("Could not create: %s\n", err)
+	}
 }
 
 func main() {
@@ -75,7 +75,7 @@ func main() {
 			height = *heightPtr
 		}
 
-        displayTestPond(width, height, *ratePtr, cgol.Blinkers)
+		displayTestPond(width, height, *ratePtr, cgol.Blinkers)
 	case "toads":
 		width := 10
 		if *widthPtr > width {
@@ -86,7 +86,7 @@ func main() {
 			height = *heightPtr
 		}
 
-        displayTestPond(width, height, *ratePtr, cgol.Toads)
+		displayTestPond(width, height, *ratePtr, cgol.Toads)
 	case "glider":
 		width := 30
 		if *widthPtr > width {
@@ -97,7 +97,7 @@ func main() {
 			height = *heightPtr
 		}
 
-        displayTestPond(width, height, *ratePtr, 
+		displayTestPond(width, height, *ratePtr,
 			func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
 				return cgol.Gliders(cgol.GameboardDims{Height: 4, Width: 4})
 			})
@@ -112,7 +112,7 @@ func main() {
 			height = *heightPtr
 		}
 
-        displayTestPond(width, height, *ratePtr, cgol.Pulsar)
+		displayTestPond(width, height, *ratePtr, cgol.Pulsar)
 	default:
 		width := 10
 		if *widthPtr > width {
@@ -123,8 +123,9 @@ func main() {
 			height = *heightPtr
 		}
 
-        displayTestPond(width, height, *ratePtr, 
+		displayTestPond(width, height, *ratePtr,
 			func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
-				return cgol.Random(dimensions, 80)})
+				return cgol.Random(dimensions, 80)
+			})
 	}
 }
