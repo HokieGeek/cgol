@@ -19,30 +19,29 @@ func TestStrategyCreation(t *testing.T) {
 	// 	RulesConwayLife,
 	// 	SimultaneousProcessor)
 	// TODO: Check that the pond was initialized correctly
+	// snapshot := strategy.pond.gameboard.GetSnapshot()
+
 	// TODO: Check statistics
 }
 
 func TestStrategyProcess(t *testing.T) {
-	t.Skip("TODO: Check that process actually changes the pond")
-	/*
-		strategy := NewStrategy("TestStrategyProcess",
-			NewPond(3, 3, NEIGHBORS_ALL),
-			Blinkers,
-			RulesConwayLife,
-			SimultaneousProcessor)
-		seededSnapshot := strategy.GetGameboard()
-		strategy.process()
-		processedSnapshot := strategy.GetGameboard()
+	strategy := NewStrategy("TestStrategyProcess",
+		NewPond(3, 3, NEIGHBORS_ALL),
+		Blinkers,
+		RulesConwayLife,
+		SimultaneousProcessor)
 
-		// TODO: this might be too low-level. Might be better if I add an Equals to Gameboard... but also need a clone, I guess
-		for y,row := range seededSnapshot {
-			for x,cell := range row {
-				if cell != processedSnapshot[y][x] {
-					// If it is different, then test passes
-				}
-			}
-		}
-	*/
+	seededPond := strategy.pond.Clone()
+
+	strategy.process()
+
+	processedPond := strategy.pond
+
+	if seededPond.Equals(processedPond) {
+		t.Fatal("Pond did not change after processing")
+	}
+
+	// TODO: Check statistics
 
 }
 

@@ -274,21 +274,31 @@ func (t *Pond) GetGameboard() [][]int {
 	return t.gameboard.getSnapshot()
 }
 
-/*
 func (t *Pond) Clone() *Pond {
 	shadowPond := NewPond(t.gameboard.Dims.Height,
 		t.gameboard.Dims.Width,
 		t.neighborsSelector)
 
 	shadowPond.Status = t.Status
+	shadowPond.neighborsSelector = t.neighborsSelector
 
-	// TODO
-	// shadowPond.SetOrganisms(t.living.GetAll())
-	// living
+	shadowPond.SetOrganisms(t.living.GetAll())
 
 	return shadowPond
 }
-*/
+
+func (t *Pond) Equals(rhs *Pond) bool {
+	if !t.gameboard.Equals(rhs.gameboard) {
+		return false
+	}
+	if t.Status != rhs.Status {
+		return false
+	}
+	if t.neighborsSelector != rhs.neighborsSelector {
+		return false
+	}
+	return true
+}
 
 func (t *Pond) String() string {
 	var buf bytes.Buffer
