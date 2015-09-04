@@ -8,7 +8,7 @@ import (
 )
 */
 
-func SimultaneousProcessor(pond *Pond, rules func(int, bool) bool) {
+func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 	// logger := log.New(os.Stderr, "SimultaneousProcessor: ", log.Ltime)
 	// logger := log.New(ioutil.Discard, "SimultaneousProcessor: ", log.Ltime)
 

@@ -48,17 +48,17 @@ func TestStrategyProcess(t *testing.T) {
 		t.Fatalf("Unable to create strategy: %s\n", err)
 	}
 
-	seededPond, err := strategy.pond.Clone()
+	seededpond, err := strategy.pond.Clone()
 	if err != nil {
 		t.Fatalf("Unable to clone pond: %s\n", err)
 	}
 
 	strategy.process()
 
-	processedPond := strategy.pond
+	processedpond := strategy.pond
 
-	if seededPond.Equals(processedPond) {
-		t.Fatal("Pond did not change after processing")
+	if seededpond.Equals(processedpond) {
+		t.Fatal("pond did not change after processing")
 	}
 
 	// Check statistics
@@ -80,7 +80,7 @@ func TestStrategyStartStop(t *testing.T) {
 		t.Fatalf("Unable to create strategy: %s\n", err)
 	}
 
-	seededPond, err := strategy.pond.Clone()
+	seededpond, err := strategy.pond.Clone()
 	if err != nil {
 		t.Fatalf("Unable to clone pond: %s\n", err)
 	}
@@ -101,10 +101,10 @@ func TestStrategyStartStop(t *testing.T) {
 	}
 	*/
 
-	processedPond := strategy.pond
+	processedpond := strategy.pond
 
-	if seededPond.Equals(processedPond) {
-		t.Fatal("Pond did not change after processing")
+	if seededpond.Equals(processedpond) {
+		t.Fatal("pond did not change after processing")
 	}
 
 	// Check statistics

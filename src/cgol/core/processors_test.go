@@ -8,14 +8,14 @@ import "testing"
 // number of generations as there are lifeboards in the 'expected' slice.
 // Compares each generation with the correct slice
 func testProcessor(t *testing.T,
-	processor func(pond *Pond, rules func(int, bool) bool),
+	processor func(pond *pond, rules func(int, bool) bool),
 	rules func(int, bool) bool,
 	size LifeboardDims,
 	init func(LifeboardDims) []LifeboardLocation,
 	expected []*lifeboard) {
 
 	// Build the initial pond
-	pond, err := newPond(size, NEIGHBORS_ALL)
+	pond, err := newpond(size, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -435,13 +435,13 @@ func TestProcessorSimultaneousRulesConwayRandom(t *testing.T) {
 	size := LifeboardDims{Height: 16, Width: 16}
 	initialLocations := Random(size, 80)
 
-	pondInitialSnapshot, err := newPond(size, NEIGHBORS_ALL)
+	pondInitialSnapshot, err := newpond(size, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
 	pondInitialSnapshot.SetOrganisms(initialLocations)
 
-	pondWorker, err := newPond(size, NEIGHBORS_ALL)
+	pondWorker, err := newpond(size, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -504,7 +504,7 @@ func TestProcessorSimultaneousRulesConwayGliders(t *testing.T) {
 func BenchmarkProcessorSimultaneousRulesConwayPulsar(b *testing.B) {
 	// Build the initial pond
 	size := LifeboardDims{Height: 33, Width: 33}
-	pond, err := newPond(size, NEIGHBORS_ALL)
+	pond, err := newpond(size, NEIGHBORS_ALL)
 	if err != nil {
 		b.Fatalf("Unable to create pond: %s\n", err)
 	}

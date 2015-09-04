@@ -8,7 +8,7 @@ type World struct {
 	ponds []Strategy
 }
 
-func (t *World) Ponds() {
+func (t *World) ponds() {
 	// TODO
 }
 

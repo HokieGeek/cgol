@@ -26,12 +26,12 @@ func TestneighborSelectorString(t *testing.T) {
 
 	selector = NEIGHBORS_ORTHOGONAL
 	if len(selector.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from Pondselector object")
+		t.Error("Unexpectedly retrieved empty string from pondselector object")
 	}
 
 	selector = NEIGHBORS_OBLIQUE
 	if len(selector.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from Pondselector object")
+		t.Error("Unexpectedly retrieved empty string from pondselector object")
 	}
 
 	selector = NEIGHBORS_ALL
@@ -161,8 +161,8 @@ func TestlivingTrackerCount(t *testing.T) {
 	}
 }
 
-func TestPondSettingInitialPatterns(t *testing.T) {
-	pond, err := newPond(LifeboardDims{Height: 3, Width: 3}, NEIGHBORS_ALL)
+func TestpondSettingInitialPatterns(t *testing.T) {
+	pond, err := newpond(LifeboardDims{Height: 3, Width: 3}, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -183,15 +183,15 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 	}
 }
 
-func TestPondNeighborSelection(t *testing.T) {
+func TestpondNeighborSelection(t *testing.T) {
 	t.Skip("This will essentially just retest the lifeboard tests.")
 }
 
-func TestPondNeighborSelectionError(t *testing.T) {
+func TestpondNeighborSelectionError(t *testing.T) {
 	t.Skip("Bad location should be the test")
 	/*
 		fake_selector := 999
-		pond := newPond(1, 1, fake_selector)
+		pond := newpond(1, 1, fake_selector)
 
 		neighbors, err := pond.GetNeighbors(LifeboardLocation{X: 0, Y: 0})
 		if err != nil {
@@ -200,10 +200,10 @@ func TestPondNeighborSelectionError(t *testing.T) {
 	*/
 }
 
-func TestPondOrganismValue(t *testing.T) {
+func TestpondOrganismValue(t *testing.T) {
 	expectedVal := 2
 	pos := LifeboardLocation{X: 0, Y: 0}
-	pond, err := newPond(LifeboardDims{Height: 1, Width: 1}, NEIGHBORS_ALL)
+	pond, err := newpond(LifeboardDims{Height: 1, Width: 1}, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -216,9 +216,9 @@ func TestPondOrganismValue(t *testing.T) {
 	}
 }
 
-func TestPondGetNumLiving(t *testing.T) {
+func TestpondGetNumLiving(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	pond, err := newPond(dims, NEIGHBORS_ALL)
+	pond, err := newpond(dims, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -236,9 +236,9 @@ func TestPondGetNumLiving(t *testing.T) {
 	}
 }
 
-func TestPondNeighborCountCalutation(t *testing.T) {
+func TestpondNeighborCountCalutation(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	pond, err := newPond(dims, NEIGHBORS_ALL)
+	pond, err := newpond(dims, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -281,13 +281,13 @@ func TestPondNeighborCountCalutation(t *testing.T) {
 	}
 }
 
-func TestPondString(t *testing.T) {
+func TestpondString(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	pond, err := newPond(dims, NEIGHBORS_ALL)
+	pond, err := newpond(dims, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
 	if len(pond.String()) <= 0 {
-		t.Error("Unexpectly retrieved empty string from Pond string function")
+		t.Error("Unexpectly retrieved empty string from pond string function")
 	}
 }

@@ -24,8 +24,8 @@ type Strategy struct {
 	Label            string
 	Statistics       StrategyStats
 	UpdateRate       time.Duration
-	pond             *Pond
-	processor        func(pond *Pond, rules func(int, bool) bool)
+	pond             *pond
+	processor        func(pond *pond, rules func(int, bool) bool)
 	ruleset          func(int, bool) bool
 	initialOrganisms []LifeboardLocation
 	ticker           *time.Ticker
@@ -98,7 +98,7 @@ type Generation struct {
 }
 
 func (t *Strategy) GetGeneration(num int) *Generation {
-	var p *Pond
+	var p *pond
 	if num == t.Statistics.Generations {
 		p = t.pond
 	} else {
@@ -137,11 +137,11 @@ func NewStrategy(label string,
 	neighbors neighborsSelector,
 	initializer func(LifeboardDims) []LifeboardLocation,
 	rules func(int, bool) bool,
-	processor func(pond *Pond, rules func(int, bool) bool)) (*Strategy, error) {
+	processor func(pond *pond, rules func(int, bool) bool)) (*Strategy, error) {
 	s := new(Strategy)
 
 	var err error
-	s.pond, err = newPond(LifeboardDims{Height: dims.Height, Width: dims.Width}, neighbors)
+	s.pond, err = newpond(LifeboardDims{Height: dims.Height, Width: dims.Width}, neighbors)
 	if err != nil {
 		return nil, err
 	}
