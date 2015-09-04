@@ -12,7 +12,7 @@ func testProcessor(t *testing.T,
 	rules func(int, bool) bool,
 	size LifeboardDims,
 	init func(LifeboardDims) []LifeboardLocation,
-	expected []*Lifeboard) {
+	expected []*lifeboard) {
 
 	// Build the initial pond
 	pond, err := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
@@ -32,26 +32,26 @@ func testProcessor(t *testing.T,
 	}
 }
 
-func generateBlinkers(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*Lifeboard) {
+func generateBlinkers(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*lifeboard) {
 	size := LifeboardDims{Height: 3, Width: 3}
 
 	// Build the expected lifeboard
-	expected := make([]*Lifeboard, 2)
+	expected := make([]*lifeboard, 2)
 
 	// Period 2
 	var err error
-	expected[0], err = NewLifeboard(size)
+	expected[0], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	for i := 0; i < 3; i++ {
 		expected[0].SetValue(LifeboardLocation{X: 1, Y: i}, 0)
 	}
 
 	// Period 1
-	expected[1], err = NewLifeboard(size)
+	expected[1], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	for _, val := range Blinkers(size) {
 		expected[1].SetValue(val, 0)
@@ -60,17 +60,17 @@ func generateBlinkers(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifebo
 	return size, Blinkers, expected
 }
 
-func generateToads(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*Lifeboard) {
+func generateToads(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*lifeboard) {
 	size := LifeboardDims{Height: 4, Width: 4}
 
 	// Build the expected lifeboard
-	expected := make([]*Lifeboard, 2)
+	expected := make([]*lifeboard, 2)
 
 	// Period 2
 	var err error
-	expected[0], err = NewLifeboard(size)
+	expected[0], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	expected[0].SetValue(LifeboardLocation{X: 2, Y: 0}, 0)
 
@@ -82,9 +82,9 @@ func generateToads(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboard
 	expected[0].SetValue(LifeboardLocation{X: 1, Y: 3}, 0)
 
 	// Period 1
-	expected[1], err = NewLifeboard(size)
+	expected[1], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	for _, val := range Toads(size) {
 		expected[1].SetValue(val, 0)
@@ -93,17 +93,17 @@ func generateToads(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboard
 	return size, Toads, expected
 }
 
-func generateBeacons(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*Lifeboard) {
+func generateBeacons(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*lifeboard) {
 	size := LifeboardDims{Height: 4, Width: 4}
 
 	// Build the expected lifeboard
-	expected := make([]*Lifeboard, 2)
+	expected := make([]*lifeboard, 2)
 
 	// Period 2
 	var err error
-	expected[0], err = NewLifeboard(size)
+	expected[0], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	for row := 0; row < 4; row++ {
 		adjust := 0
@@ -117,9 +117,9 @@ func generateBeacons(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboa
 	}
 
 	// Period 1
-	expected[1], err = NewLifeboard(size)
+	expected[1], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	for _, val := range Beacons(size) {
 		expected[1].SetValue(val, 0)
@@ -128,17 +128,17 @@ func generateBeacons(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboa
 	return size, Beacons, expected
 }
 
-func generatePulsar(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*Lifeboard) {
+func generatePulsar(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*lifeboard) {
 	size := LifeboardDims{Height: 15, Width: 15}
 
 	// Build the expected lifeboard
-	expected := make([]*Lifeboard, 3)
+	expected := make([]*lifeboard, 3)
 
 	// Period 2
 	var err error
-	expected[0], err = NewLifeboard(size)
+	expected[0], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	for i := 0; i < size.Height; i++ {
 		switch i {
@@ -168,9 +168,9 @@ func generatePulsar(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboar
 	}
 
 	// Period 3
-	expected[1], err = NewLifeboard(size)
+	expected[1], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	for i := 0; i < size.Height; i++ {
 		switch i {
@@ -216,9 +216,9 @@ func generatePulsar(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboar
 	}
 
 	// Period 1
-	expected[2], err = NewLifeboard(size)
+	expected[2], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	for _, val := range Pulsar(size) {
 		expected[2].SetValue(val, 0)
@@ -227,17 +227,17 @@ func generatePulsar(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboar
 	return size, Pulsar, expected
 }
 
-func generateGlider(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*Lifeboard) {
+func generateGlider(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*lifeboard) {
 	size := LifeboardDims{Height: 5, Width: 4}
 
 	// Build the expected lifeboard
-	expected := make([]*Lifeboard, 5)
+	expected := make([]*lifeboard, 5)
 
 	var err error
 	////// Period 2
-	expected[0], err = NewLifeboard(size)
+	expected[0], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	// Row 1
 	expected[0].SetValue(LifeboardLocation{X: 0, Y: 1}, 0)
@@ -249,9 +249,9 @@ func generateGlider(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboar
 	expected[0].SetValue(LifeboardLocation{X: 1, Y: 3}, 0)
 
 	////// Period 3
-	expected[1], err = NewLifeboard(size)
+	expected[1], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	// Row 1
 	expected[1].SetValue(LifeboardLocation{X: 2, Y: 1}, 0)
@@ -263,9 +263,9 @@ func generateGlider(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboar
 	expected[1].SetValue(LifeboardLocation{X: 2, Y: 3}, 0)
 
 	////// Period 4
-	expected[2], err = NewLifeboard(size)
+	expected[2], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	// Row 1
 	expected[2].SetValue(LifeboardLocation{X: 1, Y: 1}, 0)
@@ -278,9 +278,9 @@ func generateGlider(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboar
 
 	////// Period 5
 	// This is the same seed except shifted over
-	expected[3], err = NewLifeboard(size)
+	expected[3], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	// Row 1
 	expected[3].SetValue(LifeboardLocation{X: 2, Y: 1}, 0)
@@ -297,9 +297,9 @@ func generateGlider(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboar
 	// 000-       -00-       0-0-       --00      ---0      -0-0
 	// ----       -0--       -00-       -00-      -000      --00
 	// ----       ----       ----       ----      ----      --0-
-	expected[4], err = NewLifeboard(size)
+	expected[4], err = newLifeboard(size)
 	if err != nil {
-		t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+		t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 	}
 	// Row 1
 	expected[4].SetValue(LifeboardLocation{X: 1, Y: 2}, 0)
@@ -313,17 +313,17 @@ func generateGlider(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboar
 	return size, Gliders, expected
 }
 
-func generateBlock(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*Lifeboard) {
+func generateBlock(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*lifeboard) {
 	size := LifeboardDims{Height: 4, Width: 4}
 
 	// Build the expected lifeboard
-	expected := make([]*Lifeboard, 4)
+	expected := make([]*lifeboard, 4)
 
 	var err error
 	for period := 0; period < len(expected); period++ {
-		expected[period], err = NewLifeboard(size)
+		expected[period], err = newLifeboard(size)
 		if err != nil {
-			t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+			t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 		}
 		for row := 0; row < 2; row++ {
 			for col := 0; col < 2; col++ {
@@ -335,17 +335,17 @@ func generateBlock(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboard
 	return size, Blocks, expected
 }
 
-func generateBeehive(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*Lifeboard) {
+func generateBeehive(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*lifeboard) {
 	size := LifeboardDims{Height: 4, Width: 4}
 
 	// Build the expected lifeboard
-	expected := make([]*Lifeboard, 4)
+	expected := make([]*lifeboard, 4)
 
 	var err error
 	for period := 0; period < len(expected); period++ {
-		expected[period], err = NewLifeboard(size)
+		expected[period], err = newLifeboard(size)
 		if err != nil {
-			t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+			t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 		}
 		for row := 0; row < 3; row++ {
 			switch row {
@@ -362,17 +362,17 @@ func generateBeehive(t *testing.T) (LifeboardDims, func(LifeboardDims) []Lifeboa
 	return size, Beehive, expected
 }
 
-func generateLoaf(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*Lifeboard) {
+func generateLoaf(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*lifeboard) {
 	size := LifeboardDims{Height: 4, Width: 4}
 
 	// Build the expected lifeboard
-	expected := make([]*Lifeboard, 4)
+	expected := make([]*lifeboard, 4)
 
 	var err error
 	for period := 0; period < len(expected); period++ {
-		expected[period], err = NewLifeboard(size)
+		expected[period], err = newLifeboard(size)
 		if err != nil {
-			t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+			t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 		}
 		// ROW 1
 		expected[period].SetValue(LifeboardLocation{X: 1, Y: 0}, 0)
@@ -390,17 +390,17 @@ func generateLoaf(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardL
 	return size, Loaf, expected
 }
 
-func generateBoat(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*Lifeboard) {
+func generateBoat(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardLocation, []*lifeboard) {
 	size := LifeboardDims{Height: 4, Width: 4}
 
 	// Build the expected lifeboard
-	expected := make([]*Lifeboard, 4)
+	expected := make([]*lifeboard, 4)
 
 	var err error
 	for period := 0; period < len(expected); period++ {
-		expected[period], err = NewLifeboard(size)
+		expected[period], err = newLifeboard(size)
 		if err != nil {
-			t.Fatalf("Lifeboard of size %s could not be created\n", size.String())
+			t.Fatalf("lifeboard of size %s could not be created\n", size.String())
 		}
 		// ROW 1
 		expected[period].SetValue(LifeboardLocation{X: 0, Y: 0}, 0)
@@ -420,7 +420,7 @@ func generateBoat(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardL
 func testProcessorSimultaneousRulesConwayLife(t *testing.T,
 	size LifeboardDims,
 	init func(LifeboardDims) []LifeboardLocation,
-	expected []*Lifeboard) {
+	expected []*lifeboard) {
 
 	testProcessor(t,
 		SimultaneousProcessor,
@@ -452,7 +452,7 @@ func TestProcessorSimultaneousRulesConwayLifeRandom(t *testing.T) {
 
 	// Compare the pond with the expected version
 	if pondWorker.lifeboard.Equals(pondInitialSnapshot.lifeboard) {
-		t.Error("Lifeboard did not change after one generation of random intialization")
+		t.Error("lifeboard did not change after one generation of random intialization")
 	}
 }
 

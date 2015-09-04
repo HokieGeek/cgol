@@ -21,8 +21,8 @@ func TestPondStatusString(t *testing.T) {
 	}
 }
 
-func TestNeighborSelectorString(t *testing.T) {
-	var selector NeighborsSelector
+func TestneighborSelectorString(t *testing.T) {
+	var selector neighborsSelector
 
 	selector = NEIGHBORS_ORTHOGONAL
 	if len(selector.String()) <= 0 {
@@ -40,8 +40,8 @@ func TestNeighborSelectorString(t *testing.T) {
 	}
 }
 
-func TestLivingTrackerSetTest(t *testing.T) {
-	tracker := NewLivingTracker()
+func TestlivingTrackerSetTest(t *testing.T) {
+	tracker := newLivingTracker()
 
 	// Ok, set the value
 	loc := LifeboardLocation{X: 42, Y: 24}
@@ -53,16 +53,16 @@ func TestLivingTrackerSetTest(t *testing.T) {
 	}
 }
 
-func TestLivingTrackerTestError(t *testing.T) {
-	tracker := NewLivingTracker()
+func TestlivingTrackerTestError(t *testing.T) {
+	tracker := newLivingTracker()
 
 	if tracker.Test(LifeboardLocation{X: 0, Y: 0}) {
 		t.Error("Unexpectedly tested true a location that does not exist in structure")
 	}
 }
 
-func TestLivingTrackerRemove(t *testing.T) {
-	tracker := NewLivingTracker()
+func TestlivingTrackerRemove(t *testing.T) {
+	tracker := newLivingTracker()
 
 	// Ok, set the value
 	loc := LifeboardLocation{X: 42, Y: 24}
@@ -76,12 +76,12 @@ func TestLivingTrackerRemove(t *testing.T) {
 	}
 }
 
-func TestLivingTrackerRemoveError(t *testing.T) {
+func TestlivingTrackerRemoveError(t *testing.T) {
 	t.Skip("TODO")
 }
 
-func TestLivingTrackerGetAll(t *testing.T) {
-	tracker := NewLivingTracker()
+func TestlivingTrackerGetAll(t *testing.T) {
+	tracker := newLivingTracker()
 
 	// Create the expected values
 	expectedLocations := make([]LifeboardLocation, 3)
@@ -131,8 +131,8 @@ func TestLivingTrackerGetAll(t *testing.T) {
 	}
 }
 
-func TestLivingTrackerCount(t *testing.T) {
-	tracker := NewLivingTracker()
+func TestlivingTrackerCount(t *testing.T) {
+	tracker := newLivingTracker()
 
 	// Create the expected values
 	expectedLocations := make([]LifeboardLocation, 3)

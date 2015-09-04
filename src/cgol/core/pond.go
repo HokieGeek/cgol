@@ -31,15 +31,15 @@ func (t PondStatus) String() string {
 	return s
 }
 
-type NeighborsSelector int
+type neighborsSelector int
 
 const (
-	NEIGHBORS_ORTHOGONAL NeighborsSelector = 1
-	NEIGHBORS_OBLIQUE    NeighborsSelector = 2
-	NEIGHBORS_ALL        NeighborsSelector = 3
+	NEIGHBORS_ORTHOGONAL neighborsSelector = 1
+	NEIGHBORS_OBLIQUE    neighborsSelector = 2
+	NEIGHBORS_ALL        neighborsSelector = 3
 )
 
-func (t NeighborsSelector) String() string {
+func (t neighborsSelector) String() string {
 	s := ""
 
 	if t&NEIGHBORS_ORTHOGONAL == NEIGHBORS_ORTHOGONAL {
@@ -76,7 +76,7 @@ type livingTrackerCountOp struct {
 	resp chan int
 }
 
-type LivingTracker struct {
+type livingTracker struct {
 	trackerAdd    chan *livingTrackerAddOp
 	trackerRemove chan *livingTrackerRemoveOp
 	trackerTest   chan *livingTrackerTestOp
@@ -84,11 +84,11 @@ type LivingTracker struct {
 	trackerCount  chan *livingTrackerCountOp
 }
 
-func (t *LivingTracker) living() {
+func (t *livingTracker) living() {
 	var livingMap = make(map[int]map[int]LifeboardLocation)
 	var count int
-	// logger := log.New(os.Stderr, "LivingTracker: ", log.Ltime)
-	// logger := log.New(ioutil.Discard, "LivingTracker: ", log.Ltime)
+	// logger := log.New(os.Stderr, "livingTracker: ", log.Ltime)
+	// logger := log.New(ioutil.Discard, "livingTracker: ", log.Ltime)
 
 	for {
 		select {
@@ -147,19 +147,19 @@ func (t *LivingTracker) living() {
 	}
 }
 
-func (t *LivingTracker) Set(location LifeboardLocation) {
+func (t *livingTracker) Set(location LifeboardLocation) {
 	add := &livingTrackerAddOp{loc: location, resp: make(chan bool)}
 	t.trackerAdd <- add
 	<-add.resp
 }
 
-func (t *LivingTracker) Remove(location LifeboardLocation) {
+func (t *livingTracker) Remove(location LifeboardLocation) {
 	remove := &livingTrackerRemoveOp{loc: location, resp: make(chan bool)}
 	t.trackerRemove <- remove
 	<-remove.resp
 }
 
-func (t *LivingTracker) Test(location LifeboardLocation) bool {
+func (t *livingTracker) Test(location LifeboardLocation) bool {
 	read := &livingTrackerTestOp{loc: location, resp: make(chan bool)}
 	t.trackerTest <- read
 	val := <-read.resp
@@ -167,7 +167,7 @@ func (t *LivingTracker) Test(location LifeboardLocation) bool {
 	return val
 }
 
-func (t *LivingTracker) GetAll() []LifeboardLocation {
+func (t *livingTracker) GetAll() []LifeboardLocation {
 	get := &livingTrackerGetAllOp{resp: make(chan []LifeboardLocation)}
 	t.trackerGetAll <- get
 	val := <-get.resp
@@ -175,7 +175,7 @@ func (t *LivingTracker) GetAll() []LifeboardLocation {
 	return val
 }
 
-func (t *LivingTracker) GetCount() int {
+func (t *livingTracker) GetCount() int {
 	count := &livingTrackerCountOp{resp: make(chan int)}
 	t.trackerCount <- count
 	val := <-count.resp
@@ -183,8 +183,8 @@ func (t *LivingTracker) GetCount() int {
 	return val
 }
 
-func NewLivingTracker() *LivingTracker {
-	t := new(LivingTracker)
+func newLivingTracker() *livingTracker {
+	t := new(livingTracker)
 
 	t.trackerAdd = make(chan *livingTrackerAddOp)
 	t.trackerRemove = make(chan *livingTrackerRemoveOp)
@@ -198,10 +198,10 @@ func NewLivingTracker() *LivingTracker {
 }
 
 type Pond struct {
-	lifeboard         *Lifeboard
 	Status            PondStatus
-	neighborsSelector NeighborsSelector
-	living            *LivingTracker
+	lifeboard         *lifeboard
+	neighborsSelector neighborsSelector
+	living            *livingTracker
 }
 
 func (t *Pond) GetNeighbors(organism LifeboardLocation) []LifeboardLocation {
@@ -318,16 +318,16 @@ func (t *Pond) String() string {
 	return buf.String()
 }
 
-func NewPond(rows int, cols int, neighbors NeighborsSelector) (*Pond, error) {
+func NewPond(rows int, cols int, neighbors neighborsSelector) (*Pond, error) {
 	p := new(Pond)
 
 	// Create values
 	p.Status = Active
-	p.living = NewLivingTracker()
+	p.living = newLivingTracker()
 
 	// Add the given values
 	var err error
-	p.lifeboard, err = NewLifeboard(LifeboardDims{Height: rows, Width: cols})
+	p.lifeboard, err = newLifeboard(LifeboardDims{Height: rows, Width: cols})
 	if err != nil {
 		return nil, err
 	}

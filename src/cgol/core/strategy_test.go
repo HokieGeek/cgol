@@ -25,7 +25,7 @@ func TestStrategyCreation(t *testing.T) {
 		RulesConwayLife,
 		SimultaneousProcessor)
 
-	expected, _ := NewLifeboard(LifeboardDims{3, 3})
+	expected, _ := newLifeboard(LifeboardDims{3, 3})
 	expected.SetValue(LifeboardLocation{X: 0, Y: 1}, 0)
 	expected.SetValue(LifeboardLocation{X: 1, Y: 1}, 0)
 	expected.SetValue(LifeboardLocation{X: 2, Y: 1}, 0)
