@@ -129,20 +129,18 @@ func (t *Strategy) String() string {
 }
 
 func NewStrategy(label string,
-	pond *Pond,
-	// dims LifeboardDims,
-	// neighbors neighborsSelector,
+	dims LifeboardDims,
+	neighbors neighborsSelector,
 	initializer func(LifeboardDims) []LifeboardLocation,
 	rules func(int, bool) bool,
-	processor func(pond *Pond, rules func(int, bool) bool)) *Strategy {
+	processor func(pond *Pond, rules func(int, bool) bool)) (*Strategy, error) {
 	s := new(Strategy)
 
-	// TODO
-	// s.pond,err = newPond(dims, neighbors)
-	// if err == nil {
-	// 	return nil,err
-	// }
-	s.pond = pond
+	var err error
+	s.pond, err = newPond(LifeboardDims{Height: dims.Height, Width: dims.Width}, neighbors)
+	if err != nil {
+		return nil, err
+	}
 
 	// Save the given values
 	s.Label = label
@@ -157,5 +155,5 @@ func NewStrategy(label string,
 	s.pond.SetOrganisms(s.initialOrganisms)
 	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
 
-	return s
+	return s, nil
 }

@@ -39,13 +39,13 @@ func displayPond(strategy *cgol.Strategy, iterations time.Duration, static bool)
 }
 
 func displayTestPond(width int, height int, rate time.Duration, initializer func(cgol.LifeboardDims) []cgol.LifeboardLocation) {
-	pond, err := cgol.NewPond(height, width, cgol.NEIGHBORS_ALL)
+	strategy, err := cgol.NewStrategy("Test",
+		cgol.LifeboardDims{Height: height, Width: width},
+		cgol.NEIGHBORS_ALL,
+		initializer,
+		cgol.GetConwayTester(),
+		cgol.SimultaneousProcessor)
 	if err == nil {
-		strategy := cgol.NewStrategy("Test",
-			pond,
-			initializer,
-			cgol.GetConwayTester(),
-			cgol.SimultaneousProcessor)
 		if rate > 0 {
 			strategy.UpdateRate = rate
 		}

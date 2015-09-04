@@ -162,9 +162,7 @@ func TestlivingTrackerCount(t *testing.T) {
 }
 
 func TestPondSettingInitialPatterns(t *testing.T) {
-	rows := 3
-	cols := 3
-	pond, err := NewPond(rows, cols, NEIGHBORS_ALL)
+	pond, err := newPond(LifeboardDims{Height: 3, Width: 3}, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -193,7 +191,7 @@ func TestPondNeighborSelectionError(t *testing.T) {
 	t.Skip("Bad location should be the test")
 	/*
 		fake_selector := 999
-		pond := NewPond(1, 1, fake_selector)
+		pond := newPond(1, 1, fake_selector)
 
 		neighbors, err := pond.GetNeighbors(LifeboardLocation{X: 0, Y: 0})
 		if err != nil {
@@ -205,7 +203,7 @@ func TestPondNeighborSelectionError(t *testing.T) {
 func TestPondOrganismValue(t *testing.T) {
 	expectedVal := 2
 	pos := LifeboardLocation{X: 0, Y: 0}
-	pond, err := NewPond(1, 1, NEIGHBORS_ALL)
+	pond, err := newPond(LifeboardDims{Height: 1, Width: 1}, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -219,7 +217,8 @@ func TestPondOrganismValue(t *testing.T) {
 }
 
 func TestPondGetNumLiving(t *testing.T) {
-	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
+	dims := LifeboardDims{Height: 3, Width: 3}
+	pond, err := newPond(dims, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -238,7 +237,8 @@ func TestPondGetNumLiving(t *testing.T) {
 }
 
 func TestPondNeighborCountCalutation(t *testing.T) {
-	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
+	dims := LifeboardDims{Height: 3, Width: 3}
+	pond, err := newPond(dims, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -282,7 +282,8 @@ func TestPondNeighborCountCalutation(t *testing.T) {
 }
 
 func TestPondString(t *testing.T) {
-	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
+	dims := LifeboardDims{Height: 3, Width: 3}
+	pond, err := newPond(dims, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}

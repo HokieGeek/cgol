@@ -15,15 +15,16 @@ func TestStrategyStatsString(t *testing.T) {
 }
 
 func TestStrategyCreation(t *testing.T) {
-	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
-	if err != nil {
-		t.Fatal("Unable to create pond")
-	}
-	strategy := NewStrategy("TestStrategyCreation",
-		pond,
+	dims := LifeboardDims{Height: 3, Width: 3}
+	strategy, err := NewStrategy("TestStrategyCreation",
+		dims,
+		NEIGHBORS_ALL,
 		Blinkers,
 		GetConwayTester(),
 		SimultaneousProcessor)
+	if err != nil {
+		t.Fatalf("Unable to create strategy: %s\n", err)
+	}
 
 	expected, _ := newLifeboard(LifeboardDims{3, 3})
 	expected.SetValue(LifeboardLocation{X: 0, Y: 1}, 0)
@@ -36,15 +37,16 @@ func TestStrategyCreation(t *testing.T) {
 }
 
 func TestStrategyProcess(t *testing.T) {
-	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
-	if err != nil {
-		t.Fatal("Unable to create pond")
-	}
-	strategy := NewStrategy("TestStrategyProcess",
-		pond,
+	dims := LifeboardDims{Height: 3, Width: 3}
+	strategy, err := NewStrategy("TestStrategyProcess",
+		dims,
+		NEIGHBORS_ALL,
 		Blinkers,
 		GetConwayTester(),
 		SimultaneousProcessor)
+	if err != nil {
+		t.Fatalf("Unable to create strategy: %s\n", err)
+	}
 
 	seededPond := strategy.pond.Clone()
 
@@ -64,15 +66,16 @@ func TestStrategyProcess(t *testing.T) {
 
 func TestStrategyStartStop(t *testing.T) {
 	t.Skip("This doesn't work as expected")
-	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
-	if err != nil {
-		t.Fatal("Unable to create pond")
-	}
-	strategy := NewStrategy("TestStrategyStartStop",
-		pond,
+	dims := LifeboardDims{Height: 3, Width: 3}
+	strategy, err := NewStrategy("TestStrategyStartStop",
+		dims,
+		NEIGHBORS_ALL,
 		Blinkers,
 		GetConwayTester(),
 		SimultaneousProcessor)
+	if err != nil {
+		t.Fatalf("Unable to create strategy: %s\n", err)
+	}
 
 	seededPond := strategy.pond.Clone()
 
@@ -105,15 +108,16 @@ func TestStrategyStartStop(t *testing.T) {
 }
 
 func TestStrategyGetGeneration(t *testing.T) {
-	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
-	if err != nil {
-		t.Fatal("Unable to create pond")
-	}
-	strategy := NewStrategy("TestStrategyString",
-		pond,
+	dims := LifeboardDims{Height: 3, Width: 3}
+	strategy, err := NewStrategy("TestStrategyString",
+		dims,
+		NEIGHBORS_ALL,
 		Blinkers,
 		GetConwayTester(),
 		SimultaneousProcessor)
+	if err != nil {
+		t.Fatalf("Unable to create strategy: %s\n", err)
+	}
 
 	expectedNumLiving := 3
 	expectedGen := 31
@@ -130,15 +134,16 @@ func TestStrategyGetGeneration(t *testing.T) {
 }
 
 func TestStrategyString(t *testing.T) {
-	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
-	if err != nil {
-		t.Fatal("Unable to create pond")
-	}
-	strategy := NewStrategy("TestStrategyString",
-		pond,
+	dims := LifeboardDims{Height: 3, Width: 3}
+	strategy, err := NewStrategy("TestStrategyString",
+		dims,
+		NEIGHBORS_ALL,
 		Blinkers,
 		GetConwayTester(),
 		SimultaneousProcessor)
+	if err != nil {
+		t.Fatalf("Unable to create strategy: %s\n", err)
+	}
 
 	if len(strategy.String()) <= 0 {
 		t.Error("String function unexpectly returned an empty string")

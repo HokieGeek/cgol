@@ -275,10 +275,7 @@ func (t *Pond) GetLifeboard() [][]int {
 }
 
 func (t *Pond) Clone() *Pond {
-	shadowPond, err := NewPond(t.lifeboard.Dims.Height,
-		t.lifeboard.Dims.Width,
-		t.neighborsSelector)
-
+	shadowPond, err := newPond(t.lifeboard.Dims, t.neighborsSelector)
 	if err != nil {
 		// TODO: error... multiple value for this?
 	}
@@ -318,7 +315,7 @@ func (t *Pond) String() string {
 	return buf.String()
 }
 
-func NewPond(rows int, cols int, neighbors neighborsSelector) (*Pond, error) {
+func newPond(dims LifeboardDims, neighbors neighborsSelector) (*Pond, error) {
 	p := new(Pond)
 
 	// Create values
@@ -327,7 +324,7 @@ func NewPond(rows int, cols int, neighbors neighborsSelector) (*Pond, error) {
 
 	// Add the given values
 	var err error
-	p.lifeboard, err = newLifeboard(LifeboardDims{Height: rows, Width: cols})
+	p.lifeboard, err = newLifeboard(dims)
 	if err != nil {
 		return nil, err
 	}
