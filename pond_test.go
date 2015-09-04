@@ -1,4 +1,4 @@
-package cgol
+package life
 
 import "testing"
 
@@ -184,7 +184,7 @@ func TestpondSettingInitialPatterns(t *testing.T) {
 }
 
 func TestpondNeighborSelection(t *testing.T) {
-	t.Skip("This will essentially just retest the lifeboard tests.")
+	t.Skip("This will essentially just retest the board tests.")
 }
 
 func TestpondNeighborSelectionError(t *testing.T) {

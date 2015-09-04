@@ -1,4 +1,4 @@
-package cgol
+package life
 
 // import "fmt"
 

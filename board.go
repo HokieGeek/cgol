@@ -1,4 +1,4 @@
-package cgol
+package life
 
 import (
 	"bytes"
@@ -48,37 +48,37 @@ func (t *LifeboardDims) String() string {
 	return buf.String()
 }
 
-type lifeboardReadOp struct {
+type boardReadOp struct {
 	loc  LifeboardLocation
 	resp chan int
 }
 
-type lifeboardSnapshotOp struct {
+type boardSnapshotOp struct {
 	resp chan [][]int
 }
 
-type lifeboardWriteOp struct {
+type boardWriteOp struct {
 	loc  LifeboardLocation
 	val  int
 	resp chan bool
 }
 
-type lifeboard struct {
+type board struct {
 	Dims               LifeboardDims
-	lifeboardReads     chan *lifeboardReadOp
-	lifeboardWrites    chan *lifeboardWriteOp
-	lifeboardSnapshots chan *lifeboardSnapshotOp
+	boardReads     chan *boardReadOp
+	boardWrites    chan *boardWriteOp
+	boardSnapshots chan *boardSnapshotOp
 }
 
-func (t *lifeboard) lifeboard() {
-	// Initialize the lifeboard
-	var lifeboard = make([][]int, t.Dims.Height)
+func (t *board) board() {
+	// Initialize the board
+	var board = make([][]int, t.Dims.Height)
 	completion := make(chan bool, t.Dims.Height)
 	for i := 0; i < t.Dims.Height; i++ {
 		go func(row int, c chan bool) {
-			lifeboard[row] = make([]int, t.Dims.Width)
+			board[row] = make([]int, t.Dims.Width)
 			for j := 0; j < t.Dims.Width; j++ {
-				lifeboard[row][j] = -1
+				board[row][j] = -1
 			}
 			c <- true
 		}(i, completion)
@@ -96,19 +96,19 @@ func (t *lifeboard) lifeboard() {
 	// Listen for requests
 	for {
 		select {
-		case read := <-t.lifeboardReads:
+		case read := <-t.boardReads:
 			// FIXME: what if there is no value?
-			read.resp <- lifeboard[read.loc.Y][read.loc.X]
-		case write := <-t.lifeboardWrites:
-			lifeboard[write.loc.Y][write.loc.X] = write.val
+			read.resp <- board[read.loc.Y][read.loc.X]
+		case write := <-t.boardWrites:
+			board[write.loc.Y][write.loc.X] = write.val
 			write.resp <- true
-		case snapshot := <-t.lifeboardSnapshots:
-			snapshot.resp <- lifeboard
+		case snapshot := <-t.boardSnapshots:
+			snapshot.resp <- board
 		}
 	}
 }
 
-func (t *lifeboard) GetValue(location LifeboardLocation) (int, error) {
+func (t *board) GetValue(location LifeboardLocation) (int, error) {
 	// Check that the given location is valid
 	if location.X < 0 || location.X > t.Dims.Width {
 		return -1, errors.New("Given location is out of bounds")
@@ -117,21 +117,21 @@ func (t *lifeboard) GetValue(location LifeboardLocation) (int, error) {
 		return -1, errors.New("Given location is out of bounds")
 	}
 
-	read := &lifeboardReadOp{loc: location, resp: make(chan int)}
-	t.lifeboardReads <- read
+	read := &boardReadOp{loc: location, resp: make(chan int)}
+	t.boardReads <- read
 	val := <-read.resp
 
 	return val, nil
 }
 
-func (t *lifeboard) getSnapshot() [][]int {
-	snapshot := &lifeboardSnapshotOp{resp: make(chan [][]int)}
-	t.lifeboardSnapshots <- snapshot
+func (t *board) getSnapshot() [][]int {
+	snapshot := &boardSnapshotOp{resp: make(chan [][]int)}
+	t.boardSnapshots <- snapshot
 	val := <-snapshot.resp
 	return val
 }
 
-func (t *lifeboard) SetValue(location LifeboardLocation, val int) error {
+func (t *board) SetValue(location LifeboardLocation, val int) error {
 	// Check that the given location is valid
 	if location.X < 0 || location.X > t.Dims.Width {
 		return errors.New("Given location is out of bounds")
@@ -140,15 +140,15 @@ func (t *lifeboard) SetValue(location LifeboardLocation, val int) error {
 		return errors.New("Given location is out of bounds")
 	}
 
-	// Write the value to the lifeboard
-	write := &lifeboardWriteOp{loc: location, val: val, resp: make(chan bool)}
-	t.lifeboardWrites <- write
+	// Write the value to the board
+	write := &boardWriteOp{loc: location, val: val, resp: make(chan bool)}
+	t.boardWrites <- write
 	<-write.resp
 
 	return nil
 }
 
-func (t *lifeboard) GetOrthogonalNeighbors(location LifeboardLocation) []LifeboardLocation {
+func (t *board) GetOrthogonalNeighbors(location LifeboardLocation) []LifeboardLocation {
 	neighbors := make([]LifeboardLocation, 0)
 
 	// Determine the offsets
@@ -177,7 +177,7 @@ func (t *lifeboard) GetOrthogonalNeighbors(location LifeboardLocation) []Lifeboa
 	return neighbors
 }
 
-func (t *lifeboard) GetObliqueNeighbors(location LifeboardLocation) []LifeboardLocation {
+func (t *board) GetObliqueNeighbors(location LifeboardLocation) []LifeboardLocation {
 	neighbors := make([]LifeboardLocation, 0)
 
 	// Determine the offsets
@@ -207,13 +207,13 @@ func (t *lifeboard) GetObliqueNeighbors(location LifeboardLocation) []LifeboardL
 	return neighbors
 }
 
-func (t *lifeboard) GetAllNeighbors(location LifeboardLocation) []LifeboardLocation {
+func (t *board) GetAllNeighbors(location LifeboardLocation) []LifeboardLocation {
 	neighbors := append(t.GetOrthogonalNeighbors(location), t.GetObliqueNeighbors(location)...)
 
 	return neighbors
 }
 
-func (t *lifeboard) Equals(rhs *lifeboard) bool {
+func (t *board) Equals(rhs *board) bool {
 	rhsSnapshot := rhs.getSnapshot()
 	thisSnapshot := t.getSnapshot()
 	for row := t.Dims.Height - 1; row >= 0; row-- {
@@ -226,10 +226,10 @@ func (t *lifeboard) Equals(rhs *lifeboard) bool {
 	return true
 }
 
-func (t *lifeboard) String() string {
+func (t *board) String() string {
 	var buf bytes.Buffer
 
-	buf.WriteString("lifeboard size: ")
+	buf.WriteString("board size: ")
 	buf.WriteString(strconv.Itoa(t.Dims.Height))
 	buf.WriteString("x")
 	buf.WriteString(strconv.Itoa(t.Dims.Width))
@@ -252,19 +252,19 @@ func (t *lifeboard) String() string {
 	return buf.String()
 }
 
-func newLifeboard(dims LifeboardDims) (*lifeboard, error) {
+func newLifeboard(dims LifeboardDims) (*board, error) {
 	if dims.Height <= 0 || dims.Width <= 0 {
 		return nil, errors.New("Dimensions must be greater than 0")
 	}
 
-	g := new(lifeboard)
+	g := new(board)
 	g.Dims = dims
 
-	// Initialize the lifeboard and its channels
-	g.lifeboardReads = make(chan *lifeboardReadOp)
-	g.lifeboardWrites = make(chan *lifeboardWriteOp)
-	g.lifeboardSnapshots = make(chan *lifeboardSnapshotOp)
-	go g.lifeboard()
+	// Initialize the board and its channels
+	g.boardReads = make(chan *boardReadOp)
+	g.boardWrites = make(chan *boardWriteOp)
+	g.boardSnapshots = make(chan *boardSnapshotOp)
+	go g.board()
 
 	return g, nil
 }

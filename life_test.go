@@ -1,12 +1,12 @@
-package cgol
+package life
 
 import (
 	"testing"
 	"time"
 )
 
-func TestStrategyStatsString(t *testing.T) {
-	stats := new(StrategyStats)
+func TestLifeStatsString(t *testing.T) {
+	stats := new(LifeStats)
 	stats.Generations++
 
 	if len(stats.String()) <= 0 {
@@ -14,9 +14,9 @@ func TestStrategyStatsString(t *testing.T) {
 	}
 }
 
-func TestStrategyCreation(t *testing.T) {
+func TestLifeCreation(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewStrategy("TestStrategyCreation",
+	strategy, err := NewLife("TestLifeCreation",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -31,14 +31,14 @@ func TestStrategyCreation(t *testing.T) {
 	expected.SetValue(LifeboardLocation{X: 1, Y: 1}, 0)
 	expected.SetValue(LifeboardLocation{X: 2, Y: 1}, 0)
 
-	if !strategy.pond.lifeboard.Equals(expected) {
-		t.Fatalf("Actual lifeboard\n%s\ndoes not match expected\n%s\n", strategy.pond.lifeboard.String(), expected.String())
+	if !strategy.pond.board.Equals(expected) {
+		t.Fatalf("Actual board\n%s\ndoes not match expected\n%s\n", strategy.pond.board.String(), expected.String())
 	}
 }
 
-func TestStrategyProcess(t *testing.T) {
+func TestLifeProcess(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewStrategy("TestStrategyProcess",
+	strategy, err := NewLife("TestLifeProcess",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -67,10 +67,10 @@ func TestStrategyProcess(t *testing.T) {
 	}
 }
 
-func TestStrategyStartStop(t *testing.T) {
+func TestLifeStartStop(t *testing.T) {
 	t.Skip("This doesn't work as expected")
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewStrategy("TestStrategyStartStop",
+	strategy, err := NewLife("TestLifeStartStop",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -113,9 +113,9 @@ func TestStrategyStartStop(t *testing.T) {
 	}
 }
 
-func TestStrategyGetGeneration(t *testing.T) {
+func TestLifeGetGeneration(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewStrategy("TestStrategyString",
+	strategy, err := NewLife("TestLifeString",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -139,9 +139,9 @@ func TestStrategyGetGeneration(t *testing.T) {
 	// TODO
 }
 
-func TestStrategyString(t *testing.T) {
+func TestLifeString(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewStrategy("TestStrategyString",
+	strategy, err := NewLife("TestLifeString",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,

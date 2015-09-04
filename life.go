@@ -1,4 +1,4 @@
-package cgol
+package life
 
 import (
 	"bytes"
@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-type StrategyStats struct {
+type LifeStats struct {
 	OrganismsCreated int
 	OrganismsKilled  int
 	Generations      int
 }
 
-func (t *StrategyStats) String() string {
+func (t *LifeStats) String() string {
 	var buf bytes.Buffer
 	buf.WriteString("Generation: ")
 	buf.WriteString(strconv.Itoa(t.Generations))
@@ -20,9 +20,9 @@ func (t *StrategyStats) String() string {
 	return buf.String()
 }
 
-type Strategy struct {
+type Life struct {
 	Label            string
-	Statistics       StrategyStats
+	Statistics       LifeStats
 	UpdateRate       time.Duration
 	pond             *pond
 	processor        func(pond *pond, rules func(int, bool) bool)
@@ -31,7 +31,7 @@ type Strategy struct {
 	ticker           *time.Ticker
 }
 
-func (t *Strategy) process() {
+func (t *Life) process() {
 	startingLivingCount := t.pond.GetNumLiving()
 
 	// Process any organisms that need to be
@@ -56,8 +56,8 @@ func (t *Strategy) process() {
 	}
 }
 
-// func (t *Strategy) Start(updateAlert chan bool, updateRate time.Duration) {
-func (t *Strategy) Start(updateAlert chan bool) {
+// func (t *Life) Start(updateAlert chan bool, updateRate time.Duration) {
+func (t *Life) Start(updateAlert chan bool) {
 	go func() {
 		t.ticker = time.NewTicker(t.UpdateRate)
 		/*
@@ -81,12 +81,12 @@ func (t *Strategy) Start(updateAlert chan bool) {
 	}()
 }
 
-func (t *Strategy) Stop() {
+func (t *Life) Stop() {
 	t.ticker.Stop()
 }
 
 /*
-func (t *Strategy) GetLifeboard() [][]int {
+func (t *Life) GetLifeboard() [][]int {
 	return t.pond.GetLifeboard()
 }
 */
@@ -97,7 +97,7 @@ type Generation struct {
 	// stats...
 }
 
-func (t *Strategy) GetGeneration(num int) *Generation {
+func (t *Life) GetGeneration(num int) *Generation {
 	var p *pond
 	if num == t.Statistics.Generations {
 		p = t.pond
@@ -118,7 +118,7 @@ func (t *Strategy) GetGeneration(num int) *Generation {
 	return &Generation{Num: num, Living: p.living.GetAll()}
 }
 
-func (t *Strategy) String() string {
+func (t *Life) String() string {
 	var buf bytes.Buffer
 
 	buf.WriteString("[")
@@ -132,13 +132,13 @@ func (t *Strategy) String() string {
 	return buf.String()
 }
 
-func NewStrategy(label string,
+func NewLife(label string,
 	dims LifeboardDims,
 	neighbors neighborsSelector,
 	initializer func(LifeboardDims) []LifeboardLocation,
 	rules func(int, bool) bool,
-	processor func(pond *pond, rules func(int, bool) bool)) (*Strategy, error) {
-	s := new(Strategy)
+	processor func(pond *pond, rules func(int, bool) bool)) (*Life, error) {
+	s := new(Life)
 
 	var err error
 	s.pond, err = newpond(LifeboardDims{Height: dims.Height, Width: dims.Width}, neighbors)
@@ -154,8 +154,8 @@ func NewStrategy(label string,
 	s.UpdateRate = time.Millisecond * 250
 
 	// Initialize the pond and schedule the currently living organisms
-	// s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.lifeboard.Dims)...)
-	s.initialOrganisms = initializer(s.pond.lifeboard.Dims)
+	// s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.board.Dims)...)
+	s.initialOrganisms = initializer(s.pond.board.Dims)
 	s.pond.SetOrganisms(s.initialOrganisms)
 	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
 

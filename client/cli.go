@@ -1,13 +1,13 @@
 package main
 
 import (
-	"cgol/core"
 	"flag"
 	"fmt"
+	"github.com/hokiegeek/life"
 	"time"
 )
 
-func displaypond(strategy *cgol.Strategy, iterations time.Duration, static bool) {
+func displaypond(strategy *life.Life, iterations time.Duration, static bool) {
 	// Clear the screen and put the cursor on the top left
 	if static {
 		fmt.Print("\033[2J")
@@ -38,13 +38,13 @@ func displaypond(strategy *cgol.Strategy, iterations time.Duration, static bool)
 	}
 }
 
-func displayTestpond(width int, height int, rate time.Duration, initializer func(cgol.LifeboardDims) []cgol.LifeboardLocation) {
-	strategy, err := cgol.NewStrategy("Test",
-		cgol.LifeboardDims{Height: height, Width: width},
-		cgol.NEIGHBORS_ALL,
+func displayTestpond(width int, height int, rate time.Duration, initializer func(life.LifeboardDims) []life.LifeboardLocation) {
+	strategy, err := life.NewLife("Test",
+		life.LifeboardDims{Height: height, Width: width},
+		life.NEIGHBORS_ALL,
 		initializer,
-		cgol.GetConwayTester(),
-		cgol.SimultaneousProcessor)
+		life.GetConwayTester(),
+		life.SimultaneousProcessor)
 	if err == nil {
 		if rate > 0 {
 			strategy.UpdateRate = rate
@@ -75,7 +75,7 @@ func main() {
 			height = *heightPtr
 		}
 
-		displayTestpond(width, height, *ratePtr, cgol.Blinkers)
+		displayTestpond(width, height, *ratePtr, life.Blinkers)
 	case "toads":
 		width := 10
 		if *widthPtr > width {
@@ -86,7 +86,7 @@ func main() {
 			height = *heightPtr
 		}
 
-		displayTestpond(width, height, *ratePtr, cgol.Toads)
+		displayTestpond(width, height, *ratePtr, life.Toads)
 	case "glider":
 		width := 30
 		if *widthPtr > width {
@@ -98,8 +98,8 @@ func main() {
 		}
 
 		displayTestpond(width, height, *ratePtr,
-			func(dimensions cgol.LifeboardDims) []cgol.LifeboardLocation {
-				return cgol.Gliders(cgol.LifeboardDims{Height: 4, Width: 4})
+			func(dimensions life.LifeboardDims) []life.LifeboardLocation {
+				return life.Gliders(life.LifeboardDims{Height: 4, Width: 4})
 			})
 
 	case "pulsar":
@@ -112,7 +112,7 @@ func main() {
 			height = *heightPtr
 		}
 
-		displayTestpond(width, height, *ratePtr, cgol.Pulsar)
+		displayTestpond(width, height, *ratePtr, life.Pulsar)
 	default:
 		width := 10
 		if *widthPtr > width {
@@ -124,8 +124,8 @@ func main() {
 		}
 
 		displayTestpond(width, height, *ratePtr,
-			func(dimensions cgol.LifeboardDims) []cgol.LifeboardLocation {
-				return cgol.Random(dimensions, 80)
+			func(dimensions life.LifeboardDims) []life.LifeboardLocation {
+				return life.Random(dimensions, 80)
 			})
 	}
 }
