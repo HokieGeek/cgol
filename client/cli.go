@@ -39,7 +39,7 @@ func displaypond(strategy *life.Life, iterations time.Duration, static bool) {
 }
 
 func displayTestpond(width int, height int, rate time.Duration, initializer func(life.LifeboardDims) []life.LifeboardLocation) {
-	strategy, err := life.NewLife("Test",
+	strategy, err := life.New("Test",
 		life.LifeboardDims{Height: height, Width: width},
 		life.NEIGHBORS_ALL,
 		initializer,

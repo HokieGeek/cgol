@@ -16,7 +16,7 @@ func TestLifeStatsString(t *testing.T) {
 
 func TestLifeCreation(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewLife("TestLifeCreation",
+	strategy, err := New("TestLifeCreation",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -38,7 +38,7 @@ func TestLifeCreation(t *testing.T) {
 
 func TestLifeProcess(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewLife("TestLifeProcess",
+	strategy, err := New("TestLifeProcess",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -70,7 +70,7 @@ func TestLifeProcess(t *testing.T) {
 func TestLifeStartStop(t *testing.T) {
 	t.Skip("This doesn't work as expected")
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewLife("TestLifeStartStop",
+	strategy, err := New("TestLifeStartStop",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -113,9 +113,9 @@ func TestLifeStartStop(t *testing.T) {
 	}
 }
 
-func TestLifeGetGeneration(t *testing.T) {
+func TestLifeGeneration(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewLife("TestLifeString",
+	strategy, err := New("TestLifeString",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -127,7 +127,7 @@ func TestLifeGetGeneration(t *testing.T) {
 
 	expectedNumLiving := 3
 	expectedGen := 31
-	gen := strategy.GetGeneration(expectedGen)
+	gen := strategy.Generation(expectedGen)
 
 	if gen.Num != expectedGen {
 		t.Error("Retrieved %d generations instead of %d\n", gen.Num, expectedGen)
@@ -141,7 +141,7 @@ func TestLifeGetGeneration(t *testing.T) {
 
 func TestLifeString(t *testing.T) {
 	dims := LifeboardDims{Height: 3, Width: 3}
-	strategy, err := NewLife("TestLifeString",
+	strategy, err := New("TestLifeString",
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,

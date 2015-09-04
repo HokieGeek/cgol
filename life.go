@@ -97,7 +97,7 @@ type Generation struct {
 	// stats...
 }
 
-func (t *Life) GetGeneration(num int) *Generation {
+func (t *Life) Generation(num int) *Generation {
 	var p *pond
 	if num == t.Statistics.Generations {
 		p = t.pond
@@ -132,7 +132,7 @@ func (t *Life) String() string {
 	return buf.String()
 }
 
-func NewLife(label string,
+func New(label string,
 	dims LifeboardDims,
 	neighbors neighborsSelector,
 	initializer func(LifeboardDims) []LifeboardLocation,
