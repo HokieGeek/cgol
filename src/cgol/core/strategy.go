@@ -27,7 +27,7 @@ type Strategy struct {
 	pond             *Pond
 	processor        func(pond *Pond, rules func(int, bool) bool)
 	ruleset          func(int, bool) bool
-	initialOrganisms []GameboardLocation
+	initialOrganisms []LifeboardLocation
 	ticker           *time.Ticker
 }
 
@@ -86,14 +86,14 @@ func (t *Strategy) Stop() {
 }
 
 /*
-func (t *Strategy) GetGameboard() [][]int {
-	return t.pond.GetGameboard()
+func (t *Strategy) GetLifeboard() [][]int {
+	return t.pond.GetLifeboard()
 }
 */
 
 type Generation struct {
 	Num    int
-	Living []GameboardLocation
+	Living []LifeboardLocation
 	// stats...
 }
 
@@ -130,7 +130,7 @@ func (t *Strategy) String() string {
 
 func NewStrategy(label string,
 	pond *Pond,
-	initializer func(GameboardDims) []GameboardLocation,
+	initializer func(LifeboardDims) []LifeboardLocation,
 	rules func(int, bool) bool,
 	processor func(pond *Pond, rules func(int, bool) bool)) *Strategy {
 	s := new(Strategy)
@@ -144,8 +144,8 @@ func NewStrategy(label string,
 	s.UpdateRate = time.Millisecond * 250
 
 	// Initialize the pond and schedule the currently living organisms
-	// s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.gameboard.Dims)...)
-	s.initialOrganisms = initializer(s.pond.gameboard.Dims)
+	// s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.lifeboard.Dims)...)
+	s.initialOrganisms = initializer(s.pond.lifeboard.Dims)
 	s.pond.SetOrganisms(s.initialOrganisms)
 	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
 

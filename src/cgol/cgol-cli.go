@@ -38,7 +38,7 @@ func displayPond(strategy *cgol.Strategy, iterations time.Duration, static bool)
 	}
 }
 
-func displayTestPond(width int, height int, rate time.Duration, initializer func(cgol.GameboardDims) []cgol.GameboardLocation) {
+func displayTestPond(width int, height int, rate time.Duration, initializer func(cgol.LifeboardDims) []cgol.LifeboardLocation) {
 	pond, err := cgol.NewPond(height, width, cgol.NEIGHBORS_ALL)
 	if err == nil {
 		strategy := cgol.NewStrategy("Test",
@@ -98,8 +98,8 @@ func main() {
 		}
 
 		displayTestPond(width, height, *ratePtr,
-			func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
-				return cgol.Gliders(cgol.GameboardDims{Height: 4, Width: 4})
+			func(dimensions cgol.LifeboardDims) []cgol.LifeboardLocation {
+				return cgol.Gliders(cgol.LifeboardDims{Height: 4, Width: 4})
 			})
 
 	case "pulsar":
@@ -124,7 +124,7 @@ func main() {
 		}
 
 		displayTestPond(width, height, *ratePtr,
-			func(dimensions cgol.GameboardDims) []cgol.GameboardLocation {
+			func(dimensions cgol.LifeboardDims) []cgol.LifeboardLocation {
 				return cgol.Random(dimensions, 80)
 			})
 	}

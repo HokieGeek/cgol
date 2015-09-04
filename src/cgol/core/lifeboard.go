@@ -6,12 +6,12 @@ import (
 	"strconv"
 )
 
-type GameboardLocation struct {
+type LifeboardLocation struct {
 	X int
 	Y int
 }
 
-func (t *GameboardLocation) Equals(rhs *GameboardLocation) bool {
+func (t *LifeboardLocation) Equals(rhs *LifeboardLocation) bool {
 	if t.X != rhs.X {
 		return false
 	}
@@ -21,7 +21,7 @@ func (t *GameboardLocation) Equals(rhs *GameboardLocation) bool {
 	return true
 }
 
-func (t *GameboardLocation) String() string {
+func (t *LifeboardLocation) String() string {
 	var buf bytes.Buffer
 	buf.WriteString("[")
 	buf.WriteString(strconv.Itoa(t.X))
@@ -31,16 +31,16 @@ func (t *GameboardLocation) String() string {
 	return buf.String()
 }
 
-type GameboardDims struct {
+type LifeboardDims struct {
 	Height int
 	Width  int
 }
 
-func (t *GameboardDims) GetCapacity() int {
+func (t *LifeboardDims) GetCapacity() int {
 	return t.Height * t.Width
 }
 
-func (t *GameboardDims) String() string {
+func (t *LifeboardDims) String() string {
 	var buf bytes.Buffer
 	buf.WriteString(strconv.Itoa(t.Height))
 	buf.WriteString("x")
@@ -48,37 +48,37 @@ func (t *GameboardDims) String() string {
 	return buf.String()
 }
 
-type gameboardReadOp struct {
-	loc  GameboardLocation
+type lifeboardReadOp struct {
+	loc  LifeboardLocation
 	resp chan int
 }
 
-type gameboardSnapshotOp struct {
+type lifeboardSnapshotOp struct {
 	resp chan [][]int
 }
 
-type gameboardWriteOp struct {
-	loc  GameboardLocation
+type lifeboardWriteOp struct {
+	loc  LifeboardLocation
 	val  int
 	resp chan bool
 }
 
-type Gameboard struct {
-	Dims               GameboardDims
-	gameboardReads     chan *gameboardReadOp
-	gameboardWrites    chan *gameboardWriteOp
-	gameboardSnapshots chan *gameboardSnapshotOp
+type Lifeboard struct {
+	Dims               LifeboardDims
+	lifeboardReads     chan *lifeboardReadOp
+	lifeboardWrites    chan *lifeboardWriteOp
+	lifeboardSnapshots chan *lifeboardSnapshotOp
 }
 
-func (t *Gameboard) gameboard() {
-	// Initialize the gameboard
-	var gameboard = make([][]int, t.Dims.Height)
+func (t *Lifeboard) lifeboard() {
+	// Initialize the lifeboard
+	var lifeboard = make([][]int, t.Dims.Height)
 	completion := make(chan bool, t.Dims.Height)
 	for i := 0; i < t.Dims.Height; i++ {
 		go func(row int, c chan bool) {
-			gameboard[row] = make([]int, t.Dims.Width)
+			lifeboard[row] = make([]int, t.Dims.Width)
 			for j := 0; j < t.Dims.Width; j++ {
-				gameboard[row][j] = -1
+				lifeboard[row][j] = -1
 			}
 			c <- true
 		}(i, completion)
@@ -96,19 +96,19 @@ func (t *Gameboard) gameboard() {
 	// Listen for requests
 	for {
 		select {
-		case read := <-t.gameboardReads:
+		case read := <-t.lifeboardReads:
 			// FIXME: what if there is no value?
-			read.resp <- gameboard[read.loc.Y][read.loc.X]
-		case write := <-t.gameboardWrites:
-			gameboard[write.loc.Y][write.loc.X] = write.val
+			read.resp <- lifeboard[read.loc.Y][read.loc.X]
+		case write := <-t.lifeboardWrites:
+			lifeboard[write.loc.Y][write.loc.X] = write.val
 			write.resp <- true
-		case snapshot := <-t.gameboardSnapshots:
-			snapshot.resp <- gameboard
+		case snapshot := <-t.lifeboardSnapshots:
+			snapshot.resp <- lifeboard
 		}
 	}
 }
 
-func (t *Gameboard) GetValue(location GameboardLocation) (int, error) {
+func (t *Lifeboard) GetValue(location LifeboardLocation) (int, error) {
 	// Check that the given location is valid
 	if location.X < 0 || location.X > t.Dims.Width {
 		return -1, errors.New("Given location is out of bounds")
@@ -117,21 +117,21 @@ func (t *Gameboard) GetValue(location GameboardLocation) (int, error) {
 		return -1, errors.New("Given location is out of bounds")
 	}
 
-	read := &gameboardReadOp{loc: location, resp: make(chan int)}
-	t.gameboardReads <- read
+	read := &lifeboardReadOp{loc: location, resp: make(chan int)}
+	t.lifeboardReads <- read
 	val := <-read.resp
 
 	return val, nil
 }
 
-func (t *Gameboard) getSnapshot() [][]int {
-	snapshot := &gameboardSnapshotOp{resp: make(chan [][]int)}
-	t.gameboardSnapshots <- snapshot
+func (t *Lifeboard) getSnapshot() [][]int {
+	snapshot := &lifeboardSnapshotOp{resp: make(chan [][]int)}
+	t.lifeboardSnapshots <- snapshot
 	val := <-snapshot.resp
 	return val
 }
 
-func (t *Gameboard) SetValue(location GameboardLocation, val int) error {
+func (t *Lifeboard) SetValue(location LifeboardLocation, val int) error {
 	// Check that the given location is valid
 	if location.X < 0 || location.X > t.Dims.Width {
 		return errors.New("Given location is out of bounds")
@@ -140,16 +140,16 @@ func (t *Gameboard) SetValue(location GameboardLocation, val int) error {
 		return errors.New("Given location is out of bounds")
 	}
 
-	// Write the value to the gameboard
-	write := &gameboardWriteOp{loc: location, val: val, resp: make(chan bool)}
-	t.gameboardWrites <- write
+	// Write the value to the lifeboard
+	write := &lifeboardWriteOp{loc: location, val: val, resp: make(chan bool)}
+	t.lifeboardWrites <- write
 	<-write.resp
 
 	return nil
 }
 
-func (t *Gameboard) GetOrthogonalNeighbors(location GameboardLocation) []GameboardLocation {
-	neighbors := make([]GameboardLocation, 0)
+func (t *Lifeboard) GetOrthogonalNeighbors(location LifeboardLocation) []LifeboardLocation {
+	neighbors := make([]LifeboardLocation, 0)
 
 	// Determine the offsets
 	left := location.X - 1
@@ -158,27 +158,27 @@ func (t *Gameboard) GetOrthogonalNeighbors(location GameboardLocation) []Gameboa
 	below := location.Y + 1
 
 	if above >= 0 {
-		neighbors = append(neighbors, GameboardLocation{X: location.X, Y: above})
+		neighbors = append(neighbors, LifeboardLocation{X: location.X, Y: above})
 	}
 
 	if below < t.Dims.Height {
-		neighbors = append(neighbors, GameboardLocation{X: location.X, Y: below})
+		neighbors = append(neighbors, LifeboardLocation{X: location.X, Y: below})
 	}
 
 	if left >= 0 {
-		neighbors = append(neighbors, GameboardLocation{X: left, Y: location.Y})
+		neighbors = append(neighbors, LifeboardLocation{X: left, Y: location.Y})
 	}
 
 	if right < t.Dims.Width {
-		neighbors = append(neighbors, GameboardLocation{X: right, Y: location.Y})
+		neighbors = append(neighbors, LifeboardLocation{X: right, Y: location.Y})
 	}
 
 	// fmt.Printf("GetOrthogonalNeighbors(%s): %v\n", location.String(), neighbors)
 	return neighbors
 }
 
-func (t *Gameboard) GetObliqueNeighbors(location GameboardLocation) []GameboardLocation {
-	neighbors := make([]GameboardLocation, 0)
+func (t *Lifeboard) GetObliqueNeighbors(location LifeboardLocation) []LifeboardLocation {
+	neighbors := make([]LifeboardLocation, 0)
 
 	// Determine the offsets
 	left := location.X - 1
@@ -188,32 +188,32 @@ func (t *Gameboard) GetObliqueNeighbors(location GameboardLocation) []GameboardL
 
 	if above >= 0 {
 		if left >= 0 {
-			neighbors = append(neighbors, GameboardLocation{X: left, Y: above})
+			neighbors = append(neighbors, LifeboardLocation{X: left, Y: above})
 		}
 		if right < t.Dims.Width {
-			neighbors = append(neighbors, GameboardLocation{X: right, Y: above})
+			neighbors = append(neighbors, LifeboardLocation{X: right, Y: above})
 		}
 	}
 
 	if below < t.Dims.Height {
 		if left >= 0 {
-			neighbors = append(neighbors, GameboardLocation{X: left, Y: below})
+			neighbors = append(neighbors, LifeboardLocation{X: left, Y: below})
 		}
 		if right < t.Dims.Width {
-			neighbors = append(neighbors, GameboardLocation{X: right, Y: below})
+			neighbors = append(neighbors, LifeboardLocation{X: right, Y: below})
 		}
 	}
 
 	return neighbors
 }
 
-func (t *Gameboard) GetAllNeighbors(location GameboardLocation) []GameboardLocation {
+func (t *Lifeboard) GetAllNeighbors(location LifeboardLocation) []LifeboardLocation {
 	neighbors := append(t.GetOrthogonalNeighbors(location), t.GetObliqueNeighbors(location)...)
 
 	return neighbors
 }
 
-func (t *Gameboard) Equals(rhs *Gameboard) bool {
+func (t *Lifeboard) Equals(rhs *Lifeboard) bool {
 	rhsSnapshot := rhs.getSnapshot()
 	thisSnapshot := t.getSnapshot()
 	for row := t.Dims.Height - 1; row >= 0; row-- {
@@ -226,10 +226,10 @@ func (t *Gameboard) Equals(rhs *Gameboard) bool {
 	return true
 }
 
-func (t *Gameboard) String() string {
+func (t *Lifeboard) String() string {
 	var buf bytes.Buffer
 
-	buf.WriteString("Gameboard size: ")
+	buf.WriteString("Lifeboard size: ")
 	buf.WriteString(strconv.Itoa(t.Dims.Height))
 	buf.WriteString("x")
 	buf.WriteString(strconv.Itoa(t.Dims.Width))
@@ -252,19 +252,19 @@ func (t *Gameboard) String() string {
 	return buf.String()
 }
 
-func NewGameboard(dims GameboardDims) (*Gameboard, error) {
+func NewLifeboard(dims LifeboardDims) (*Lifeboard, error) {
 	if dims.Height <= 0 || dims.Width <= 0 {
 		return nil, errors.New("Dimensions must be greater than 0")
 	}
 
-	g := new(Gameboard)
+	g := new(Lifeboard)
 	g.Dims = dims
 
-	// Initialize the gameboard and its channels
-	g.gameboardReads = make(chan *gameboardReadOp)
-	g.gameboardWrites = make(chan *gameboardWriteOp)
-	g.gameboardSnapshots = make(chan *gameboardSnapshotOp)
-	go g.gameboard()
+	// Initialize the lifeboard and its channels
+	g.lifeboardReads = make(chan *lifeboardReadOp)
+	g.lifeboardWrites = make(chan *lifeboardWriteOp)
+	g.lifeboardSnapshots = make(chan *lifeboardSnapshotOp)
+	go g.lifeboard()
 
 	return g, nil
 }

@@ -4,7 +4,7 @@ import "testing"
 
 func TestGetCountsForDimensions(t *testing.T) {
 	// Board size
-	dims := GameboardDims{Width: 7, Height: 3}
+	dims := LifeboardDims{Width: 7, Height: 3}
 
 	// Pattern size
 	patternWidth := 2
@@ -28,30 +28,30 @@ func TestGetCountsForDimensions(t *testing.T) {
 
 func TestGetRepeatingPattern(t *testing.T) {
 	// Board size
-	dims := GameboardDims{Width: 4, Height: 4}
+	dims := LifeboardDims{Width: 4, Height: 4}
 
 	// Pattern size
 	height := 1
 	width := 1
 
 	// What I expect (a checker board)
-	expectedLocations := make([]GameboardLocation, 0)
+	expectedLocations := make([]LifeboardLocation, 0)
 	for row := 0; row < dims.Height; row++ {
 		switch row {
 		case 0, 2:
-			expectedLocations = append(expectedLocations, GameboardLocation{X: 0, Y: row})
-			expectedLocations = append(expectedLocations, GameboardLocation{X: 2, Y: row})
+			expectedLocations = append(expectedLocations, LifeboardLocation{X: 0, Y: row})
+			expectedLocations = append(expectedLocations, LifeboardLocation{X: 2, Y: row})
 		case 1, 3:
-			expectedLocations = append(expectedLocations, GameboardLocation{X: 1, Y: row})
-			expectedLocations = append(expectedLocations, GameboardLocation{X: 3, Y: row})
+			expectedLocations = append(expectedLocations, LifeboardLocation{X: 1, Y: row})
+			expectedLocations = append(expectedLocations, LifeboardLocation{X: 3, Y: row})
 		}
 	}
 
 	// Run the function being tested
 	actualLocations := getRepeatingPattern(dims, height, width,
-		func(initialLiving *[]GameboardLocation, currentX int, currentY int) {
+		func(initialLiving *[]LifeboardLocation, currentX int, currentY int) {
 			if (currentY%2 == 0 && currentX%2 == 0) || (currentY%2 != 0 && currentX%2 != 0) {
-				*initialLiving = append(*initialLiving, GameboardLocation{X: currentX, Y: currentY})
+				*initialLiving = append(*initialLiving, LifeboardLocation{X: currentX, Y: currentY})
 			}
 		})
 

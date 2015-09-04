@@ -44,7 +44,7 @@ func TestLivingTrackerSetTest(t *testing.T) {
 	tracker := NewLivingTracker()
 
 	// Ok, set the value
-	loc := GameboardLocation{X: 42, Y: 24}
+	loc := LifeboardLocation{X: 42, Y: 24}
 	tracker.Set(loc)
 
 	// Test that it exists
@@ -56,7 +56,7 @@ func TestLivingTrackerSetTest(t *testing.T) {
 func TestLivingTrackerTestError(t *testing.T) {
 	tracker := NewLivingTracker()
 
-	if tracker.Test(GameboardLocation{X: 0, Y: 0}) {
+	if tracker.Test(LifeboardLocation{X: 0, Y: 0}) {
 		t.Error("Unexpectedly tested true a location that does not exist in structure")
 	}
 }
@@ -65,7 +65,7 @@ func TestLivingTrackerRemove(t *testing.T) {
 	tracker := NewLivingTracker()
 
 	// Ok, set the value
-	loc := GameboardLocation{X: 42, Y: 24}
+	loc := LifeboardLocation{X: 42, Y: 24}
 	tracker.Set(loc)
 
 	tracker.Remove(loc)
@@ -84,10 +84,10 @@ func TestLivingTrackerGetAll(t *testing.T) {
 	tracker := NewLivingTracker()
 
 	// Create the expected values
-	expectedLocations := make([]GameboardLocation, 3)
-	expectedLocations[0] = GameboardLocation{X: 42, Y: 42}
-	expectedLocations[1] = GameboardLocation{X: 11, Y: 11}
-	expectedLocations[2] = GameboardLocation{X: 12, Y: 34}
+	expectedLocations := make([]LifeboardLocation, 3)
+	expectedLocations[0] = LifeboardLocation{X: 42, Y: 42}
+	expectedLocations[1] = LifeboardLocation{X: 11, Y: 11}
+	expectedLocations[2] = LifeboardLocation{X: 12, Y: 34}
 
 	// Ok, set the values
 	for _, l := range expectedLocations {
@@ -135,10 +135,10 @@ func TestLivingTrackerCount(t *testing.T) {
 	tracker := NewLivingTracker()
 
 	// Create the expected values
-	expectedLocations := make([]GameboardLocation, 3)
-	expectedLocations[0] = GameboardLocation{X: 42, Y: 42}
-	expectedLocations[1] = GameboardLocation{X: 11, Y: 11}
-	expectedLocations[2] = GameboardLocation{X: 12, Y: 34}
+	expectedLocations := make([]LifeboardLocation, 3)
+	expectedLocations[0] = LifeboardLocation{X: 42, Y: 42}
+	expectedLocations[1] = LifeboardLocation{X: 11, Y: 11}
+	expectedLocations[2] = LifeboardLocation{X: 12, Y: 34}
 
 	// Ok, set the values
 	for _, l := range expectedLocations {
@@ -170,10 +170,10 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 	}
 
 	// Create a pattern and call the pond's init function
-	initialLiving := make([]GameboardLocation, 3)
-	initialLiving[0] = GameboardLocation{X: 0, Y: 0}
-	initialLiving[1] = GameboardLocation{X: 1, Y: 1}
-	initialLiving[2] = GameboardLocation{X: 2, Y: 2}
+	initialLiving := make([]LifeboardLocation, 3)
+	initialLiving[0] = LifeboardLocation{X: 0, Y: 0}
+	initialLiving[1] = LifeboardLocation{X: 1, Y: 1}
+	initialLiving[2] = LifeboardLocation{X: 2, Y: 2}
 
 	pond.SetOrganisms(initialLiving)
 
@@ -186,7 +186,7 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 }
 
 func TestPondNeighborSelection(t *testing.T) {
-	t.Skip("This will essentially just retest the gameboard tests.")
+	t.Skip("This will essentially just retest the lifeboard tests.")
 }
 
 func TestPondNeighborSelectionError(t *testing.T) {
@@ -195,7 +195,7 @@ func TestPondNeighborSelectionError(t *testing.T) {
 		fake_selector := 999
 		pond := NewPond(1, 1, fake_selector)
 
-		neighbors, err := pond.GetNeighbors(GameboardLocation{X: 0, Y: 0})
+		neighbors, err := pond.GetNeighbors(LifeboardLocation{X: 0, Y: 0})
 		if err != nil {
 			t.Error("Did not encounter error when retrieving neighbors using bogus selector")
 		}
@@ -204,7 +204,7 @@ func TestPondNeighborSelectionError(t *testing.T) {
 
 func TestPondOrganismValue(t *testing.T) {
 	expectedVal := 2
-	pos := GameboardLocation{X: 0, Y: 0}
+	pos := LifeboardLocation{X: 0, Y: 0}
 	pond, err := NewPond(1, 1, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
@@ -225,9 +225,9 @@ func TestPondGetNumLiving(t *testing.T) {
 	}
 
 	// Create a pattern and call the pond's init function
-	initialLiving := make([]GameboardLocation, 2)
-	initialLiving[0] = GameboardLocation{X: 0, Y: 0}
-	initialLiving[1] = GameboardLocation{X: 1, Y: 1}
+	initialLiving := make([]LifeboardLocation, 2)
+	initialLiving[0] = LifeboardLocation{X: 0, Y: 0}
+	initialLiving[1] = LifeboardLocation{X: 1, Y: 1}
 	pond.SetOrganisms(initialLiving)
 
 	numLiving := pond.GetNumLiving()
@@ -244,20 +244,20 @@ func TestPondNeighborCountCalutation(t *testing.T) {
 	}
 
 	// Create a pattern and call the pond's init function
-	initialLiving := make([]GameboardLocation, 2)
-	initialLiving[0] = GameboardLocation{X: 0, Y: 0}
-	initialLiving[1] = GameboardLocation{X: 1, Y: 1}
+	initialLiving := make([]LifeboardLocation, 2)
+	initialLiving[0] = LifeboardLocation{X: 0, Y: 0}
+	initialLiving[1] = LifeboardLocation{X: 1, Y: 1}
 	pond.SetOrganisms(initialLiving)
 
-	expectedNeighbors := make([]GameboardLocation, 5)
-	expectedNeighbors[0] = GameboardLocation{X: 0, Y: 0}
-	expectedNeighbors[1] = GameboardLocation{X: 1, Y: 0}
-	expectedNeighbors[2] = GameboardLocation{X: 1, Y: 1}
-	expectedNeighbors[3] = GameboardLocation{X: 0, Y: 2}
-	expectedNeighbors[4] = GameboardLocation{X: 1, Y: 2}
+	expectedNeighbors := make([]LifeboardLocation, 5)
+	expectedNeighbors[0] = LifeboardLocation{X: 0, Y: 0}
+	expectedNeighbors[1] = LifeboardLocation{X: 1, Y: 0}
+	expectedNeighbors[2] = LifeboardLocation{X: 1, Y: 1}
+	expectedNeighbors[3] = LifeboardLocation{X: 0, Y: 2}
+	expectedNeighbors[4] = LifeboardLocation{X: 1, Y: 2}
 
 	expectedNeighborCount := len(initialLiving)
-	actualNeighborCount, actualNeighbors := pond.calculateNeighborCount(GameboardLocation{X: 0, Y: 1})
+	actualNeighborCount, actualNeighbors := pond.calculateNeighborCount(LifeboardLocation{X: 0, Y: 1})
 
 	if actualNeighborCount != expectedNeighborCount {
 		t.Fatalf("Retrieved %d neighbor count instead of expected %d\n", actualNeighborCount, expectedNeighborCount)

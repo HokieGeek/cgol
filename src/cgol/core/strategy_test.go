@@ -25,13 +25,13 @@ func TestStrategyCreation(t *testing.T) {
 		RulesConwayLife,
 		SimultaneousProcessor)
 
-	expected, _ := NewGameboard(GameboardDims{3, 3})
-	expected.SetValue(GameboardLocation{X: 0, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 1, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 2, Y: 1}, 0)
+	expected, _ := NewLifeboard(LifeboardDims{3, 3})
+	expected.SetValue(LifeboardLocation{X: 0, Y: 1}, 0)
+	expected.SetValue(LifeboardLocation{X: 1, Y: 1}, 0)
+	expected.SetValue(LifeboardLocation{X: 2, Y: 1}, 0)
 
-	if !strategy.pond.gameboard.Equals(expected) {
-		t.Fatalf("Actual gameboard\n%s\ndoes not match expected\n%s\n", strategy.pond.gameboard.String(), expected.String())
+	if !strategy.pond.lifeboard.Equals(expected) {
+		t.Fatalf("Actual lifeboard\n%s\ndoes not match expected\n%s\n", strategy.pond.lifeboard.String(), expected.String())
 	}
 }
 

@@ -54,22 +54,22 @@ func (t NeighborsSelector) String() string {
 }
 
 type livingTrackerAddOp struct {
-	loc  GameboardLocation
+	loc  LifeboardLocation
 	resp chan bool
 }
 
 type livingTrackerRemoveOp struct {
-	loc  GameboardLocation
+	loc  LifeboardLocation
 	resp chan bool
 }
 
 type livingTrackerTestOp struct {
-	loc  GameboardLocation
+	loc  LifeboardLocation
 	resp chan bool
 }
 
 type livingTrackerGetAllOp struct {
-	resp chan []GameboardLocation
+	resp chan []LifeboardLocation
 }
 
 type livingTrackerCountOp struct {
@@ -85,7 +85,7 @@ type LivingTracker struct {
 }
 
 func (t *LivingTracker) living() {
-	var livingMap = make(map[int]map[int]GameboardLocation)
+	var livingMap = make(map[int]map[int]LifeboardLocation)
 	var count int
 	// logger := log.New(os.Stderr, "LivingTracker: ", log.Ltime)
 	// logger := log.New(ioutil.Discard, "LivingTracker: ", log.Ltime)
@@ -96,7 +96,7 @@ func (t *LivingTracker) living() {
 			added := true
 			_, keyExists := livingMap[add.loc.Y]
 			if !keyExists {
-				livingMap[add.loc.Y] = make(map[int]GameboardLocation)
+				livingMap[add.loc.Y] = make(map[int]LifeboardLocation)
 			}
 			_, keyExists = livingMap[add.loc.Y][add.loc.X]
 			if !keyExists {
@@ -134,7 +134,7 @@ func (t *LivingTracker) living() {
 				test.resp <- false
 			}
 		case getall := <-t.trackerGetAll:
-			all := make([]GameboardLocation, 0)
+			all := make([]LifeboardLocation, 0)
 			for rowNum := range livingMap {
 				for _, col := range livingMap[rowNum] {
 					all = append(all, col)
@@ -147,19 +147,19 @@ func (t *LivingTracker) living() {
 	}
 }
 
-func (t *LivingTracker) Set(location GameboardLocation) {
+func (t *LivingTracker) Set(location LifeboardLocation) {
 	add := &livingTrackerAddOp{loc: location, resp: make(chan bool)}
 	t.trackerAdd <- add
 	<-add.resp
 }
 
-func (t *LivingTracker) Remove(location GameboardLocation) {
+func (t *LivingTracker) Remove(location LifeboardLocation) {
 	remove := &livingTrackerRemoveOp{loc: location, resp: make(chan bool)}
 	t.trackerRemove <- remove
 	<-remove.resp
 }
 
-func (t *LivingTracker) Test(location GameboardLocation) bool {
+func (t *LivingTracker) Test(location LifeboardLocation) bool {
 	read := &livingTrackerTestOp{loc: location, resp: make(chan bool)}
 	t.trackerTest <- read
 	val := <-read.resp
@@ -167,8 +167,8 @@ func (t *LivingTracker) Test(location GameboardLocation) bool {
 	return val
 }
 
-func (t *LivingTracker) GetAll() []GameboardLocation {
-	get := &livingTrackerGetAllOp{resp: make(chan []GameboardLocation)}
+func (t *LivingTracker) GetAll() []LifeboardLocation {
+	get := &livingTrackerGetAllOp{resp: make(chan []LifeboardLocation)}
 	t.trackerGetAll <- get
 	val := <-get.resp
 
@@ -198,26 +198,26 @@ func NewLivingTracker() *LivingTracker {
 }
 
 type Pond struct {
-	gameboard         *Gameboard
+	lifeboard         *Lifeboard
 	Status            PondStatus
 	neighborsSelector NeighborsSelector
 	living            *LivingTracker
 }
 
-func (t *Pond) GetNeighbors(organism GameboardLocation) []GameboardLocation {
+func (t *Pond) GetNeighbors(organism LifeboardLocation) []LifeboardLocation {
 	switch {
 	case t.neighborsSelector == NEIGHBORS_ORTHOGONAL:
-		return t.gameboard.GetOrthogonalNeighbors(organism)
+		return t.lifeboard.GetOrthogonalNeighbors(organism)
 	case t.neighborsSelector == NEIGHBORS_OBLIQUE:
-		return t.gameboard.GetObliqueNeighbors(organism)
+		return t.lifeboard.GetObliqueNeighbors(organism)
 	case t.neighborsSelector == NEIGHBORS_ALL:
-		return t.gameboard.GetAllNeighbors(organism)
+		return t.lifeboard.GetAllNeighbors(organism)
 	}
 
 	return nil
 }
 
-func (t *Pond) isOrganismAlive(organism GameboardLocation) bool {
+func (t *Pond) isOrganismAlive(organism LifeboardLocation) bool {
 	return (t.GetOrganismValue(organism) >= 0)
 }
 
@@ -225,9 +225,9 @@ func (t *Pond) GetNumLiving() int {
 	return t.living.GetCount()
 }
 
-func (t *Pond) GetOrganismValue(organism GameboardLocation) int {
+func (t *Pond) GetOrganismValue(organism LifeboardLocation) int {
 	// fmt.Printf("\tgetNeighborCount(%s)\n", organism.String())
-	val, err := t.gameboard.GetValue(organism)
+	val, err := t.lifeboard.GetValue(organism)
 
 	if err != nil {
 		// TODO: print the error
@@ -237,12 +237,12 @@ func (t *Pond) GetOrganismValue(organism GameboardLocation) int {
 	return val
 }
 
-func (t *Pond) setOrganismValue(organism GameboardLocation, num int) {
+func (t *Pond) setOrganismValue(organism LifeboardLocation, num int) {
 	// fmt.Printf("\tsetNeighborCount(%s, %d)\n", organism.String(), num)
 	originalNum := t.GetOrganismValue(organism)
 
-	// Write the value to the gameboard
-	t.gameboard.SetValue(organism, num)
+	// Write the value to the lifeboard
+	t.lifeboard.SetValue(organism, num)
 
 	// Update the living count if organism changed living state
 	if originalNum < 0 && num >= 0 {
@@ -252,7 +252,7 @@ func (t *Pond) setOrganismValue(organism GameboardLocation, num int) {
 	}
 }
 
-func (t *Pond) calculateNeighborCount(organism GameboardLocation) (int, []GameboardLocation) {
+func (t *Pond) calculateNeighborCount(organism LifeboardLocation) (int, []LifeboardLocation) {
 	numNeighbors := 0
 	neighbors := t.GetNeighbors(organism)
 	for _, neighbor := range neighbors {
@@ -263,20 +263,20 @@ func (t *Pond) calculateNeighborCount(organism GameboardLocation) (int, []Gamebo
 	return numNeighbors, neighbors
 }
 
-func (t *Pond) SetOrganisms(organisms []GameboardLocation) {
+func (t *Pond) SetOrganisms(organisms []LifeboardLocation) {
 	// Initialize the first organisms and set their neighbor counts
 	for _, organism := range organisms {
 		t.setOrganismValue(organism, 0)
 	}
 }
 
-func (t *Pond) GetGameboard() [][]int {
-	return t.gameboard.getSnapshot()
+func (t *Pond) GetLifeboard() [][]int {
+	return t.lifeboard.getSnapshot()
 }
 
 func (t *Pond) Clone() *Pond {
-	shadowPond, err := NewPond(t.gameboard.Dims.Height,
-		t.gameboard.Dims.Width,
+	shadowPond, err := NewPond(t.lifeboard.Dims.Height,
+		t.lifeboard.Dims.Width,
 		t.neighborsSelector)
 
 	if err != nil {
@@ -292,7 +292,7 @@ func (t *Pond) Clone() *Pond {
 }
 
 func (t *Pond) Equals(rhs *Pond) bool {
-	if !t.gameboard.Equals(rhs.gameboard) {
+	if !t.lifeboard.Equals(rhs.lifeboard) {
 		return false
 	}
 	if t.Status != rhs.Status {
@@ -313,7 +313,7 @@ func (t *Pond) String() string {
 	buf.WriteString("\tStatus: ")
 	buf.WriteString(t.Status.String())
 	buf.WriteString("\n")
-	buf.WriteString(t.gameboard.String())
+	buf.WriteString(t.lifeboard.String())
 
 	return buf.String()
 }
@@ -327,7 +327,7 @@ func NewPond(rows int, cols int, neighbors NeighborsSelector) (*Pond, error) {
 
 	// Add the given values
 	var err error
-	p.gameboard, err = NewGameboard(GameboardDims{Height: rows, Width: cols})
+	p.lifeboard, err = NewLifeboard(LifeboardDims{Height: rows, Width: cols})
 	if err != nil {
 		return nil, err
 	}
