@@ -130,14 +130,22 @@ func (t *Strategy) String() string {
 
 func NewStrategy(label string,
 	pond *Pond,
+	// dims LifeboardDims,
+	// neighbors neighborsSelector,
 	initializer func(LifeboardDims) []LifeboardLocation,
 	rules func(int, bool) bool,
 	processor func(pond *Pond, rules func(int, bool) bool)) *Strategy {
 	s := new(Strategy)
 
+	// TODO
+	// s.pond,err = newPond(dims, neighbors)
+	// if err == nil {
+	// 	return nil,err
+	// }
+	s.pond = pond
+
 	// Save the given values
 	s.Label = label
-	s.pond = pond
 	s.ruleset = rules
 	s.processor = processor
 
