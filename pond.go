@@ -199,7 +199,7 @@ func newLivingTracker() *livingTracker {
 
 type pond struct {
 	Status            PondStatus
-	board         *board
+	board             *board
 	neighborsSelector neighborsSelector
 	living            *livingTracker
 }

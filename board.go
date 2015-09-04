@@ -36,7 +36,7 @@ type Dimensions struct {
 	Width  int
 }
 
-func (t *Dimensions) GetCapacity() int {
+func (t *Dimensions) Capacity() int {
 	return t.Height * t.Width
 }
 
@@ -64,7 +64,7 @@ type boardWriteOp struct {
 }
 
 type board struct {
-	Dims               Dimensions
+	Dims           Dimensions
 	boardReads     chan *boardReadOp
 	boardWrites    chan *boardWriteOp
 	boardSnapshots chan *boardSnapshotOp

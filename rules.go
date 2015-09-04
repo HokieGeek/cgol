@@ -6,8 +6,8 @@ import (
 )
 
 type Rules struct {
-	Survive []int
-	Born    []int
+	Survive []int // The number of neighbors an alive cell needs to have to survive
+	Born    []int // The number of neighbors a dead cell needs to have to be born
 }
 
 func (t *Rules) String() string {
@@ -26,7 +26,11 @@ func (t *Rules) String() string {
 	return buf.String()
 }
 
-func NewRulesFromString(rules string) *Rules {
+// Returns a Rules object when given a string in the format of "###/##" where
+// to the left of the slash (/) each integer (0 > # < 9) is the number of neighbors
+// an alive cell needs to have to survive and to the right of the slash is the number of
+// neighbors a dead cell needs to be born.
+func RulesFromString(rules string) *Rules {
 	// TODO: split this: ####/#### (0 > # <= 8)
 	return nil
 }
@@ -50,6 +54,7 @@ func RulesTest(numNeighbors int, isAlive bool, rules *Rules) bool {
 	return false
 }
 
+// Returns a RulesTest function that uses the given ruleset
 func GetRulesTester(rules *Rules) func(int, bool) bool {
 	return func(numNeighbors int, isAlive bool) bool {
 		return RulesTest(numNeighbors, isAlive, rules)
@@ -57,15 +62,16 @@ func GetRulesTester(rules *Rules) func(int, bool) bool {
 }
 
 // Returns a Rules struct filled with the normal Conway rules of 23/3
+//	-- Rules --
+// 	1. If live cell has < 2 neighbors, it dies
+// 	2. If live cell has 2 or 3 neighbors, it lives
+// 	3. If live cell has > 3 neighbors, it dies
+// 	4. If dead cell has exactly 3 neighbors, it lives
 func GetConwayRules() *Rules {
-	// -- Rules --
-	// 1. If live cell has < 2 neighbors, it dies
-	// 2. If live cell has 2 or 3 neighbors, it lives
-	// 3. If live cell has > 3 neighbors, it dies
-	// 4. If dead cell has exactly 3 neighbors, it lives
 	return &Rules{Survive: []int{2, 3}, Born: []int{3}}
 }
 
+// Returns a rules tester with Conway Normal rules
 func GetConwayTester() func(int, bool) bool {
 	return GetRulesTester(GetConwayRules())
 }

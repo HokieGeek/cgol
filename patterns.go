@@ -25,8 +25,8 @@ func getCountsForDimensions(dimensions Dimensions, width int, height int) (int, 
 	return numPerRow, numPerCol
 }
 
-// , startingLocation Location,
 func getRepeatingPattern(dimensions Dimensions, height int, width int,
+	// , startingLocation Location,
 	pattern func(*[]Location, int, int)) []Location {
 
 	numPerRow, numPerCol := getCountsForDimensions(dimensions, width, height)
@@ -65,14 +65,12 @@ func Random(dimensions Dimensions, percent int) []Location {
 
 /////////////////// OSCILLATORS ///////////////////
 
-// func Blinkers(dimensions Dimensions, startingLocation Location) []Location {
+// Generate a basic Blinker oscillator
+//	Period 1  Period 2
+// 	-0-       ---
+// 	-0-       000
+// 	-0-       ---
 func Blinkers(dimensions Dimensions) []Location {
-	// put in as many lengthx1 vertical lines as you can fit
-	// Period 1   Period 2
-	// -0-		  ---
-	// -0-        000
-	// -0-        ---
-
 	const HEIGHT = 4 // 3 for the line itself and 1 for the spacer
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
 		func(seed *[]Location, currentX int, currentY int) {
@@ -83,13 +81,13 @@ func Blinkers(dimensions Dimensions) []Location {
 
 }
 
+// Generates a Toad oscillator
+//	Period 1	  Period 2
+// 	----       --0-
+// 	-000       0--0
+// 	000-       0--0
+// 	----       -0--
 func Toads(dimensions Dimensions) []Location {
-	// Period 1	  Period 2
-	// ----       --0-
-	// -000       0--0
-	// 000-       0--0
-	// ----       -0--
-
 	const HEIGHT = 5
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
 		func(seed *[]Location, currentX int, currentY int) {
@@ -104,12 +102,13 @@ func Toads(dimensions Dimensions) []Location {
 		})
 }
 
+// Generates a Beacon oscillator
+//	Period 1   Period 2
+//	00--       00--
+// 	0---       00--
+// 	---0       --00
+// 	--00       --00
 func Beacons(dimensions Dimensions) []Location {
-	// Period 1   Period 2
-	// 00--       00--
-	// 0---       00--
-	// ---0       --00
-	// --00       --00
 
 	const HEIGHT = 5
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
@@ -127,25 +126,24 @@ func Beacons(dimensions Dimensions) []Location {
 		})
 }
 
+// Generates a Pulsar oscillator
+//	Period 1          Period 2          Period 3
+// 	---------------   ----0-----0----   ---------------
+// 	---000---000---   ----0-----0----   ---00-----00---
+// 	---------------   ----00---00----   ----00---00----
+// 	-0----0-0----0-   ---------------   -0--0-0-0-0--0-
+// 	-0----0-0----0-   000--00-00--000   -000-00-00-000-
+// 	-0----0-0----0-   --0-0-0-0-0-0--   --0-0-0-0-0-0--
+// 	---000---000---   ----00---00----   ---000---000---
+// 	---------------   ---------------   ---------------
+// 	---000---000---   ----00---00----   ---000---000---
+// 	-0----0-0----0-   --0-0-0-0-0-0--   --0-0-0-0-0-0--
+// 	-0----0-0----0-   000--00-00--000   -000-00-00-000-
+// 	-0----0-0----0-   ---------------   -0--0-0-0-0--0-
+// 	---------------   ----00---00----   ----00---00----
+// 	---000---000---   ----0-----0----   ---00-----00---
+// 	---------------   ----0-----0----   ---------------
 func Pulsar(dimensions Dimensions) []Location {
-	// Period 1          Period 2           Period 3
-	//                                        012345678901234
-	// ---------------   ----0-----0----    0 ---------------
-	// ---000---000---   ----0-----0----    1 ---00-----00---
-	// ---------------   ----00---00----    2 ----00---00----
-	// -0----0-0----0-   ---------------    3 -0--0-0-0-0--0-
-	// -0----0-0----0-   000--00-00--000    4 -000-00-00-000-
-	// -0----0-0----0-   --0-0-0-0-0-0--    5 --0-0-0-0-0-0--
-	// ---000---000---   ----00---00----    6 ---000---000---
-	// ---------------   ---------------    7 ---------------
-	// ---000---000---   ----00---00----    8 ---000---000---
-	// -0----0-0----0-   --0-0-0-0-0-0--    9 --0-0-0-0-0-0--
-	// -0----0-0----0-   000--00-00--000    0 -000-00-00-000-
-	// -0----0-0----0-   ---------------    1 -0--0-0-0-0--0-
-	// ---------------   ----00---00----    2 ----00---00----
-	// ---000---000---   ----0-----0----    3 ---00-----00---
-	// ---------------   ----0-----0----    4 ---------------
-
 	const HEIGHT = 16
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
 		func(seed *[]Location, currentX int, currentY int) {
@@ -170,15 +168,15 @@ func Pulsar(dimensions Dimensions) []Location {
 		})
 }
 
-/////////////////// GLIDERS ///////////////////
+/////////////////// SPACESHIPS ///////////////////
 
+// Generates a basic Glider spaceship
+//	Period 1   Period 2   Period 3   Period 4
+// 	-0--       ----       ----       ----
+// 	--0-       0-0-       --0-       -0--
+// 	000-       -00-       0-0-       --00
+// 	----       -0--       -00-       -00-
 func Gliders(dimensions Dimensions) []Location {
-	// Period 1   Period 2   Period 3   Period 4
-	// -0--       ----       ----       ----
-	// --0-       0-0-       --0-       -0--
-	// 000-       -00-       0-0-       --00
-	// ----       -0--       -00-       -00-
-
 	const (
 		HEIGHT = 3
 		WIDTH  = 4
@@ -198,9 +196,10 @@ func Gliders(dimensions Dimensions) []Location {
 
 /////////////////// STILLS ///////////////////
 
+// Generates the Block still pattern
+//	00
+// 	00
 func Blocks(dimensions Dimensions) []Location {
-	// 00
-	// 00
 
 	const HEIGHT = 5
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
@@ -214,11 +213,11 @@ func Blocks(dimensions Dimensions) []Location {
 		})
 }
 
-// Beehive
+// Generates the Beehive still pattern
+//	-00-
+// 	0--0
+// 	-00-
 func Beehive(dimensions Dimensions) []Location {
-	// -00-
-	// 0--0
-	// -00-
 
 	const (
 		HEIGHT = 3
@@ -239,12 +238,12 @@ func Beehive(dimensions Dimensions) []Location {
 		})
 }
 
+// Generates the Loaf still pattern
+//	-00-
+// 	0--0
+// 	-0-0
+// 	--0-
 func Loaf(dimensions Dimensions) []Location {
-	// -00-
-	// 0--0
-	// -0-0
-	// --0-
-
 	const HEIGHT = 4
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
 		func(seed *[]Location, currentX int, currentY int) {
@@ -262,11 +261,11 @@ func Loaf(dimensions Dimensions) []Location {
 		})
 }
 
+// Generates the Boat still pattern
+//	00-
+//	0-0
+//	-0-
 func Boat(dimensions Dimensions) []Location {
-	// 00-
-	// 0-0
-	// -0-
-
 	const HEIGHT = 3
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
 		func(seed *[]Location, currentX int, currentY int) {
