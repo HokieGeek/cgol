@@ -2,13 +2,14 @@ package cgol
 
 import "testing"
 
-func TestRuleRulesConwayLife(t *testing.T) {
-	// FIXME: this should be somewhere common
+func TestRuleRulesConway(t *testing.T) {
 	const (
 		STD_UNDERPOPULATION = 2
 		STD_OVERCROWDING    = 3
 		STD_REVIVE          = 3
 	)
+
+	RulesConwayLife := GetConwayTester()
 
 	// Rule #1: Kill a cell that has few neighbors
 	if RulesConwayLife(STD_UNDERPOPULATION-1, true) {

@@ -417,20 +417,20 @@ func generateBoat(t *testing.T) (LifeboardDims, func(LifeboardDims) []LifeboardL
 
 //////////////////////// Simultaneous processor ////////////////////////
 
-func testProcessorSimultaneousRulesConwayLife(t *testing.T,
+func testProcessorSimultaneousRulesConway(t *testing.T,
 	size LifeboardDims,
 	init func(LifeboardDims) []LifeboardLocation,
 	expected []*lifeboard) {
 
 	testProcessor(t,
 		SimultaneousProcessor,
-		RulesConwayLife,
+		GetConwayTester(),
 		size,
 		init,
 		expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeRandom(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayRandom(t *testing.T) {
 	// Build the initial pond
 	size := LifeboardDims{Height: 16, Width: 16}
 	initialLocations := Random(size, 80)
@@ -448,7 +448,7 @@ func TestProcessorSimultaneousRulesConwayLifeRandom(t *testing.T) {
 	pondWorker.SetOrganisms(initialLocations)
 
 	// Go through one generation
-	SimultaneousProcessor(pondWorker, RulesConwayLife)
+	SimultaneousProcessor(pondWorker, GetConwayTester())
 
 	// Compare the pond with the expected version
 	if pondWorker.lifeboard.Equals(pondInitialSnapshot.lifeboard) {
@@ -456,52 +456,52 @@ func TestProcessorSimultaneousRulesConwayLifeRandom(t *testing.T) {
 	}
 }
 
-func TestProcessorSimultaneousRulesConwayLifeBlinker(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayBlinker(t *testing.T) {
 	size, init, expected := generateBlinkers(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+	testProcessorSimultaneousRulesConway(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeToad(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayToad(t *testing.T) {
 	size, init, expected := generateToads(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+	testProcessorSimultaneousRulesConway(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeBeacon(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayBeacon(t *testing.T) {
 	size, init, expected := generateBeacons(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+	testProcessorSimultaneousRulesConway(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeBlock(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayBlock(t *testing.T) {
 	size, init, expected := generateBlock(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+	testProcessorSimultaneousRulesConway(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeBeehive(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayBeehive(t *testing.T) {
 	size, init, expected := generateBeehive(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+	testProcessorSimultaneousRulesConway(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeLoaf(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayLoaf(t *testing.T) {
 	size, init, expected := generateLoaf(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+	testProcessorSimultaneousRulesConway(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeBoat(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayBoat(t *testing.T) {
 	size, init, expected := generateBoat(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+	testProcessorSimultaneousRulesConway(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifePulsar(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayPulsar(t *testing.T) {
 	size, init, expected := generatePulsar(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+	testProcessorSimultaneousRulesConway(t, size, init, expected)
 }
 
-func TestProcessorSimultaneousRulesConwayLifeGliders(t *testing.T) {
+func TestProcessorSimultaneousRulesConwayGliders(t *testing.T) {
 	size, init, expected := generateGlider(t)
-	testProcessorSimultaneousRulesConwayLife(t, size, init, expected)
+	testProcessorSimultaneousRulesConway(t, size, init, expected)
 }
 
-func BenchmarkProcessorSimultaneousRulesConwayLifePulsar(b *testing.B) {
+func BenchmarkProcessorSimultaneousRulesConwayPulsar(b *testing.B) {
 	// Build the initial pond
 	size := LifeboardDims{Height: 33, Width: 33}
 	pond, err := NewPond(size.Height, size.Width, NEIGHBORS_ALL)
@@ -513,6 +513,6 @@ func BenchmarkProcessorSimultaneousRulesConwayLifePulsar(b *testing.B) {
 	// Ok, do the benchmark now
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		SimultaneousProcessor(pond, RulesConwayLife)
+		SimultaneousProcessor(pond, GetConwayTester())
 	}
 }

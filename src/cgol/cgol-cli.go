@@ -44,7 +44,7 @@ func displayTestPond(width int, height int, rate time.Duration, initializer func
 		strategy := cgol.NewStrategy("Test",
 			pond,
 			initializer,
-			cgol.RulesConwayLife,
+			cgol.GetConwayTester(),
 			cgol.SimultaneousProcessor)
 		if rate > 0 {
 			strategy.UpdateRate = rate

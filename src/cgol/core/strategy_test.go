@@ -22,7 +22,7 @@ func TestStrategyCreation(t *testing.T) {
 	strategy := NewStrategy("TestStrategyCreation",
 		pond,
 		Blinkers,
-		RulesConwayLife,
+		GetConwayTester(),
 		SimultaneousProcessor)
 
 	expected, _ := newLifeboard(LifeboardDims{3, 3})
@@ -43,7 +43,7 @@ func TestStrategyProcess(t *testing.T) {
 	strategy := NewStrategy("TestStrategyProcess",
 		pond,
 		Blinkers,
-		RulesConwayLife,
+		GetConwayTester(),
 		SimultaneousProcessor)
 
 	seededPond := strategy.pond.Clone()
@@ -71,7 +71,7 @@ func TestStrategyStartStop(t *testing.T) {
 	strategy := NewStrategy("TestStrategyStartStop",
 		pond,
 		Blinkers,
-		RulesConwayLife,
+		GetConwayTester(),
 		SimultaneousProcessor)
 
 	seededPond := strategy.pond.Clone()
@@ -112,7 +112,7 @@ func TestStrategyGetGeneration(t *testing.T) {
 	strategy := NewStrategy("TestStrategyString",
 		pond,
 		Blinkers,
-		RulesConwayLife,
+		GetConwayTester(),
 		SimultaneousProcessor)
 
 	expectedNumLiving := 3
@@ -137,7 +137,7 @@ func TestStrategyString(t *testing.T) {
 	strategy := NewStrategy("TestStrategyString",
 		pond,
 		Blinkers,
-		RulesConwayLife,
+		GetConwayTester(),
 		SimultaneousProcessor)
 
 	if len(strategy.String()) <= 0 {
