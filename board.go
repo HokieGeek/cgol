@@ -6,12 +6,12 @@ import (
 	"strconv"
 )
 
-type LifeboardLocation struct {
+type Location struct {
 	X int
 	Y int
 }
 
-func (t *LifeboardLocation) Equals(rhs *LifeboardLocation) bool {
+func (t *Location) Equals(rhs *Location) bool {
 	if t.X != rhs.X {
 		return false
 	}
@@ -21,7 +21,7 @@ func (t *LifeboardLocation) Equals(rhs *LifeboardLocation) bool {
 	return true
 }
 
-func (t *LifeboardLocation) String() string {
+func (t *Location) String() string {
 	var buf bytes.Buffer
 	buf.WriteString("[")
 	buf.WriteString(strconv.Itoa(t.X))
@@ -31,16 +31,16 @@ func (t *LifeboardLocation) String() string {
 	return buf.String()
 }
 
-type LifeboardDims struct {
+type Dimensions struct {
 	Height int
 	Width  int
 }
 
-func (t *LifeboardDims) GetCapacity() int {
+func (t *Dimensions) GetCapacity() int {
 	return t.Height * t.Width
 }
 
-func (t *LifeboardDims) String() string {
+func (t *Dimensions) String() string {
 	var buf bytes.Buffer
 	buf.WriteString(strconv.Itoa(t.Height))
 	buf.WriteString("x")
@@ -49,7 +49,7 @@ func (t *LifeboardDims) String() string {
 }
 
 type boardReadOp struct {
-	loc  LifeboardLocation
+	loc  Location
 	resp chan int
 }
 
@@ -58,13 +58,13 @@ type boardSnapshotOp struct {
 }
 
 type boardWriteOp struct {
-	loc  LifeboardLocation
+	loc  Location
 	val  int
 	resp chan bool
 }
 
 type board struct {
-	Dims               LifeboardDims
+	Dims               Dimensions
 	boardReads     chan *boardReadOp
 	boardWrites    chan *boardWriteOp
 	boardSnapshots chan *boardSnapshotOp
@@ -108,7 +108,7 @@ func (t *board) board() {
 	}
 }
 
-func (t *board) GetValue(location LifeboardLocation) (int, error) {
+func (t *board) GetValue(location Location) (int, error) {
 	// Check that the given location is valid
 	if location.X < 0 || location.X > t.Dims.Width {
 		return -1, errors.New("Given location is out of bounds")
@@ -131,7 +131,7 @@ func (t *board) getSnapshot() [][]int {
 	return val
 }
 
-func (t *board) SetValue(location LifeboardLocation, val int) error {
+func (t *board) SetValue(location Location, val int) error {
 	// Check that the given location is valid
 	if location.X < 0 || location.X > t.Dims.Width {
 		return errors.New("Given location is out of bounds")
@@ -148,8 +148,8 @@ func (t *board) SetValue(location LifeboardLocation, val int) error {
 	return nil
 }
 
-func (t *board) GetOrthogonalNeighbors(location LifeboardLocation) []LifeboardLocation {
-	neighbors := make([]LifeboardLocation, 0)
+func (t *board) GetOrthogonalNeighbors(location Location) []Location {
+	neighbors := make([]Location, 0)
 
 	// Determine the offsets
 	left := location.X - 1
@@ -158,27 +158,27 @@ func (t *board) GetOrthogonalNeighbors(location LifeboardLocation) []LifeboardLo
 	below := location.Y + 1
 
 	if above >= 0 {
-		neighbors = append(neighbors, LifeboardLocation{X: location.X, Y: above})
+		neighbors = append(neighbors, Location{X: location.X, Y: above})
 	}
 
 	if below < t.Dims.Height {
-		neighbors = append(neighbors, LifeboardLocation{X: location.X, Y: below})
+		neighbors = append(neighbors, Location{X: location.X, Y: below})
 	}
 
 	if left >= 0 {
-		neighbors = append(neighbors, LifeboardLocation{X: left, Y: location.Y})
+		neighbors = append(neighbors, Location{X: left, Y: location.Y})
 	}
 
 	if right < t.Dims.Width {
-		neighbors = append(neighbors, LifeboardLocation{X: right, Y: location.Y})
+		neighbors = append(neighbors, Location{X: right, Y: location.Y})
 	}
 
 	// fmt.Printf("GetOrthogonalNeighbors(%s): %v\n", location.String(), neighbors)
 	return neighbors
 }
 
-func (t *board) GetObliqueNeighbors(location LifeboardLocation) []LifeboardLocation {
-	neighbors := make([]LifeboardLocation, 0)
+func (t *board) GetObliqueNeighbors(location Location) []Location {
+	neighbors := make([]Location, 0)
 
 	// Determine the offsets
 	left := location.X - 1
@@ -188,26 +188,26 @@ func (t *board) GetObliqueNeighbors(location LifeboardLocation) []LifeboardLocat
 
 	if above >= 0 {
 		if left >= 0 {
-			neighbors = append(neighbors, LifeboardLocation{X: left, Y: above})
+			neighbors = append(neighbors, Location{X: left, Y: above})
 		}
 		if right < t.Dims.Width {
-			neighbors = append(neighbors, LifeboardLocation{X: right, Y: above})
+			neighbors = append(neighbors, Location{X: right, Y: above})
 		}
 	}
 
 	if below < t.Dims.Height {
 		if left >= 0 {
-			neighbors = append(neighbors, LifeboardLocation{X: left, Y: below})
+			neighbors = append(neighbors, Location{X: left, Y: below})
 		}
 		if right < t.Dims.Width {
-			neighbors = append(neighbors, LifeboardLocation{X: right, Y: below})
+			neighbors = append(neighbors, Location{X: right, Y: below})
 		}
 	}
 
 	return neighbors
 }
 
-func (t *board) GetAllNeighbors(location LifeboardLocation) []LifeboardLocation {
+func (t *board) GetAllNeighbors(location Location) []Location {
 	neighbors := append(t.GetOrthogonalNeighbors(location), t.GetObliqueNeighbors(location)...)
 
 	return neighbors
@@ -252,7 +252,7 @@ func (t *board) String() string {
 	return buf.String()
 }
 
-func newLifeboard(dims LifeboardDims) (*board, error) {
+func newLifeboard(dims Dimensions) (*board, error) {
 	if dims.Height <= 0 || dims.Width <= 0 {
 		return nil, errors.New("Dimensions must be greater than 0")
 	}

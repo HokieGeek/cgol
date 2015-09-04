@@ -27,7 +27,7 @@ type Life struct {
 	pond             *pond
 	processor        func(pond *pond, rules func(int, bool) bool)
 	ruleset          func(int, bool) bool
-	initialOrganisms []LifeboardLocation
+	initialOrganisms []Location
 	ticker           *time.Ticker
 }
 
@@ -93,7 +93,7 @@ func (t *Life) GetLifeboard() [][]int {
 
 type Generation struct {
 	Num    int
-	Living []LifeboardLocation
+	Living []Location
 	// stats...
 }
 
@@ -133,15 +133,15 @@ func (t *Life) String() string {
 }
 
 func New(label string,
-	dims LifeboardDims,
+	dims Dimensions,
 	neighbors neighborsSelector,
-	initializer func(LifeboardDims) []LifeboardLocation,
+	initializer func(Dimensions) []Location,
 	rules func(int, bool) bool,
 	processor func(pond *pond, rules func(int, bool) bool)) (*Life, error) {
 	s := new(Life)
 
 	var err error
-	s.pond, err = newpond(LifeboardDims{Height: dims.Height, Width: dims.Width}, neighbors)
+	s.pond, err = newpond(Dimensions{Height: dims.Height, Width: dims.Width}, neighbors)
 	if err != nil {
 		return nil, err
 	}

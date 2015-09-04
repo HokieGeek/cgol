@@ -38,9 +38,9 @@ func displaypond(strategy *life.Life, iterations time.Duration, static bool) {
 	}
 }
 
-func displayTestpond(width int, height int, rate time.Duration, initializer func(life.LifeboardDims) []life.LifeboardLocation) {
+func displayTestpond(width int, height int, rate time.Duration, initializer func(life.Dimensions) []life.Location) {
 	strategy, err := life.New("Test",
-		life.LifeboardDims{Height: height, Width: width},
+		life.Dimensions{Height: height, Width: width},
 		life.NEIGHBORS_ALL,
 		initializer,
 		life.GetConwayTester(),
@@ -98,8 +98,8 @@ func main() {
 		}
 
 		displayTestpond(width, height, *ratePtr,
-			func(dimensions life.LifeboardDims) []life.LifeboardLocation {
-				return life.Gliders(life.LifeboardDims{Height: 4, Width: 4})
+			func(dimensions life.Dimensions) []life.Location {
+				return life.Gliders(life.Dimensions{Height: 4, Width: 4})
 			})
 
 	case "pulsar":
@@ -124,7 +124,7 @@ func main() {
 		}
 
 		displayTestpond(width, height, *ratePtr,
-			func(dimensions life.LifeboardDims) []life.LifeboardLocation {
+			func(dimensions life.Dimensions) []life.Location {
 				return life.Random(dimensions, 80)
 			})
 	}

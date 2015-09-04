@@ -15,7 +15,7 @@ func TestLifeStatsString(t *testing.T) {
 }
 
 func TestLifeCreation(t *testing.T) {
-	dims := LifeboardDims{Height: 3, Width: 3}
+	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New("TestLifeCreation",
 		dims,
 		NEIGHBORS_ALL,
@@ -26,10 +26,10 @@ func TestLifeCreation(t *testing.T) {
 		t.Fatalf("Unable to create strategy: %s\n", err)
 	}
 
-	expected, _ := newLifeboard(LifeboardDims{3, 3})
-	expected.SetValue(LifeboardLocation{X: 0, Y: 1}, 0)
-	expected.SetValue(LifeboardLocation{X: 1, Y: 1}, 0)
-	expected.SetValue(LifeboardLocation{X: 2, Y: 1}, 0)
+	expected, _ := newLifeboard(Dimensions{3, 3})
+	expected.SetValue(Location{X: 0, Y: 1}, 0)
+	expected.SetValue(Location{X: 1, Y: 1}, 0)
+	expected.SetValue(Location{X: 2, Y: 1}, 0)
 
 	if !strategy.pond.board.Equals(expected) {
 		t.Fatalf("Actual board\n%s\ndoes not match expected\n%s\n", strategy.pond.board.String(), expected.String())
@@ -37,7 +37,7 @@ func TestLifeCreation(t *testing.T) {
 }
 
 func TestLifeProcess(t *testing.T) {
-	dims := LifeboardDims{Height: 3, Width: 3}
+	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New("TestLifeProcess",
 		dims,
 		NEIGHBORS_ALL,
@@ -69,7 +69,7 @@ func TestLifeProcess(t *testing.T) {
 
 func TestLifeStartStop(t *testing.T) {
 	t.Skip("This doesn't work as expected")
-	dims := LifeboardDims{Height: 3, Width: 3}
+	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New("TestLifeStartStop",
 		dims,
 		NEIGHBORS_ALL,
@@ -114,7 +114,7 @@ func TestLifeStartStop(t *testing.T) {
 }
 
 func TestLifeGeneration(t *testing.T) {
-	dims := LifeboardDims{Height: 3, Width: 3}
+	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New("TestLifeString",
 		dims,
 		NEIGHBORS_ALL,
@@ -140,7 +140,7 @@ func TestLifeGeneration(t *testing.T) {
 }
 
 func TestLifeString(t *testing.T) {
-	dims := LifeboardDims{Height: 3, Width: 3}
+	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New("TestLifeString",
 		dims,
 		NEIGHBORS_ALL,

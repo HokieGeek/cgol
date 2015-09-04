@@ -17,7 +17,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 
 	////// Modifications handler /////
 	type ModifiedOrganism struct {
-		loc LifeboardLocation
+		loc Location
 		val int
 	}
 
@@ -42,7 +42,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 	}()
 
 	///// Start processing stuffs /////
-	processingQueue := make(chan LifeboardLocation, pond.board.Dims.GetCapacity()+pond.GetNumLiving()+10)
+	processingQueue := make(chan Location, pond.board.Dims.GetCapacity()+pond.GetNumLiving()+10)
 	doneProcessing := make(chan bool, 1)
 
 	// Process the queue

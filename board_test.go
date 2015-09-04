@@ -6,24 +6,24 @@ import (
 	"time"
 )
 
-func TestLifeboardLocationString(t *testing.T) {
-	loc := LifeboardLocation{X: 1, Y: 1}
+func TestLocationString(t *testing.T) {
+	loc := Location{X: 1, Y: 1}
 	if len(loc.String()) == 0 {
-		t.Error("The LifeboardLocation String() function unexpectedly returned an empty string")
+		t.Error("The Location String() function unexpectedly returned an empty string")
 	}
 }
 
-func TestLifeboardDimsString(t *testing.T) {
-	dims := LifeboardDims{Height: 1, Width: 1}
+func TestDimensionsString(t *testing.T) {
+	dims := Dimensions{Height: 1, Width: 1}
 	if len(dims.String()) == 0 {
-		t.Error("The LifeboardDims Strings() function unexpectedly returned an empty string")
+		t.Error("The Dimensions Strings() function unexpectedly returned an empty string")
 	}
 }
 
 func TestLifeboardCreation(t *testing.T) {
 	// Create a board of random size
 	rand.Seed(time.Now().UnixNano())
-	size := LifeboardDims{Height: rand.Intn(100) + 1, Width: rand.Intn(100) + 1}
+	size := Dimensions{Height: rand.Intn(100) + 1, Width: rand.Intn(100) + 1}
 	board, err := newLifeboard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
@@ -51,7 +51,7 @@ func TestLifeboardCreation(t *testing.T) {
 
 func TestLifeboardCreateWithErrors(t *testing.T) {
 	// No height
-	board, err := newLifeboard(LifeboardDims{Height: 0, Width: 1})
+	board, err := newLifeboard(Dimensions{Height: 0, Width: 1})
 	if err == nil {
 		t.Error("Creating a board with 0 height did not return an error")
 	}
@@ -60,7 +60,7 @@ func TestLifeboardCreateWithErrors(t *testing.T) {
 	}
 
 	// No width
-	board, err = newLifeboard(LifeboardDims{Height: 1, Width: 0})
+	board, err = newLifeboard(Dimensions{Height: 1, Width: 0})
 	if err == nil {
 		t.Error("Creating a board with 0 width did not return an error")
 	}
@@ -69,7 +69,7 @@ func TestLifeboardCreateWithErrors(t *testing.T) {
 	}
 
 	// Both <0
-	board, err = newLifeboard(LifeboardDims{Height: -1, Width: -1})
+	board, err = newLifeboard(Dimensions{Height: -1, Width: -1})
 	if err == nil {
 		t.Error("Creating a board with width and height less than 0 did not return an error")
 	}
@@ -80,14 +80,14 @@ func TestLifeboardCreateWithErrors(t *testing.T) {
 
 func TestLifeboardSetValue(t *testing.T) {
 	// Create the test board
-	dims := LifeboardDims{Height: 1, Width: 1}
+	dims := Dimensions{Height: 1, Width: 1}
 	board, err := newLifeboard(dims)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", dims.String())
 	}
 
 	// Set a good value and retrieve it
-	loc := LifeboardLocation{X: 0, Y: 0}
+	loc := Location{X: 0, Y: 0}
 	testVal := 42
 	board.SetValue(loc, testVal)
 
@@ -102,14 +102,14 @@ func TestLifeboardSetValue(t *testing.T) {
 
 func TestLifeboardSetValueOutOfBounds(t *testing.T) {
 	// Create the test board
-	dims := LifeboardDims{Height: 1, Width: 1}
+	dims := Dimensions{Height: 1, Width: 1}
 	board, err := newLifeboard(dims)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", dims.String())
 	}
 
 	// Check for out of bounds (X)
-	loc := LifeboardLocation{X: 2, Y: 0}
+	loc := Location{X: 2, Y: 0}
 	testVal := 42
 	err = board.SetValue(loc, testVal)
 	if err == nil {
@@ -117,7 +117,7 @@ func TestLifeboardSetValueOutOfBounds(t *testing.T) {
 	}
 
 	// Check for out of bounds (Y)
-	loc = LifeboardLocation{X: 0, Y: 2}
+	loc = Location{X: 0, Y: 2}
 	err = board.SetValue(loc, testVal)
 	if err == nil {
 		t.Error("board did not return an error when setting a value at an out-of-bounds location")
@@ -126,28 +126,28 @@ func TestLifeboardSetValueOutOfBounds(t *testing.T) {
 
 func TestLifeboardGetValueOutOfBounds(t *testing.T) {
 	// Create the test board
-	dims := LifeboardDims{Height: 1, Width: 1}
+	dims := Dimensions{Height: 1, Width: 1}
 	board, err := newLifeboard(dims)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", dims.String())
 	}
 
 	// Check for out of bounds (X)
-	loc := LifeboardLocation{X: 2, Y: 0}
+	loc := Location{X: 2, Y: 0}
 	_, err = board.GetValue(loc)
 	if err == nil {
 		t.Error("board did not return an error when retrieving a value at an out-of-bounds location")
 	}
 
 	// Check for out of bounds (Y)
-	loc = LifeboardLocation{X: 0, Y: 2}
+	loc = Location{X: 0, Y: 2}
 	_, err = board.GetValue(loc)
 	if err == nil {
 		t.Error("board did not return an error when retrieving a value at an out-of-bounds location")
 	}
 }
 
-func testLifeboardNeighbors(t *testing.T, expected []LifeboardLocation, actual []LifeboardLocation) {
+func testLifeboardNeighbors(t *testing.T, expected []Location, actual []Location) {
 	// Check the results
 	if len(actual) != len(expected) {
 		t.Fatalf("Number of neighbors (%d) does not match expected (%d)\n", len(actual), len(expected))
@@ -184,14 +184,14 @@ func testLifeboardNeighbors(t *testing.T, expected []LifeboardLocation, actual [
 
 func TestLifeboardGetOrthogonalNeighbors(t *testing.T) {
 	// Build list of expected locations
-	expected := make([]LifeboardLocation, 4)
-	expected[0] = LifeboardLocation{X: 1, Y: 0}
-	expected[1] = LifeboardLocation{X: 0, Y: 1}
-	expected[2] = LifeboardLocation{X: 2, Y: 1}
-	expected[3] = LifeboardLocation{X: 1, Y: 2}
+	expected := make([]Location, 4)
+	expected[0] = Location{X: 1, Y: 0}
+	expected[1] = Location{X: 0, Y: 1}
+	expected[2] = Location{X: 2, Y: 1}
+	expected[3] = Location{X: 1, Y: 2}
 
 	// Initialize a board
-	dims := LifeboardDims{Height: 3, Width: 3}
+	dims := Dimensions{Height: 3, Width: 3}
 	board, err := newLifeboard(dims)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", dims.String())
@@ -201,21 +201,21 @@ func TestLifeboardGetOrthogonalNeighbors(t *testing.T) {
 	}
 
 	// Retrieve neighbors
-	actual := board.GetOrthogonalNeighbors(LifeboardLocation{X: 1, Y: 1})
+	actual := board.GetOrthogonalNeighbors(Location{X: 1, Y: 1})
 
 	testLifeboardNeighbors(t, expected, actual)
 }
 
 func TestLifeboardGetObliqueNeighbors(t *testing.T) {
 	// Build list of expected locations
-	expected := make([]LifeboardLocation, 4)
-	expected[0] = LifeboardLocation{X: 0, Y: 0}
-	expected[1] = LifeboardLocation{X: 2, Y: 0}
-	expected[2] = LifeboardLocation{X: 0, Y: 2}
-	expected[3] = LifeboardLocation{X: 2, Y: 2}
+	expected := make([]Location, 4)
+	expected[0] = Location{X: 0, Y: 0}
+	expected[1] = Location{X: 2, Y: 0}
+	expected[2] = Location{X: 0, Y: 2}
+	expected[3] = Location{X: 2, Y: 2}
 
 	// Initialize a board
-	dims := LifeboardDims{Height: 3, Width: 3}
+	dims := Dimensions{Height: 3, Width: 3}
 	board, err := newLifeboard(dims)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", dims.String())
@@ -225,28 +225,28 @@ func TestLifeboardGetObliqueNeighbors(t *testing.T) {
 	}
 
 	// Retrieve neighbors
-	actual := board.GetObliqueNeighbors(LifeboardLocation{X: 1, Y: 1})
+	actual := board.GetObliqueNeighbors(Location{X: 1, Y: 1})
 
 	testLifeboardNeighbors(t, expected, actual)
 }
 
 func TestLifeboardGetAllNeighbors(t *testing.T) {
 	// Build list of expected locations
-	expected := make([]LifeboardLocation, 0)
+	expected := make([]Location, 0)
 	for i := 0; i < 4; i++ {
 		switch i {
 		case 0, 2:
 			for j := 0; j < 3; j++ {
-				expected = append(expected, LifeboardLocation{X: j, Y: i})
+				expected = append(expected, Location{X: j, Y: i})
 			}
 		case 1:
-			expected = append(expected, LifeboardLocation{X: 0, Y: 1})
-			expected = append(expected, LifeboardLocation{X: 2, Y: 1})
+			expected = append(expected, Location{X: 0, Y: 1})
+			expected = append(expected, Location{X: 2, Y: 1})
 		}
 	}
 
 	// Initialize a board
-	dims := LifeboardDims{Height: 3, Width: 3}
+	dims := Dimensions{Height: 3, Width: 3}
 	board, err := newLifeboard(dims)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", dims.String())
@@ -256,17 +256,17 @@ func TestLifeboardGetAllNeighbors(t *testing.T) {
 	}
 
 	// Retrieve neighbors
-	actual := board.GetAllNeighbors(LifeboardLocation{X: 1, Y: 1})
+	actual := board.GetAllNeighbors(Location{X: 1, Y: 1})
 
 	testLifeboardNeighbors(t, expected, actual)
 }
 
 func TestLifeboardGetSnapshot(t *testing.T) {
 	// Initialize boards
-	dims := LifeboardDims{Height: 2, Width: 2}
-	locations := make([]LifeboardLocation, 2)
-	locations[0] = LifeboardLocation{X: 1, Y: 0}
-	locations[1] = LifeboardLocation{X: 0, Y: 1}
+	dims := Dimensions{Height: 2, Width: 2}
+	locations := make([]Location, 2)
+	locations[0] = Location{X: 1, Y: 0}
+	locations[1] = Location{X: 0, Y: 1}
 
 	board, err := newLifeboard(dims)
 	if err != nil {
@@ -280,7 +280,7 @@ func TestLifeboardGetSnapshot(t *testing.T) {
 	snapshot := board.getSnapshot()
 	for row := dims.Height - 1; row >= 0; row-- {
 		for col := dims.Width - 1; col >= 0; col-- {
-			location := LifeboardLocation{X: col, Y: row}
+			location := Location{X: col, Y: row}
 			found := false
 			for _, loc := range locations {
 				if loc.Equals(&location) {
@@ -299,10 +299,10 @@ func TestLifeboardGetSnapshot(t *testing.T) {
 
 func TestLifeboardEquals(t *testing.T) {
 	// Initialize one board
-	dims := LifeboardDims{Height: 2, Width: 2}
-	locations := make([]LifeboardLocation, 2)
-	locations[0] = LifeboardLocation{X: 1, Y: 0}
-	locations[1] = LifeboardLocation{X: 0, Y: 1}
+	dims := Dimensions{Height: 2, Width: 2}
+	locations := make([]Location, 2)
+	locations[0] = Location{X: 1, Y: 0}
+	locations[1] = Location{X: 0, Y: 1}
 
 	board, err := newLifeboard(dims)
 	if err != nil {
@@ -319,12 +319,12 @@ func TestLifeboardEquals(t *testing.T) {
 }
 
 func TestLifeboardNotEquals(t *testing.T) {
-	dims := LifeboardDims{Height: 2, Width: 2}
+	dims := Dimensions{Height: 2, Width: 2}
 
 	// Create one board
-	locationsLeft := make([]LifeboardLocation, 2)
-	locationsLeft[0] = LifeboardLocation{X: 1, Y: 0}
-	locationsLeft[1] = LifeboardLocation{X: 0, Y: 1}
+	locationsLeft := make([]Location, 2)
+	locationsLeft[0] = Location{X: 1, Y: 0}
+	locationsLeft[1] = Location{X: 0, Y: 1}
 
 	boardLeft, err := newLifeboard(dims)
 	if err != nil {
@@ -335,9 +335,9 @@ func TestLifeboardNotEquals(t *testing.T) {
 	}
 
 	// Create the other board
-	locationsRight := make([]LifeboardLocation, 2)
-	locationsRight[0] = LifeboardLocation{X: 1, Y: 1}
-	locationsRight[1] = LifeboardLocation{X: 0, Y: 0}
+	locationsRight := make([]Location, 2)
+	locationsRight[0] = Location{X: 1, Y: 1}
+	locationsRight[1] = Location{X: 0, Y: 0}
 
 	boardRight, err := newLifeboard(dims)
 	if err != nil {
@@ -355,12 +355,12 @@ func TestLifeboardNotEquals(t *testing.T) {
 
 func TestLifeboardString(t *testing.T) {
 	// Create the test board
-	dims := LifeboardDims{Height: 2, Width: 2}
+	dims := Dimensions{Height: 2, Width: 2}
 	board, err := newLifeboard(dims)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", dims.String())
 	}
-	board.SetValue(LifeboardLocation{X: 0, Y: 0}, 0)
+	board.SetValue(Location{X: 0, Y: 0}, 0)
 
 	// Now test the string call
 	if len(board.String()) == 0 {

@@ -8,7 +8,7 @@ import (
 
 /////////////////////////// COMMON ///////////////////////////
 
-func getCountsForDimensions(dimensions LifeboardDims, width int, height int) (int, int) {
+func getCountsForDimensions(dimensions Dimensions, width int, height int) (int, int) {
 	numPerRow := dimensions.Width / height
 	numPerCol := dimensions.Height / width
 
@@ -25,13 +25,13 @@ func getCountsForDimensions(dimensions LifeboardDims, width int, height int) (in
 	return numPerRow, numPerCol
 }
 
-// , startingLocation LifeboardLocation,
-func getRepeatingPattern(dimensions LifeboardDims, height int, width int,
-	pattern func(*[]LifeboardLocation, int, int)) []LifeboardLocation {
+// , startingLocation Location,
+func getRepeatingPattern(dimensions Dimensions, height int, width int,
+	pattern func(*[]Location, int, int)) []Location {
 
 	numPerRow, numPerCol := getCountsForDimensions(dimensions, width, height)
 
-	seed := make([]LifeboardLocation, 0)
+	seed := make([]Location, 0)
 	for row := 0; row < numPerCol; row++ {
 		currentY := (row * height)
 		// currentY := (row * height) + startingLocation.Y
@@ -48,14 +48,14 @@ func getRepeatingPattern(dimensions LifeboardDims, height int, width int,
 
 /////////////////// RANDOM ///////////////////
 
-func Random(dimensions LifeboardDims, percent int) []LifeboardLocation {
-	seed := make([]LifeboardLocation, 0)
+func Random(dimensions Dimensions, percent int) []Location {
+	seed := make([]Location, 0)
 
 	for i := 0; i < dimensions.Height; i++ {
 		rand.Seed(time.Now().UnixNano())
 		for j := 0; j < dimensions.Width; j++ {
 			if rand.Intn(100) > percent {
-				seed = append(seed, LifeboardLocation{X: i, Y: j})
+				seed = append(seed, Location{X: i, Y: j})
 			}
 		}
 	}
@@ -65,8 +65,8 @@ func Random(dimensions LifeboardDims, percent int) []LifeboardLocation {
 
 /////////////////// OSCILLATORS ///////////////////
 
-// func Blinkers(dimensions LifeboardDims, startingLocation LifeboardLocation) []LifeboardLocation {
-func Blinkers(dimensions LifeboardDims) []LifeboardLocation {
+// func Blinkers(dimensions Dimensions, startingLocation Location) []Location {
+func Blinkers(dimensions Dimensions) []Location {
 	// put in as many lengthx1 vertical lines as you can fit
 	// Period 1   Period 2
 	// -0-		  ---
@@ -75,15 +75,15 @@ func Blinkers(dimensions LifeboardDims) []LifeboardLocation {
 
 	const HEIGHT = 4 // 3 for the line itself and 1 for the spacer
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]LifeboardLocation, currentX int, currentY int) {
+		func(seed *[]Location, currentX int, currentY int) {
 			for i := 0; i < 3; i++ {
-				*seed = append(*seed, LifeboardLocation{X: currentX + i, Y: currentY + 1})
+				*seed = append(*seed, Location{X: currentX + i, Y: currentY + 1})
 			}
 		})
 
 }
 
-func Toads(dimensions LifeboardDims) []LifeboardLocation {
+func Toads(dimensions Dimensions) []Location {
 	// Period 1	  Period 2
 	// ----       --0-
 	// -000       0--0
@@ -92,19 +92,19 @@ func Toads(dimensions LifeboardDims) []LifeboardLocation {
 
 	const HEIGHT = 5
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]LifeboardLocation, currentX int, currentY int) {
+		func(seed *[]Location, currentX int, currentY int) {
 			// ROW 1
 			for i := 1; i < 4; i++ {
-				*seed = append(*seed, LifeboardLocation{X: currentX + i, Y: currentY + 1})
+				*seed = append(*seed, Location{X: currentX + i, Y: currentY + 1})
 			}
 			// ROW 2
 			for i := 0; i < 3; i++ {
-				*seed = append(*seed, LifeboardLocation{X: currentX + i, Y: currentY + 2})
+				*seed = append(*seed, Location{X: currentX + i, Y: currentY + 2})
 			}
 		})
 }
 
-func Beacons(dimensions LifeboardDims) []LifeboardLocation {
+func Beacons(dimensions Dimensions) []Location {
 	// Period 1   Period 2
 	// 00--       00--
 	// 0---       00--
@@ -113,21 +113,21 @@ func Beacons(dimensions LifeboardDims) []LifeboardLocation {
 
 	const HEIGHT = 5
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]LifeboardLocation, currentX int, currentY int) {
+		func(seed *[]Location, currentX int, currentY int) {
 			// ROW 1
-			*seed = append(*seed, LifeboardLocation{X: currentX, Y: currentY})
-			*seed = append(*seed, LifeboardLocation{X: currentX + 1, Y: currentY})
+			*seed = append(*seed, Location{X: currentX, Y: currentY})
+			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})
 			// ROW 2
-			*seed = append(*seed, LifeboardLocation{X: currentX, Y: currentY + 1})
+			*seed = append(*seed, Location{X: currentX, Y: currentY + 1})
 			// ROW 3
-			*seed = append(*seed, LifeboardLocation{X: currentX + 3, Y: currentY + 2})
+			*seed = append(*seed, Location{X: currentX + 3, Y: currentY + 2})
 			// ROW 4
-			*seed = append(*seed, LifeboardLocation{X: currentX + 2, Y: currentY + 3})
-			*seed = append(*seed, LifeboardLocation{X: currentX + 3, Y: currentY + 3})
+			*seed = append(*seed, Location{X: currentX + 2, Y: currentY + 3})
+			*seed = append(*seed, Location{X: currentX + 3, Y: currentY + 3})
 		})
 }
 
-func Pulsar(dimensions LifeboardDims) []LifeboardLocation {
+func Pulsar(dimensions Dimensions) []Location {
 	// Period 1          Period 2           Period 3
 	//                                        012345678901234
 	// ---------------   ----0-----0----    0 ---------------
@@ -148,7 +148,7 @@ func Pulsar(dimensions LifeboardDims) []LifeboardLocation {
 
 	const HEIGHT = 16
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]LifeboardLocation, currentX int, currentY int) {
+		func(seed *[]Location, currentX int, currentY int) {
 			for i := 0; i < HEIGHT-1; i++ {
 				switch i {
 				case 1, 6, 8, 13:
@@ -156,14 +156,14 @@ func Pulsar(dimensions LifeboardDims) []LifeboardLocation {
 					for j := 0; j < 2; j++ {
 						for k := 3; k <= 5; k++ {
 							*seed = append(*seed,
-								LifeboardLocation{X: currentX + (k + (6 * j)), Y: currentY + i})
+								Location{X: currentX + (k + (6 * j)), Y: currentY + i})
 						}
 					}
 				case 3, 4, 5, 9, 10, 11:
 					// Repeating pattern 2: 0----0-0----0, rows: 2,3,4,8,9,10
 					for j := 0; j < 2; j++ {
-						*seed = append(*seed, LifeboardLocation{X: currentX + (1 + (7 * j)), Y: currentY + i})
-						*seed = append(*seed, LifeboardLocation{X: currentX + (6 + (7 * j)), Y: currentY + i})
+						*seed = append(*seed, Location{X: currentX + (1 + (7 * j)), Y: currentY + i})
+						*seed = append(*seed, Location{X: currentX + (6 + (7 * j)), Y: currentY + i})
 					}
 				}
 			}
@@ -172,7 +172,7 @@ func Pulsar(dimensions LifeboardDims) []LifeboardLocation {
 
 /////////////////// GLIDERS ///////////////////
 
-func Gliders(dimensions LifeboardDims) []LifeboardLocation {
+func Gliders(dimensions Dimensions) []Location {
 	// Period 1   Period 2   Period 3   Period 4
 	// -0--       ----       ----       ----
 	// --0-       0-0-       --0-       -0--
@@ -184,38 +184,38 @@ func Gliders(dimensions LifeboardDims) []LifeboardLocation {
 		WIDTH  = 4
 	)
 	return getRepeatingPattern(dimensions, HEIGHT, WIDTH,
-		func(seed *[]LifeboardLocation, currentX int, currentY int) {
+		func(seed *[]Location, currentX int, currentY int) {
 			// ROW 1
-			*seed = append(*seed, LifeboardLocation{X: currentX + 1, Y: currentY})
+			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})
 			// ROW 2
-			*seed = append(*seed, LifeboardLocation{X: currentX + 2, Y: currentY + 1})
+			*seed = append(*seed, Location{X: currentX + 2, Y: currentY + 1})
 			// ROW 3
 			for i := 0; i < 3; i++ {
-				*seed = append(*seed, LifeboardLocation{X: currentX + i, Y: currentY + 2})
+				*seed = append(*seed, Location{X: currentX + i, Y: currentY + 2})
 			}
 		})
 }
 
 /////////////////// STILLS ///////////////////
 
-func Blocks(dimensions LifeboardDims) []LifeboardLocation {
+func Blocks(dimensions Dimensions) []Location {
 	// 00
 	// 00
 
 	const HEIGHT = 5
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]LifeboardLocation, currentX int, currentY int) {
+		func(seed *[]Location, currentX int, currentY int) {
 			// ROW 1
-			*seed = append(*seed, LifeboardLocation{X: currentX, Y: currentY})
-			*seed = append(*seed, LifeboardLocation{X: currentX + 1, Y: currentY})
+			*seed = append(*seed, Location{X: currentX, Y: currentY})
+			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})
 			// ROW 2
-			*seed = append(*seed, LifeboardLocation{X: currentX, Y: currentY + 1})
-			*seed = append(*seed, LifeboardLocation{X: currentX + 1, Y: currentY + 1})
+			*seed = append(*seed, Location{X: currentX, Y: currentY + 1})
+			*seed = append(*seed, Location{X: currentX + 1, Y: currentY + 1})
 		})
 }
 
 // Beehive
-func Beehive(dimensions LifeboardDims) []LifeboardLocation {
+func Beehive(dimensions Dimensions) []Location {
 	// -00-
 	// 0--0
 	// -00-
@@ -225,21 +225,21 @@ func Beehive(dimensions LifeboardDims) []LifeboardLocation {
 		WIDTH  = 4
 	)
 	return getRepeatingPattern(dimensions, HEIGHT, WIDTH,
-		func(seed *[]LifeboardLocation, currentX int, currentY int) {
+		func(seed *[]Location, currentX int, currentY int) {
 			for row := 0; row < 3; row++ {
 				switch row {
 				case 0, 2:
-					*seed = append(*seed, LifeboardLocation{X: currentX + 1, Y: currentY + row})
-					*seed = append(*seed, LifeboardLocation{X: currentX + 2, Y: currentY + row})
+					*seed = append(*seed, Location{X: currentX + 1, Y: currentY + row})
+					*seed = append(*seed, Location{X: currentX + 2, Y: currentY + row})
 				case 1:
-					*seed = append(*seed, LifeboardLocation{X: currentX, Y: currentY + row})
-					*seed = append(*seed, LifeboardLocation{X: currentX + 3, Y: currentY + row})
+					*seed = append(*seed, Location{X: currentX, Y: currentY + row})
+					*seed = append(*seed, Location{X: currentX + 3, Y: currentY + row})
 				}
 			}
 		})
 }
 
-func Loaf(dimensions LifeboardDims) []LifeboardLocation {
+func Loaf(dimensions Dimensions) []Location {
 	// -00-
 	// 0--0
 	// -0-0
@@ -247,36 +247,36 @@ func Loaf(dimensions LifeboardDims) []LifeboardLocation {
 
 	const HEIGHT = 4
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]LifeboardLocation, currentX int, currentY int) {
+		func(seed *[]Location, currentX int, currentY int) {
 			// ROW 1
-			*seed = append(*seed, LifeboardLocation{X: currentX + 1, Y: currentY})
-			*seed = append(*seed, LifeboardLocation{X: currentX + 2, Y: currentY})
+			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})
+			*seed = append(*seed, Location{X: currentX + 2, Y: currentY})
 			// ROW 2
-			*seed = append(*seed, LifeboardLocation{X: currentX, Y: currentY + 1})
-			*seed = append(*seed, LifeboardLocation{X: currentX + 3, Y: currentY + 1})
+			*seed = append(*seed, Location{X: currentX, Y: currentY + 1})
+			*seed = append(*seed, Location{X: currentX + 3, Y: currentY + 1})
 			// ROW 3
-			*seed = append(*seed, LifeboardLocation{X: currentX + 1, Y: currentY + 2})
-			*seed = append(*seed, LifeboardLocation{X: currentX + 3, Y: currentY + 2})
+			*seed = append(*seed, Location{X: currentX + 1, Y: currentY + 2})
+			*seed = append(*seed, Location{X: currentX + 3, Y: currentY + 2})
 			// ROW 4
-			*seed = append(*seed, LifeboardLocation{X: currentX + 2, Y: currentY + 3})
+			*seed = append(*seed, Location{X: currentX + 2, Y: currentY + 3})
 		})
 }
 
-func Boat(dimensions LifeboardDims) []LifeboardLocation {
+func Boat(dimensions Dimensions) []Location {
 	// 00-
 	// 0-0
 	// -0-
 
 	const HEIGHT = 3
 	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]LifeboardLocation, currentX int, currentY int) {
+		func(seed *[]Location, currentX int, currentY int) {
 			// ROW 1
-			*seed = append(*seed, LifeboardLocation{X: currentX, Y: currentY})
-			*seed = append(*seed, LifeboardLocation{X: currentX + 1, Y: currentY})
+			*seed = append(*seed, Location{X: currentX, Y: currentY})
+			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})
 			// ROW 2
-			*seed = append(*seed, LifeboardLocation{X: currentX, Y: currentY + 1})
-			*seed = append(*seed, LifeboardLocation{X: currentX + 2, Y: currentY + 1})
+			*seed = append(*seed, Location{X: currentX, Y: currentY + 1})
+			*seed = append(*seed, Location{X: currentX + 2, Y: currentY + 1})
 			// ROW 3
-			*seed = append(*seed, LifeboardLocation{X: currentX + 1, Y: currentY + 2})
+			*seed = append(*seed, Location{X: currentX + 1, Y: currentY + 2})
 		})
 }

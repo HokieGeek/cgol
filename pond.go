@@ -54,22 +54,22 @@ func (t neighborsSelector) String() string {
 }
 
 type livingTrackerAddOp struct {
-	loc  LifeboardLocation
+	loc  Location
 	resp chan bool
 }
 
 type livingTrackerRemoveOp struct {
-	loc  LifeboardLocation
+	loc  Location
 	resp chan bool
 }
 
 type livingTrackerTestOp struct {
-	loc  LifeboardLocation
+	loc  Location
 	resp chan bool
 }
 
 type livingTrackerGetAllOp struct {
-	resp chan []LifeboardLocation
+	resp chan []Location
 }
 
 type livingTrackerCountOp struct {
@@ -85,7 +85,7 @@ type livingTracker struct {
 }
 
 func (t *livingTracker) living() {
-	var livingMap = make(map[int]map[int]LifeboardLocation)
+	var livingMap = make(map[int]map[int]Location)
 	var count int
 	// logger := log.New(os.Stderr, "livingTracker: ", log.Ltime)
 	// logger := log.New(ioutil.Discard, "livingTracker: ", log.Ltime)
@@ -96,7 +96,7 @@ func (t *livingTracker) living() {
 			added := true
 			_, keyExists := livingMap[add.loc.Y]
 			if !keyExists {
-				livingMap[add.loc.Y] = make(map[int]LifeboardLocation)
+				livingMap[add.loc.Y] = make(map[int]Location)
 			}
 			_, keyExists = livingMap[add.loc.Y][add.loc.X]
 			if !keyExists {
@@ -134,7 +134,7 @@ func (t *livingTracker) living() {
 				test.resp <- false
 			}
 		case getall := <-t.trackerGetAll:
-			all := make([]LifeboardLocation, 0)
+			all := make([]Location, 0)
 			for rowNum := range livingMap {
 				for _, col := range livingMap[rowNum] {
 					all = append(all, col)
@@ -147,19 +147,19 @@ func (t *livingTracker) living() {
 	}
 }
 
-func (t *livingTracker) Set(location LifeboardLocation) {
+func (t *livingTracker) Set(location Location) {
 	add := &livingTrackerAddOp{loc: location, resp: make(chan bool)}
 	t.trackerAdd <- add
 	<-add.resp
 }
 
-func (t *livingTracker) Remove(location LifeboardLocation) {
+func (t *livingTracker) Remove(location Location) {
 	remove := &livingTrackerRemoveOp{loc: location, resp: make(chan bool)}
 	t.trackerRemove <- remove
 	<-remove.resp
 }
 
-func (t *livingTracker) Test(location LifeboardLocation) bool {
+func (t *livingTracker) Test(location Location) bool {
 	read := &livingTrackerTestOp{loc: location, resp: make(chan bool)}
 	t.trackerTest <- read
 	val := <-read.resp
@@ -167,8 +167,8 @@ func (t *livingTracker) Test(location LifeboardLocation) bool {
 	return val
 }
 
-func (t *livingTracker) GetAll() []LifeboardLocation {
-	get := &livingTrackerGetAllOp{resp: make(chan []LifeboardLocation)}
+func (t *livingTracker) GetAll() []Location {
+	get := &livingTrackerGetAllOp{resp: make(chan []Location)}
 	t.trackerGetAll <- get
 	val := <-get.resp
 
@@ -204,7 +204,7 @@ type pond struct {
 	living            *livingTracker
 }
 
-func (t *pond) GetNeighbors(organism LifeboardLocation) []LifeboardLocation {
+func (t *pond) GetNeighbors(organism Location) []Location {
 	switch {
 	case t.neighborsSelector == NEIGHBORS_ORTHOGONAL:
 		return t.board.GetOrthogonalNeighbors(organism)
@@ -217,7 +217,7 @@ func (t *pond) GetNeighbors(organism LifeboardLocation) []LifeboardLocation {
 	return nil
 }
 
-func (t *pond) isOrganismAlive(organism LifeboardLocation) bool {
+func (t *pond) isOrganismAlive(organism Location) bool {
 	return (t.GetOrganismValue(organism) >= 0)
 }
 
@@ -225,7 +225,7 @@ func (t *pond) GetNumLiving() int {
 	return t.living.GetCount()
 }
 
-func (t *pond) GetOrganismValue(organism LifeboardLocation) int {
+func (t *pond) GetOrganismValue(organism Location) int {
 	// fmt.Printf("\tgetNeighborCount(%s)\n", organism.String())
 	val, err := t.board.GetValue(organism)
 
@@ -237,7 +237,7 @@ func (t *pond) GetOrganismValue(organism LifeboardLocation) int {
 	return val
 }
 
-func (t *pond) setOrganismValue(organism LifeboardLocation, num int) {
+func (t *pond) setOrganismValue(organism Location, num int) {
 	// fmt.Printf("\tsetNeighborCount(%s, %d)\n", organism.String(), num)
 	originalNum := t.GetOrganismValue(organism)
 
@@ -252,7 +252,7 @@ func (t *pond) setOrganismValue(organism LifeboardLocation, num int) {
 	}
 }
 
-func (t *pond) calculateNeighborCount(organism LifeboardLocation) (int, []LifeboardLocation) {
+func (t *pond) calculateNeighborCount(organism Location) (int, []Location) {
 	numNeighbors := 0
 	neighbors := t.GetNeighbors(organism)
 	for _, neighbor := range neighbors {
@@ -263,7 +263,7 @@ func (t *pond) calculateNeighborCount(organism LifeboardLocation) (int, []Lifebo
 	return numNeighbors, neighbors
 }
 
-func (t *pond) SetOrganisms(organisms []LifeboardLocation) {
+func (t *pond) SetOrganisms(organisms []Location) {
 	// Initialize the first organisms and set their neighbor counts
 	for _, organism := range organisms {
 		t.setOrganismValue(organism, 0)
@@ -315,7 +315,7 @@ func (t *pond) String() string {
 	return buf.String()
 }
 
-func newpond(dims LifeboardDims, neighbors neighborsSelector) (*pond, error) {
+func newpond(dims Dimensions, neighbors neighborsSelector) (*pond, error) {
 	p := new(pond)
 
 	// Create values
