@@ -20,10 +20,36 @@ func (t *LifeStats) String() string {
 	return buf.String()
 }
 
+type Status int
+
+const (
+	Seeded Status = 0
+	Active Status = 1
+	Stable Status = 2
+	Dead   Status = 3
+)
+
+func (t Status) String() string {
+	s := ""
+
+	if t&Seeded == Seeded {
+		s += "Seeded"
+	} else if t&Active == Active {
+		s += "Active"
+	} else if t&Stable == Stable {
+		s += "Stable"
+	} else if t&Dead == Dead {
+		s += "Dead"
+	}
+
+	return s
+}
+
 type Life struct {
 	Label            string
 	Statistics       LifeStats
 	UpdateRate       time.Duration
+	Status           Status
 	pond             *pond
 	processor        func(pond *pond, rules func(int, bool) bool)
 	ruleset          func(int, bool) bool
@@ -45,19 +71,26 @@ func (t *Life) process() {
 	organismsDelta := t.pond.GetNumLiving() - startingLivingCount
 	if organismsDelta > 0 {
 		t.Statistics.OrganismsCreated += organismsDelta
+		t.Status = Active
 	} else if organismsDelta < 0 {
 		t.Statistics.OrganismsKilled += (organismsDelta * -1)
+		t.Status = Active
+	} else {
+		t.Status = Stable
 	}
+
 	// }
 
 	// If the pond is dead, let's just stop doing things
-	if t.pond.Status == Dead {
+	if t.pond.GetNumLiving() <= 0 {
+		t.Status = Dead
 		t.Stop()
 	}
 }
 
 // func (t *Life) Start(updateAlert chan bool, updateRate time.Duration) {
 func (t *Life) Start(updateAlert chan bool) {
+	t.Status = Active
 	go func() {
 		t.ticker = time.NewTicker(t.UpdateRate)
 		/*
@@ -124,6 +157,8 @@ func (t *Life) String() string {
 	buf.WriteString("[")
 	buf.WriteString(t.Label)
 	buf.WriteString("]\n")
+	buf.WriteString("\tStatus: ")
+	buf.WriteString(t.Status.String())
 	buf.WriteString("Generation: ")
 	buf.WriteString(t.Statistics.String())
 	buf.WriteString("\n")
@@ -152,6 +187,7 @@ func New(label string,
 	s.processor = processor
 
 	s.UpdateRate = time.Millisecond * 250
+	s.Status = Seeded
 
 	// Initialize the pond and schedule the currently living organisms
 	// s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.board.Dims)...)

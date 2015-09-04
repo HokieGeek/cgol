@@ -79,8 +79,6 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 					organismStatus := rules(numNeighbors, currentlyAlive)
 
 					if currentlyAlive != organismStatus { // If its status has changed, then we do stuff
-						pond.Status = Active
-
 						if organismStatus { // If is alive
 							modifications <- ModifiedOrganism{loc: organism, val: 0}
 						} else {
@@ -113,12 +111,6 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 
 	// Start processing modifications
 	blockModifications <- false
-
-	if pond.GetNumLiving() > 0 {
-		pond.Status = Stable
-	} else {
-		pond.Status = Dead
-	}
 
 	// Block until all modifications are done
 	<-done

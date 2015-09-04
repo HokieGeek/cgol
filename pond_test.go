@@ -2,25 +2,6 @@ package life
 
 import "testing"
 
-func TestPondStatusString(t *testing.T) {
-	var status PondStatus
-
-	status = Active
-	if len(status.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from PondStatus object")
-	}
-
-	status = Stable
-	if len(status.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from PondStatus object")
-	}
-
-	status = Dead
-	if len(status.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from PondStatus object")
-	}
-}
-
 func TestneighborSelectorString(t *testing.T) {
 	var selector neighborsSelector
 
@@ -36,7 +17,7 @@ func TestneighborSelectorString(t *testing.T) {
 
 	selector = NEIGHBORS_ALL
 	if len(selector.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from PondStatus object")
+		t.Error("Unexpectedly retrieved empty string from Status object")
 	}
 }
 

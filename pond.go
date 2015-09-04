@@ -9,28 +9,6 @@ import (
 	// "os"
 )
 
-type PondStatus int
-
-const (
-	Active PondStatus = 1
-	Stable PondStatus = 2
-	Dead   PondStatus = 3
-)
-
-func (t PondStatus) String() string {
-	s := ""
-
-	if t&Active == Active {
-		s += "Active"
-	} else if t&Stable == Stable {
-		s += "Stable"
-	} else if t&Dead == Dead {
-		s += "Dead"
-	}
-
-	return s
-}
-
 type neighborsSelector int
 
 const (
@@ -198,7 +176,6 @@ func newLivingTracker() *livingTracker {
 }
 
 type pond struct {
-	Status            PondStatus
 	board             *board
 	neighborsSelector neighborsSelector
 	living            *livingTracker
@@ -280,7 +257,6 @@ func (t *pond) Clone() (*pond, error) {
 		return nil, err
 	}
 
-	shadowpond.Status = t.Status
 	shadowpond.neighborsSelector = t.neighborsSelector
 
 	shadowpond.SetOrganisms(t.living.GetAll())
@@ -290,9 +266,6 @@ func (t *pond) Clone() (*pond, error) {
 
 func (t *pond) Equals(rhs *pond) bool {
 	if !t.board.Equals(rhs.board) {
-		return false
-	}
-	if t.Status != rhs.Status {
 		return false
 	}
 	if t.neighborsSelector != rhs.neighborsSelector {
@@ -307,8 +280,6 @@ func (t *pond) String() string {
 	buf.WriteString(t.neighborsSelector.String())
 	buf.WriteString("\nLiving organisms: ")
 	buf.WriteString(strconv.Itoa(t.living.GetCount()))
-	buf.WriteString("\tStatus: ")
-	buf.WriteString(t.Status.String())
 	buf.WriteString("\n")
 	buf.WriteString(t.board.String())
 
@@ -319,7 +290,6 @@ func newpond(dims Dimensions, neighbors neighborsSelector) (*pond, error) {
 	p := new(pond)
 
 	// Create values
-	p.Status = Active
 	p.living = newLivingTracker()
 
 	// Add the given values
