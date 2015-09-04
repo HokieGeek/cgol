@@ -15,7 +15,6 @@ func TestStrategyStatsString(t *testing.T) {
 }
 
 func TestStrategyCreation(t *testing.T) {
-	t.Skip("whoops")
 	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
@@ -27,9 +26,9 @@ func TestStrategyCreation(t *testing.T) {
 		SimultaneousProcessor)
 
 	expected, _ := NewGameboard(GameboardDims{3, 3})
-	expected.SetValue(GameboardLocation{X: 1, Y: 0}, 0)
+	expected.SetValue(GameboardLocation{X: 0, Y: 1}, 0)
 	expected.SetValue(GameboardLocation{X: 1, Y: 1}, 0)
-	expected.SetValue(GameboardLocation{X: 1, Y: 2}, 0)
+	expected.SetValue(GameboardLocation{X: 2, Y: 1}, 0)
 
 	if !strategy.pond.gameboard.Equals(expected) {
 		t.Fatalf("Actual gameboard\n%s\ndoes not match expected\n%s\n", strategy.pond.gameboard.String(), expected.String())
@@ -64,7 +63,7 @@ func TestStrategyProcess(t *testing.T) {
 }
 
 func TestStrategyStartStop(t *testing.T) {
-	t.Skip("not working")
+	t.Skip("This doesn't work as expected")
 	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
@@ -77,10 +76,21 @@ func TestStrategyStartStop(t *testing.T) {
 
 	seededPond := strategy.pond.Clone()
 
-	strategy.Start(make(chan bool))
+	updates := make(chan bool)
+	strategy.Start(updates)
 
-	time.Sleep(strategy.UpdateRate * 4)
+	// go func() {
+	time.Sleep(strategy.UpdateRate * 1)
 	strategy.Stop()
+	/*}()
+
+	for {
+		select {
+		case <-updates:
+			t.Log(strategy.String())
+		}
+	}
+	*/
 
 	processedPond := strategy.pond
 
@@ -90,12 +100,11 @@ func TestStrategyStartStop(t *testing.T) {
 
 	// Check statistics
 	if strategy.Statistics.Generations < 2 {
-		t.Errorf("Tracked %d generations when there should only be two or more\n", strategy.Statistics.Generations)
+		t.Errorf("Tracked %d generations when there should be two or more\n", strategy.Statistics.Generations)
 	}
 }
 
 func TestStrategyGetGeneration(t *testing.T) {
-	t.Skip("TODO")
 	pond, err := NewPond(3, 3, NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
@@ -106,14 +115,18 @@ func TestStrategyGetGeneration(t *testing.T) {
 		RulesConwayLife,
 		SimultaneousProcessor)
 
+	expectedNumLiving := 3
 	expectedGen := 31
 	gen := strategy.GetGeneration(expectedGen)
 
-	if gen.num != expectedGen {
-		t.Error("WTF")
+	if gen.Num != expectedGen {
+		t.Error("Retrieved %d generations instead of %d\n", gen.Num, expectedGen)
 	}
 
-	// TODO: Check that the living count makes sense
+	if len(gen.Living) != expectedNumLiving {
+		t.Fatalf("Retrieved %d living organisms instead of %d\n", len(gen.Living), expectedNumLiving)
+	}
+	// TODO
 }
 
 func TestStrategyString(t *testing.T) {

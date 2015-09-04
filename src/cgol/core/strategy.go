@@ -59,6 +59,7 @@ func (t *Strategy) process() {
 // func (t *Strategy) Start(updateAlert chan bool, updateRate time.Duration) {
 func (t *Strategy) Start(updateAlert chan bool) {
 	go func() {
+		t.ticker = time.NewTicker(t.UpdateRate)
 		/*
 			        if updateRate > 0 {
 				    	for {
@@ -69,7 +70,6 @@ func (t *Strategy) Start(updateAlert chan bool) {
 				    	}
 			        } else {
 		*/
-		t.ticker = time.NewTicker(t.UpdateRate)
 		for {
 			select {
 			case <-t.ticker.C:
@@ -92,8 +92,8 @@ func (t *Strategy) GetGameboard() [][]int {
 */
 
 type Generation struct {
-	num    int
-	living []GameboardLocation
+	Num    int
+	Living []GameboardLocation
 	// stats...
 }
 
@@ -111,11 +111,12 @@ func (t *Strategy) GetGeneration(num int) *Generation {
 		p = cloned
 	}
 
-	return &Generation{num: num, living: p.living.GetAll()}
+	return &Generation{Num: num, Living: p.living.GetAll()}
 }
 
 func (t *Strategy) String() string {
 	var buf bytes.Buffer
+
 	buf.WriteString("[")
 	buf.WriteString(t.Label)
 	buf.WriteString("]\n")
