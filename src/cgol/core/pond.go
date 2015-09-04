@@ -274,10 +274,10 @@ func (t *Pond) GetLifeboard() [][]int {
 	return t.lifeboard.getSnapshot()
 }
 
-func (t *Pond) Clone() *Pond {
+func (t *Pond) Clone() (*Pond, error) {
 	shadowPond, err := newPond(t.lifeboard.Dims, t.neighborsSelector)
 	if err != nil {
-		// TODO: error... multiple value for this?
+		return nil, err
 	}
 
 	shadowPond.Status = t.Status
@@ -285,7 +285,7 @@ func (t *Pond) Clone() *Pond {
 
 	shadowPond.SetOrganisms(t.living.GetAll())
 
-	return shadowPond
+	return shadowPond, nil
 }
 
 func (t *Pond) Equals(rhs *Pond) bool {

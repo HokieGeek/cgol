@@ -102,7 +102,11 @@ func (t *Strategy) GetGeneration(num int) *Generation {
 	if num == t.Statistics.Generations {
 		p = t.pond
 	} else {
-		cloned := t.pond.Clone()
+		cloned, err := t.pond.Clone()
+		if err != nil {
+			// logf("Unable to clone pond: %s\n", err)
+			return nil // FIXME
+		}
 		cloned.SetOrganisms(t.initialOrganisms)
 		for i := 0; i < num; i++ {
 			t.processor(cloned, t.ruleset)

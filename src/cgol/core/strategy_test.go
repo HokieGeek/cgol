@@ -48,7 +48,10 @@ func TestStrategyProcess(t *testing.T) {
 		t.Fatalf("Unable to create strategy: %s\n", err)
 	}
 
-	seededPond := strategy.pond.Clone()
+	seededPond, err := strategy.pond.Clone()
+	if err != nil {
+		t.Fatalf("Unable to clone pond: %s\n", err)
+	}
 
 	strategy.process()
 
@@ -77,7 +80,10 @@ func TestStrategyStartStop(t *testing.T) {
 		t.Fatalf("Unable to create strategy: %s\n", err)
 	}
 
-	seededPond := strategy.pond.Clone()
+	seededPond, err := strategy.pond.Clone()
+	if err != nil {
+		t.Fatalf("Unable to clone pond: %s\n", err)
+	}
 
 	updates := make(chan bool)
 	strategy.Start(updates)
