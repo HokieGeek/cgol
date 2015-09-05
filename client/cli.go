@@ -47,6 +47,13 @@ func displaypond(strategy *life.Life, rate time.Duration, iterations int, static
 	}
 }
 
+func displayFromFile(filename string) {
+	_, err := life.Read(filename)
+	if err != nil {
+		fmt.Printf("Well, crap: %s\n", err)
+	}
+}
+
 func displayTestpond(width int, height int, rate time.Duration, initializer func(life.Dimensions, life.Location) []life.Location) {
 	strategy, err := life.New("",
 		life.Dimensions{Height: height, Width: width},
@@ -133,6 +140,10 @@ func main() {
 				return life.Random(dimensions, offset, 85)
 			})
 	default:
-		fmt.Println("Did not recognize pattern")
+		if _, err := os.Stat(*patternPtr); err == nil {
+			displayFromFile(*patternPtr)
+		} else {
+			fmt.Println("Did not recognize pattern")
+		}
 	}
 }

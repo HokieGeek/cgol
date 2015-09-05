@@ -1,0 +1,3 @@
+package life
+
+// import "testing"
