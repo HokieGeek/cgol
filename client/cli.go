@@ -47,7 +47,7 @@ func displaypond(strategy *life.Life, rate time.Duration, iterations int, static
 	}
 }
 
-func displayTestpond(width int, height int, rate time.Duration, initializer func(life.Dimensions) []life.Location) {
+func displayTestpond(width int, height int, rate time.Duration, initializer func(life.Dimensions, life.Location) []life.Location) {
 	strategy, err := life.New("",
 		life.Dimensions{Height: height, Width: width},
 		life.NEIGHBORS_ALL,
@@ -104,8 +104,8 @@ func main() {
 		}
 
 		displayTestpond(width, height, *ratePtr,
-			func(dimensions life.Dimensions) []life.Location {
-				return life.Gliders(life.Dimensions{Height: 4, Width: 4})
+			func(dimensions life.Dimensions, offset life.Location) []life.Location {
+				return life.Gliders(life.Dimensions{Height: 4, Width: 4}, offset)
 			})
 	case "pulsar":
 		width := 15
@@ -129,8 +129,8 @@ func main() {
 		}
 
 		displayTestpond(width, height, *ratePtr,
-			func(dimensions life.Dimensions) []life.Location {
-				return life.Random(dimensions, 85)
+			func(dimensions life.Dimensions, offset life.Location) []life.Location {
+				return life.Random(dimensions, offset, 85)
 			})
 	default:
 		fmt.Println("Did not recognize pattern")

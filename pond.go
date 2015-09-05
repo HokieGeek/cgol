@@ -138,9 +138,9 @@ func (t *pond) Equals(rhs *pond) bool {
 
 func (t *pond) String() string {
 	var buf bytes.Buffer
-	buf.WriteString("Neighbor selection: ")
+	buf.WriteString("Neighbors: ")
 	buf.WriteString(t.neighborsSelector.String())
-	buf.WriteString("\nLiving organisms: ")
+	buf.WriteString("\tLiving cells: ")
 	buf.WriteString(strconv.Itoa(t.living.GetCount()))
 	buf.WriteString("\n")
 	buf.WriteString(t.board.String())

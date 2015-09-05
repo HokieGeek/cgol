@@ -8,15 +8,15 @@ import (
 
 /////////////////////////// COMMON ///////////////////////////
 
-func getCountsForDimensions(dimensions Dimensions, width int, height int) (int, int) {
-	numPerRow := dimensions.Width / height
-	numPerCol := dimensions.Height / width
+func getCountsForDimensions(boardDims, patternDims Dimensions) (int, int) {
+	numPerRow := boardDims.Width / patternDims.Height
+	numPerCol := boardDims.Height / patternDims.Width
 
 	// Special case for when the spacer is not needed
-	if numPerRow == 0 && dimensions.Height == height-1 {
+	if numPerRow == 0 && boardDims.Height == patternDims.Height-1 {
 		numPerRow = 1
 	}
-	if numPerCol == 0 && dimensions.Width == width-1 {
+	if numPerCol == 0 && boardDims.Width == patternDims.Width-1 {
 		numPerCol = 1
 	}
 
@@ -25,20 +25,19 @@ func getCountsForDimensions(dimensions Dimensions, width int, height int) (int, 
 	return numPerRow, numPerCol
 }
 
-func getRepeatingPattern(dimensions Dimensions, height int, width int,
-	// , startingLocation Location,
+func getRepeatingPattern(boardDims, patternDims Dimensions, offset Location,
 	pattern func(*[]Location, int, int)) []Location {
 
-	numPerRow, numPerCol := getCountsForDimensions(dimensions, width, height)
+	numPerRow, numPerCol := getCountsForDimensions(boardDims, patternDims)
 
 	seed := make([]Location, 0)
 	for row := 0; row < numPerCol; row++ {
-		currentY := (row * height)
-		// currentY := (row * height) + startingLocation.Y
+		// currentY := (row * patternDims.Height)
+		currentY := (row * patternDims.Height) + offset.Y
 
 		for col := 0; col < numPerRow; col++ {
-			currentX := (col * width)
-			// currentX := (col * width) + startingLocation.X
+			// currentX := (col * patternDims.Width)
+			currentX := (col * patternDims.Width) + offset.X
 			pattern(&seed, currentX, currentY)
 		}
 	}
@@ -48,14 +47,14 @@ func getRepeatingPattern(dimensions Dimensions, height int, width int,
 
 /////////////////// RANDOM ///////////////////
 
-func Random(dimensions Dimensions, percent int) []Location {
+func Random(dimensions Dimensions, offset Location, percent int) []Location {
 	seed := make([]Location, 0)
 
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < dimensions.Height; i++ {
 		for j := 0; j < dimensions.Width; j++ {
 			if rand.Intn(100) > percent {
-				seed = append(seed, Location{X: j, Y: i})
+				seed = append(seed, Location{X: j + offset.X, Y: i + offset.Y})
 			}
 		}
 	}
@@ -70,10 +69,11 @@ func Random(dimensions Dimensions, percent int) []Location {
 // 	-0-       ---
 // 	-0-       000
 // 	-0-       ---
-func Blinkers(dimensions Dimensions) []Location {
+func Blinkers(dimensions Dimensions, offset Location) []Location {
 	const HEIGHT = 4 // 3 for the line itself and 1 for the spacer
-	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]Location, currentX int, currentY int) {
+	return getRepeatingPattern(dimensions, Dimensions{Height: HEIGHT, Width: HEIGHT},
+		offset,
+		func(seed *[]Location, currentX, currentY int) {
 			for i := 0; i < 3; i++ {
 				*seed = append(*seed, Location{X: currentX + i, Y: currentY + 1})
 			}
@@ -87,10 +87,11 @@ func Blinkers(dimensions Dimensions) []Location {
 // 	-000       0--0
 // 	000-       0--0
 // 	----       -0--
-func Toads(dimensions Dimensions) []Location {
+func Toads(dimensions Dimensions, offset Location) []Location {
 	const HEIGHT = 5
-	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]Location, currentX int, currentY int) {
+	return getRepeatingPattern(dimensions, Dimensions{Height: HEIGHT, Width: HEIGHT},
+		offset,
+		func(seed *[]Location, currentX, currentY int) {
 			// ROW 1
 			for i := 1; i < 4; i++ {
 				*seed = append(*seed, Location{X: currentX + i, Y: currentY + 1})
@@ -108,11 +109,12 @@ func Toads(dimensions Dimensions) []Location {
 // 	0---       00--
 // 	---0       --00
 // 	--00       --00
-func Beacons(dimensions Dimensions) []Location {
+func Beacons(dimensions Dimensions, offset Location) []Location {
 
 	const HEIGHT = 5
-	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]Location, currentX int, currentY int) {
+	return getRepeatingPattern(dimensions, Dimensions{Height: HEIGHT, Width: HEIGHT},
+		offset,
+		func(seed *[]Location, currentX, currentY int) {
 			// ROW 1
 			*seed = append(*seed, Location{X: currentX, Y: currentY})
 			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})
@@ -143,10 +145,11 @@ func Beacons(dimensions Dimensions) []Location {
 // 	---------------   ----00---00----   ----00---00----
 // 	---000---000---   ----0-----0----   ---00-----00---
 // 	---------------   ----0-----0----   ---------------
-func Pulsar(dimensions Dimensions) []Location {
+func Pulsar(dimensions Dimensions, offset Location) []Location {
 	const HEIGHT = 16
-	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]Location, currentX int, currentY int) {
+	return getRepeatingPattern(dimensions, Dimensions{Height: HEIGHT, Width: HEIGHT},
+		offset,
+		func(seed *[]Location, currentX, currentY int) {
 			for i := 0; i < HEIGHT-1; i++ {
 				switch i {
 				case 1, 6, 8, 13:
@@ -176,13 +179,14 @@ func Pulsar(dimensions Dimensions) []Location {
 // 	--0-       0-0-       --0-       -0--
 // 	000-       -00-       0-0-       --00
 // 	----       -0--       -00-       -00-
-func Gliders(dimensions Dimensions) []Location {
+func Gliders(dimensions Dimensions, offset Location) []Location {
 	const (
 		HEIGHT = 3
 		WIDTH  = 4
 	)
-	return getRepeatingPattern(dimensions, HEIGHT, WIDTH,
-		func(seed *[]Location, currentX int, currentY int) {
+	return getRepeatingPattern(dimensions, Dimensions{Height: HEIGHT, Width: WIDTH},
+		offset,
+		func(seed *[]Location, currentX, currentY int) {
 			// ROW 1
 			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})
 			// ROW 2
@@ -199,11 +203,12 @@ func Gliders(dimensions Dimensions) []Location {
 // Generates the Block still pattern
 //	00
 // 	00
-func Blocks(dimensions Dimensions) []Location {
+func Blocks(dimensions Dimensions, offset Location) []Location {
 
 	const HEIGHT = 5
-	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]Location, currentX int, currentY int) {
+	return getRepeatingPattern(dimensions, Dimensions{Height: HEIGHT, Width: HEIGHT},
+		offset,
+		func(seed *[]Location, currentX, currentY int) {
 			// ROW 1
 			*seed = append(*seed, Location{X: currentX, Y: currentY})
 			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})
@@ -217,14 +222,15 @@ func Blocks(dimensions Dimensions) []Location {
 //	-00-
 // 	0--0
 // 	-00-
-func Beehive(dimensions Dimensions) []Location {
+func Beehive(dimensions Dimensions, offset Location) []Location {
 
 	const (
 		HEIGHT = 3
 		WIDTH  = 4
 	)
-	return getRepeatingPattern(dimensions, HEIGHT, WIDTH,
-		func(seed *[]Location, currentX int, currentY int) {
+	return getRepeatingPattern(dimensions, Dimensions{Height: HEIGHT, Width: WIDTH},
+		offset,
+		func(seed *[]Location, currentX, currentY int) {
 			for row := 0; row < 3; row++ {
 				switch row {
 				case 0, 2:
@@ -243,10 +249,11 @@ func Beehive(dimensions Dimensions) []Location {
 // 	0--0
 // 	-0-0
 // 	--0-
-func Loaf(dimensions Dimensions) []Location {
+func Loaf(dimensions Dimensions, offset Location) []Location {
 	const HEIGHT = 4
-	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]Location, currentX int, currentY int) {
+	return getRepeatingPattern(dimensions, Dimensions{Height: HEIGHT, Width: HEIGHT},
+		offset,
+		func(seed *[]Location, currentX, currentY int) {
 			// ROW 1
 			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})
 			*seed = append(*seed, Location{X: currentX + 2, Y: currentY})
@@ -265,10 +272,11 @@ func Loaf(dimensions Dimensions) []Location {
 //	00-
 //	0-0
 //	-0-
-func Boat(dimensions Dimensions) []Location {
+func Boat(dimensions Dimensions, offset Location) []Location {
 	const HEIGHT = 3
-	return getRepeatingPattern(dimensions, HEIGHT, HEIGHT,
-		func(seed *[]Location, currentX int, currentY int) {
+	return getRepeatingPattern(dimensions, Dimensions{Height: HEIGHT, Width: HEIGHT},
+		offset,
+		func(seed *[]Location, currentX, currentY int) {
 			// ROW 1
 			*seed = append(*seed, Location{X: currentX, Y: currentY})
 			*seed = append(*seed, Location{X: currentX + 1, Y: currentY})

@@ -172,7 +172,7 @@ func (t *Life) String() string {
 func New(label string,
 	dims Dimensions,
 	neighbors neighborsSelector,
-	initializer func(Dimensions) []Location,
+	initializer func(Dimensions, Location) []Location,
 	rules func(int, bool) bool,
 	processor func(pond *pond, rules func(int, bool) bool)) (*Life, error) {
 	s := new(Life)
@@ -191,7 +191,7 @@ func New(label string,
 	s.Status = Seeded
 
 	// Initialize the pond and schedule the currently living organisms
-	s.initialOrganisms = initializer(s.pond.board.Dims)
+	s.initialOrganisms = initializer(s.pond.board.Dims, Location{})
 	s.pond.SetOrganisms(s.initialOrganisms)
 	s.Stats.OrganismsCreated = len(s.initialOrganisms)
 

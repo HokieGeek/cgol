@@ -233,7 +233,7 @@ func (t *board) Equals(rhs *board) bool {
 func (t *board) String() string {
 	var buf bytes.Buffer
 
-	buf.WriteString("board size: ")
+	buf.WriteString("Board size: ")
 	buf.WriteString(strconv.Itoa(t.Dims.Height))
 	buf.WriteString("x")
 	buf.WriteString(strconv.Itoa(t.Dims.Width))
