@@ -17,7 +17,7 @@ func TestRuleRulesConway(t *testing.T) {
 		STD_REVIVE          = 3
 	)
 
-	RulesConwayLife := GetConwayTester()
+	RulesConwayLife := ConwayTester()
 
 	// Rule #1: Kill a cell that has few neighbors
 	if RulesConwayLife(STD_UNDERPOPULATION-1, true) {

@@ -424,7 +424,7 @@ func testProcessorSimultaneousRulesConway(t *testing.T,
 
 	testProcessor(t,
 		SimultaneousProcessor,
-		GetConwayTester(),
+		ConwayTester(),
 		size,
 		init,
 		expected)
@@ -448,7 +448,7 @@ func TestProcessorSimultaneousRulesConwayRandom(t *testing.T) {
 	pondWorker.SetOrganisms(initialLocations)
 
 	// Go through one generation
-	SimultaneousProcessor(pondWorker, GetConwayTester())
+	SimultaneousProcessor(pondWorker, ConwayTester())
 
 	// Compare the pond with the expected version
 	if pondWorker.board.Equals(pondInitialSnapshot.board) {
@@ -513,6 +513,6 @@ func BenchmarkProcessorSimultaneousRulesConwayPulsar(b *testing.B) {
 	// Ok, do the benchmark now
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		SimultaneousProcessor(pond, GetConwayTester())
+		SimultaneousProcessor(pond, ConwayTester())
 	}
 }

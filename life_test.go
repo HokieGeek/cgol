@@ -44,7 +44,7 @@ func TestLifeCreation(t *testing.T) {
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
-		GetConwayTester(),
+		ConwayTester(),
 		SimultaneousProcessor)
 	if err != nil {
 		t.Fatalf("Unable to create strategy: %s\n", err)
@@ -66,7 +66,7 @@ func TestLifeProcess(t *testing.T) {
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
-		GetConwayTester(),
+		ConwayTester(),
 		SimultaneousProcessor)
 	if err != nil {
 		t.Fatalf("Unable to create strategy: %s\n", err)
@@ -98,7 +98,7 @@ func TestLifeStartRated(t *testing.T) {
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
-		GetConwayTester(),
+		ConwayTester(),
 		SimultaneousProcessor)
 	if err != nil {
 		t.Fatalf("Unable to create strategy: %s\n", err)
@@ -140,7 +140,7 @@ func TestLifeStartFullTilt(t *testing.T) {
 		func(dimensions Dimensions, offset Location) []Location {
 			return Random(dimensions, offset, 85)
 		},
-		GetConwayTester(),
+		ConwayTester(),
 		SimultaneousProcessor)
 	if err != nil {
 		t.Fatalf("Unable to create strategy: %s\n", err)
@@ -177,7 +177,7 @@ func TestLifeGeneration(t *testing.T) {
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
-		GetConwayTester(),
+		ConwayTester(),
 		SimultaneousProcessor)
 	if err != nil {
 		t.Fatalf("Unable to create strategy: %s\n", err)
@@ -203,7 +203,7 @@ func TestLifeString(t *testing.T) {
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
-		GetConwayTester(),
+		ConwayTester(),
 		SimultaneousProcessor)
 	if err != nil {
 		t.Fatalf("Unable to create strategy: %s\n", err)

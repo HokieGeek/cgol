@@ -52,7 +52,7 @@ func displayTestpond(width int, height int, rate time.Duration, initializer func
 		life.Dimensions{Height: height, Width: width},
 		life.NEIGHBORS_ALL,
 		initializer,
-		life.GetConwayTester(),
+		life.ConwayTester(),
 		life.SimultaneousProcessor)
 	if err == nil {
 		displaypond(strategy, rate, -1, true, true)

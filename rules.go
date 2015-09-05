@@ -29,7 +29,7 @@ func (t *Rules) String() string {
 // This function tests the number of neighbors that a cell has against
 // the rules given. If the cell lives (or continues to live) based on the
 // rules, then the function returns true.
-func RulesTest(numNeighbors int, isAlive bool, rules *Rules) bool {
+func testRule(numNeighbors int, isAlive bool, rules *Rules) bool {
 	// TODO: would it be weird if this function returned the rules?
 	list := rules.Survive
 	if !isAlive {
@@ -46,9 +46,9 @@ func RulesTest(numNeighbors int, isAlive bool, rules *Rules) bool {
 }
 
 // Returns a RulesTest function that uses the given ruleset
-func GetRulesTester(rules *Rules) func(int, bool) bool {
+func RulesTester(rules *Rules) func(int, bool) bool {
 	return func(numNeighbors int, isAlive bool) bool {
-		return RulesTest(numNeighbors, isAlive, rules)
+		return testRule(numNeighbors, isAlive, rules)
 	}
 }
 
@@ -63,6 +63,6 @@ func GetConwayRules() *Rules {
 }
 
 // Returns a rules tester with Conway Normal rules
-func GetConwayTester() func(int, bool) bool {
-	return GetRulesTester(GetConwayRules())
+func ConwayTester() func(int, bool) bool {
+	return RulesTester(GetConwayRules())
 }
