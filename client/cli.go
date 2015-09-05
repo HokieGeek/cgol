@@ -1,13 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"github.com/hokiegeek/life"
+	"os"
 	"time"
 )
 
-func displaypond(strategy *life.Life, rate time.Duration, iterations int, static bool) {
+func displaypond(strategy *life.Life, rate time.Duration, iterations int, static, paused bool) {
 	// Clear the screen and put the cursor on the top left
 	if static {
 		fmt.Print("\033[2J")
@@ -16,6 +18,11 @@ func displaypond(strategy *life.Life, rate time.Duration, iterations int, static
 
 	// Print the seed
 	fmt.Print(strategy)
+
+	if paused {
+		reader := bufio.NewReader(os.Stdin)
+		reader.ReadString('\n')
+	}
 
 	updates := make(chan bool)
 	stop := strategy.Start(updates, rate)
@@ -48,7 +55,7 @@ func displayTestpond(width int, height int, rate time.Duration, initializer func
 		life.GetConwayTester(),
 		life.SimultaneousProcessor)
 	if err == nil {
-		displaypond(strategy, rate, -1, true)
+		displaypond(strategy, rate, -1, true, true)
 	} else {
 		fmt.Printf("Could not create: %s\n", err)
 	}
@@ -124,7 +131,7 @@ func main() {
 
 		displayTestpond(width, height, *ratePtr,
 			func(dimensions life.Dimensions) []life.Location {
-				return life.Random(dimensions, 80)
+				return life.Random(dimensions, 85)
 			})
 	default:
 		fmt.Println("Did not recognize pattern")
