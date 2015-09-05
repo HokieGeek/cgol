@@ -6,13 +6,13 @@ import (
 	"time"
 )
 
-type LifeStats struct {
+type Statistics struct {
 	OrganismsCreated int
 	OrganismsKilled  int
 	Generations      int
 }
 
-func (t *LifeStats) String() string {
+func (t *Statistics) String() string {
 	var buf bytes.Buffer
 	buf.WriteString("Generation: ")
 	buf.WriteString(strconv.Itoa(t.Generations))
@@ -30,31 +30,28 @@ const (
 )
 
 func (t Status) String() string {
-	s := ""
-
-	if t&Seeded == Seeded {
-		s += "Seeded"
-	} else if t&Active == Active {
-		s += "Active"
-	} else if t&Stable == Stable {
-		s += "Stable"
-	} else if t&Dead == Dead {
-		s += "Dead"
+	switch t {
+	case Seeded:
+		return "Seeded"
+	case Active:
+		return "Active"
+	case Stable:
+		return "Stable"
+	case Dead:
+		return "Dead"
 	}
 
-	return s
+	return "Unknown"
 }
 
 type Life struct {
 	Label            string
-	Statistics       LifeStats
-	UpdateRate       time.Duration
+	Stats            Statistics
 	Status           Status
 	pond             *pond
 	processor        func(pond *pond, rules func(int, bool) bool)
 	ruleset          func(int, bool) bool
 	initialOrganisms []Location
-	ticker           *time.Ticker
 }
 
 func (t *Life) process() {
@@ -64,65 +61,64 @@ func (t *Life) process() {
 	t.processor(t.pond, t.ruleset)
 
 	// Update the pond's statistics
-	// if stillProcessing {
-	t.Statistics.Generations++
+	t.Stats.Generations++
 
 	// Update the statistics
 	organismsDelta := t.pond.GetNumLiving() - startingLivingCount
 	if organismsDelta > 0 {
-		t.Statistics.OrganismsCreated += organismsDelta
+		t.Stats.OrganismsCreated += organismsDelta
 		t.Status = Active
 	} else if organismsDelta < 0 {
-		t.Statistics.OrganismsKilled += (organismsDelta * -1)
+		t.Stats.OrganismsKilled += (organismsDelta * -1)
 		t.Status = Active
 	} else {
 		t.Status = Stable
 	}
 
-	// }
-
 	// If the pond is dead, let's just stop doing things
 	if t.pond.GetNumLiving() <= 0 {
 		t.Status = Dead
-		t.Stop()
 	}
 }
 
-// func (t *Life) Start(updateAlert chan bool, updateRate time.Duration) {
-func (t *Life) Start(updateAlert chan bool) {
+func (t *Life) Start(alert chan bool, rate time.Duration) func() {
 	t.Status = Active
-	go func() {
-		t.ticker = time.NewTicker(t.UpdateRate)
-		/*
-			        if updateRate > 0 {
-				    	for {
-			                t.process()
-			                updateAlert <- true
-			                // TODO: need to figure out a way to stop this
-				    		}
-				    	}
-			        } else {
-		*/
-		for {
-			select {
-			case <-t.ticker.C:
-				t.process()
-				updateAlert <- true
+
+	if rate > 0 {
+		ticker := time.NewTicker(rate)
+
+		go func() {
+			for {
+				select {
+				case <-ticker.C:
+					t.process()
+					alert <- true
+				}
 			}
+		}()
+
+		return func() {
+			ticker.Stop()
 		}
-		// }
-	}()
-}
+	} else {
+		stop := false
 
-func (t *Life) Stop() {
-	t.ticker.Stop()
-}
+		go func() {
+			for {
+				if stop {
+					break
+				} else {
+					t.process()
+					alert <- true
+				}
+			}
+		}()
 
-/*
-func (t *Life) GetLifeboard() [][]int {
-	return t.pond.GetLifeboard()
+		return func() {
+			stop = true
+		}
+	}
 }
-*/
 
 type Generation struct {
 	Num    int
@@ -132,7 +128,7 @@ type Generation struct {
 
 func (t *Life) Generation(num int) *Generation {
 	var p *pond
-	if num == t.Statistics.Generations {
+	if num == t.Stats.Generations {
 		p = t.pond
 	} else {
 		cloned, err := t.pond.Clone()
@@ -157,10 +153,10 @@ func (t *Life) String() string {
 	buf.WriteString("[")
 	buf.WriteString(t.Label)
 	buf.WriteString("]\n")
-	buf.WriteString("\tStatus: ")
+	buf.WriteString("Status: ")
 	buf.WriteString(t.Status.String())
-	buf.WriteString("Generation: ")
-	buf.WriteString(t.Statistics.String())
+	buf.WriteString("\tGeneration: ")
+	buf.WriteString(t.Stats.String())
 	buf.WriteString("\n")
 	buf.WriteString(t.pond.String())
 
@@ -186,14 +182,12 @@ func New(label string,
 	s.ruleset = rules
 	s.processor = processor
 
-	s.UpdateRate = time.Millisecond * 250
 	s.Status = Seeded
 
 	// Initialize the pond and schedule the currently living organisms
-	// s.initialOrganisms = append(s.initialOrganisms, initializer(s.pond.board.Dims)...)
 	s.initialOrganisms = initializer(s.pond.board.Dims)
 	s.pond.SetOrganisms(s.initialOrganisms)
-	s.Statistics.OrganismsCreated = len(s.initialOrganisms)
+	s.Stats.OrganismsCreated = len(s.initialOrganisms)
 
 	return s, nil
 }

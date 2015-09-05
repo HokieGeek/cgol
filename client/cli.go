@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func displaypond(strategy *life.Life, iterations time.Duration, static bool) {
+func displaypond(strategy *life.Life, rate time.Duration, iterations int, static bool) {
 	// Clear the screen and put the cursor on the top left
 	if static {
 		fmt.Print("\033[2J")
@@ -18,15 +18,9 @@ func displaypond(strategy *life.Life, iterations time.Duration, static bool) {
 	fmt.Print(strategy)
 
 	updates := make(chan bool)
-	strategy.Start(updates)
+	stop := strategy.Start(updates, rate)
 
-	if iterations > -1 {
-		go func() {
-			time.Sleep(strategy.UpdateRate * iterations)
-			strategy.Stop()
-		}()
-	}
-
+	countGenerations := 1
 	for {
 		select {
 		case <-updates:
@@ -34,6 +28,14 @@ func displaypond(strategy *life.Life, iterations time.Duration, static bool) {
 				fmt.Print("\033[H")
 			}
 			fmt.Print(strategy)
+
+			if iterations >= 0 {
+				countGenerations++
+				if countGenerations >= iterations {
+					stop()
+					break
+				}
+			}
 		}
 	}
 }
@@ -46,10 +48,7 @@ func displayTestpond(width int, height int, rate time.Duration, initializer func
 		life.GetConwayTester(),
 		life.SimultaneousProcessor)
 	if err == nil {
-		if rate > 0 {
-			strategy.UpdateRate = rate
-		}
-		displaypond(strategy, -1, true)
+		displaypond(strategy, rate, -1, true)
 	} else {
 		fmt.Printf("Could not create: %s\n", err)
 	}

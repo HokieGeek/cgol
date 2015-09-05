@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func TestLifeStatsString(t *testing.T) {
-	stats := new(LifeStats)
+func TestStatisticsString(t *testing.T) {
+	stats := new(Statistics)
 	stats.Generations++
 
 	if len(stats.String()) <= 0 {
@@ -86,8 +86,8 @@ func TestLifeProcess(t *testing.T) {
 	}
 
 	// Check statistics
-	if strategy.Statistics.Generations != 1 {
-		t.Errorf("Tracked %d generations when there should only be one\n", strategy.Statistics.Generations)
+	if strategy.Stats.Generations != 1 {
+		t.Errorf("Tracked %d generations when there should only be one\n", strategy.Stats.Generations)
 	}
 }
 
@@ -109,12 +109,14 @@ func TestLifeStartStop(t *testing.T) {
 		t.Fatalf("Unable to clone pond: %s\n", err)
 	}
 
+	testRate := time.Second
+
 	updates := make(chan bool)
-	strategy.Start(updates)
+	stop := strategy.Start(updates, testRate)
 
 	// go func() {
-	time.Sleep(strategy.UpdateRate * 1)
-	strategy.Stop()
+	time.Sleep(testRate * 1)
+	stop()
 	/*}()
 
 	for {
@@ -132,8 +134,8 @@ func TestLifeStartStop(t *testing.T) {
 	}
 
 	// Check statistics
-	if strategy.Statistics.Generations < 2 {
-		t.Errorf("Tracked %d generations when there should be two or more\n", strategy.Statistics.Generations)
+	if strategy.Stats.Generations < 2 {
+		t.Errorf("Tracked %d generations when there should be two or more\n", strategy.Stats.Generations)
 	}
 }
 
