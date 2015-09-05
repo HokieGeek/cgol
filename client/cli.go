@@ -67,6 +67,7 @@ func main() {
 	widthPtr := flag.Int("width", 1, "Width of the Life board")
 	heightPtr := flag.Int("height", 1, "Height of the Life board")
 	ratePtr := flag.Duration("rate", -1, "Rate at which the board should be updated in milliseconds")
+	extraPtr := flag.Int("extra", -1, "Extra values for pattners (such as random)")
 
 	flag.Parse()
 
@@ -128,9 +129,14 @@ func main() {
 			height = *heightPtr
 		}
 
+		percentCoverage := 35
+		if *extraPtr > -1 {
+			percentCoverage = *extraPtr
+		}
+
 		displayTestpond(width, height, *ratePtr,
 			func(dimensions life.Dimensions, offset life.Location) []life.Location {
-				return life.Random(dimensions, offset, 85)
+				return life.Random(dimensions, offset, percentCoverage)
 			})
 	default:
 		fmt.Println("Did not recognize pattern")

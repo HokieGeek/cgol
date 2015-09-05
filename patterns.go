@@ -53,7 +53,7 @@ func Random(dimensions Dimensions, offset Location, percent int) []Location {
 	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < dimensions.Height; i++ {
 		for j := 0; j < dimensions.Width; j++ {
-			if rand.Intn(100) > percent {
+			if (100 - rand.Intn(100)) <= percent {
 				seed = append(seed, Location{X: j + offset.X, Y: i + offset.Y})
 			}
 		}
