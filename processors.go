@@ -42,7 +42,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 	}()
 
 	///// Start processing stuffs /////
-	processingQueue := make(chan Location, pond.board.Dims.Capacity()+pond.GetNumLiving()+10)
+	processingQueue := make(chan Location, pond.board.Dims.Capacity())
 	doneProcessing := make(chan bool, 1)
 
 	// Process the queue

@@ -150,9 +150,11 @@ func (t *Life) Generation(num int) *Generation {
 func (t *Life) String() string {
 	var buf bytes.Buffer
 
-	buf.WriteString("[")
-	buf.WriteString(t.Label)
-	buf.WriteString("]\n")
+	if len(t.Label) > 0 {
+		buf.WriteString("[")
+		buf.WriteString(t.Label)
+		buf.WriteString("]\n")
+	}
 	buf.WriteString("Status: ")
 	buf.WriteString(t.Status.String())
 	buf.WriteString("\t")

@@ -48,7 +48,7 @@ func displaypond(strategy *life.Life, rate time.Duration, iterations int, static
 }
 
 func displayTestpond(width int, height int, rate time.Duration, initializer func(life.Dimensions) []life.Location) {
-	strategy, err := life.New("Test",
+	strategy, err := life.New("",
 		life.Dimensions{Height: height, Width: width},
 		life.NEIGHBORS_ALL,
 		initializer,
@@ -107,7 +107,6 @@ func main() {
 			func(dimensions life.Dimensions) []life.Location {
 				return life.Gliders(life.Dimensions{Height: 4, Width: 4})
 			})
-
 	case "pulsar":
 		width := 15
 		if *widthPtr > width {

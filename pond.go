@@ -12,23 +12,21 @@ import (
 type neighborsSelector int
 
 const (
+	NEIGHBORS_ALL        neighborsSelector = 0
 	NEIGHBORS_ORTHOGONAL neighborsSelector = 1
 	NEIGHBORS_OBLIQUE    neighborsSelector = 2
-	NEIGHBORS_ALL        neighborsSelector = 3
 )
 
 func (t neighborsSelector) String() string {
-	s := ""
-
-	if t&NEIGHBORS_ORTHOGONAL == NEIGHBORS_ORTHOGONAL {
-		s += "NEIGHBORS_ORTHOGONAL"
-	} else if t&NEIGHBORS_OBLIQUE == NEIGHBORS_OBLIQUE {
-		s += "NEIGHBORS_OBLIQUE"
-	} else if t&NEIGHBORS_ALL == NEIGHBORS_ALL {
-		s += "NEIGHBORS_ALL"
+	switch t {
+	case NEIGHBORS_ALL:
+		return "All"
+	case NEIGHBORS_ORTHOGONAL:
+		return "Orthogonal"
+	case NEIGHBORS_OBLIQUE:
+		return "Oblique"
 	}
-
-	return s
+	return "Unknown"
 }
 
 type pond struct {
