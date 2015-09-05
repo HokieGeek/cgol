@@ -31,154 +31,10 @@ func (t neighborsSelector) String() string {
 	return s
 }
 
-type livingTrackerAddOp struct {
-	loc  Location
-	resp chan bool
-}
-
-type livingTrackerRemoveOp struct {
-	loc  Location
-	resp chan bool
-}
-
-type livingTrackerTestOp struct {
-	loc  Location
-	resp chan bool
-}
-
-type livingTrackerGetAllOp struct {
-	resp chan []Location
-}
-
-type livingTrackerCountOp struct {
-	resp chan int
-}
-
-type livingTracker struct {
-	trackerAdd    chan *livingTrackerAddOp
-	trackerRemove chan *livingTrackerRemoveOp
-	trackerTest   chan *livingTrackerTestOp
-	trackerGetAll chan *livingTrackerGetAllOp
-	trackerCount  chan *livingTrackerCountOp
-}
-
-func (t *livingTracker) living() {
-	var livingMap = make(map[int]map[int]Location)
-	var count int
-	// logger := log.New(os.Stderr, "livingTracker: ", log.Ltime)
-	// logger := log.New(ioutil.Discard, "livingTracker: ", log.Ltime)
-
-	for {
-		select {
-		case add := <-t.trackerAdd:
-			added := true
-			_, keyExists := livingMap[add.loc.Y]
-			if !keyExists {
-				livingMap[add.loc.Y] = make(map[int]Location)
-			}
-			_, keyExists = livingMap[add.loc.Y][add.loc.X]
-			if !keyExists {
-				livingMap[add.loc.Y][add.loc.X] = add.loc
-				count++
-			}
-			add.resp <- added
-		case remove := <-t.trackerRemove:
-			removed := false
-			_, keyExists := livingMap[remove.loc.Y]
-			if keyExists {
-				_, keyExists = livingMap[remove.loc.Y][remove.loc.X]
-				if keyExists {
-					delete(livingMap[remove.loc.Y], remove.loc.X)
-					removed = true
-					count--
-
-					// TODO Delete the row if it has no children?
-					// if len(livingMap[remove.loc.Y]) <= 0 {
-					// 	delete(livingMap, remove.loc.Y)
-					// }
-				}
-			}
-			remove.resp <- removed
-		case test := <-t.trackerTest:
-			_, keyExists := livingMap[test.loc.Y]
-			if keyExists {
-				_, keyExists = livingMap[test.loc.Y][test.loc.X]
-				if !keyExists {
-					test.resp <- false
-				} else {
-					test.resp <- true
-				}
-			} else {
-				test.resp <- false
-			}
-		case getall := <-t.trackerGetAll:
-			all := make([]Location, 0)
-			for rowNum := range livingMap {
-				for _, col := range livingMap[rowNum] {
-					all = append(all, col)
-				}
-			}
-			getall.resp <- all
-		case countOp := <-t.trackerCount:
-			countOp.resp <- count
-		}
-	}
-}
-
-func (t *livingTracker) Set(location Location) {
-	add := &livingTrackerAddOp{loc: location, resp: make(chan bool)}
-	t.trackerAdd <- add
-	<-add.resp
-}
-
-func (t *livingTracker) Remove(location Location) {
-	remove := &livingTrackerRemoveOp{loc: location, resp: make(chan bool)}
-	t.trackerRemove <- remove
-	<-remove.resp
-}
-
-func (t *livingTracker) Test(location Location) bool {
-	read := &livingTrackerTestOp{loc: location, resp: make(chan bool)}
-	t.trackerTest <- read
-	val := <-read.resp
-
-	return val
-}
-
-func (t *livingTracker) GetAll() []Location {
-	get := &livingTrackerGetAllOp{resp: make(chan []Location)}
-	t.trackerGetAll <- get
-	val := <-get.resp
-
-	return val
-}
-
-func (t *livingTracker) GetCount() int {
-	count := &livingTrackerCountOp{resp: make(chan int)}
-	t.trackerCount <- count
-	val := <-count.resp
-
-	return val
-}
-
-func newLivingTracker() *livingTracker {
-	t := new(livingTracker)
-
-	t.trackerAdd = make(chan *livingTrackerAddOp)
-	t.trackerRemove = make(chan *livingTrackerRemoveOp)
-	t.trackerTest = make(chan *livingTrackerTestOp)
-	t.trackerGetAll = make(chan *livingTrackerGetAllOp)
-	t.trackerCount = make(chan *livingTrackerCountOp)
-
-	go t.living()
-
-	return t
-}
-
 type pond struct {
 	board             *board
 	neighborsSelector neighborsSelector
-	living            *livingTracker
+	living            *tracker
 }
 
 func (t *pond) GetNeighbors(organism Location) []Location {
@@ -290,7 +146,7 @@ func newpond(dims Dimensions, neighbors neighborsSelector) (*pond, error) {
 	p := new(pond)
 
 	// Create values
-	p.living = newLivingTracker()
+	p.living = newTracker()
 
 	// Add the given values
 	var err error
