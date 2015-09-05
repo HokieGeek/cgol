@@ -2,6 +2,14 @@ package life
 
 import "testing"
 
+func TestRulesString(t *testing.T) {
+	rules := &Rules{[]int{1, 2, 3}, []int{4, 5}}
+
+	if len(rules.String()) <= 0 {
+		t.Error("Rules unexpectedly returned empty string")
+	}
+}
+
 func TestRuleRulesConway(t *testing.T) {
 	const (
 		STD_UNDERPOPULATION = 2

@@ -108,12 +108,19 @@ func (t *board) board() {
 	}
 }
 
-func (t *board) GetValue(location Location) (int, error) {
-	// Check that the given location is valid
+func (t *board) isValidLocation(location Location) bool {
 	if location.X < 0 || location.X > t.Dims.Width {
-		return -1, errors.New("Given location is out of bounds")
+		return false
 	}
 	if location.Y < 0 || location.Y > t.Dims.Height {
+		return false
+	}
+	return true
+}
+
+func (t *board) GetValue(location Location) (int, error) {
+	// Check that the given location is valid
+	if !t.isValidLocation(location) {
 		return -1, errors.New("Given location is out of bounds")
 	}
 
@@ -133,10 +140,7 @@ func (t *board) getSnapshot() [][]int {
 
 func (t *board) SetValue(location Location, val int) error {
 	// Check that the given location is valid
-	if location.X < 0 || location.X > t.Dims.Width {
-		return errors.New("Given location is out of bounds")
-	}
-	if location.Y < 0 || location.Y > t.Dims.Height {
+	if !t.isValidLocation(location) {
 		return errors.New("Given location is out of bounds")
 	}
 
@@ -252,7 +256,7 @@ func (t *board) String() string {
 	return buf.String()
 }
 
-func newLifeboard(dims Dimensions) (*board, error) {
+func newBoard(dims Dimensions) (*board, error) {
 	if dims.Height <= 0 || dims.Width <= 0 {
 		return nil, errors.New("Dimensions must be greater than 0")
 	}

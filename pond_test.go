@@ -5,6 +5,11 @@ import "testing"
 func TestneighborSelectorString(t *testing.T) {
 	var selector neighborsSelector
 
+	selector = NEIGHBORS_ALL
+	if len(selector.String()) <= 0 {
+		t.Error("Unexpectedly retrieved empty string from Status object")
+	}
+
 	selector = NEIGHBORS_ORTHOGONAL
 	if len(selector.String()) <= 0 {
 		t.Error("Unexpectedly retrieved empty string from pondselector object")
@@ -13,11 +18,6 @@ func TestneighborSelectorString(t *testing.T) {
 	selector = NEIGHBORS_OBLIQUE
 	if len(selector.String()) <= 0 {
 		t.Error("Unexpectedly retrieved empty string from pondselector object")
-	}
-
-	selector = NEIGHBORS_ALL
-	if len(selector.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from Status object")
 	}
 }
 
@@ -43,21 +43,63 @@ func TestpondSettingInitialPatterns(t *testing.T) {
 	}
 }
 
-func TestpondNeighborSelection(t *testing.T) {
-	t.Skip("This will essentially just retest the board tests.")
+func TestpondNeighborSelectionOrthogonal(t *testing.T) {
+	pond, err := newpond(Dimensions{Height: 3, Width: 3}, NEIGHBORS_ORTHOGONAL)
+	if err != nil {
+		t.Fatalf("Unable to create pond: %s\n", err)
+	}
+
+	expected := make([]Location, 4)
+	expected[0] = Location{X: 1, Y: 0}
+	expected[1] = Location{X: 0, Y: 1}
+	expected[2] = Location{X: 2, Y: 1}
+	expected[3] = Location{X: 1, Y: 2}
+
+	var actual []Location
+	actual, err = pond.GetNeighbors(Location{X: 1, Y: 1})
+	if err != nil {
+		t.Fatalf("Unable to retrieve neighbors: %s\n", err)
+	}
+
+	if len(actual) != len(expected) {
+		t.Fatalf("Retrieved %d neighbors but expected %d\n", len(actual), len(expected))
+	}
+}
+
+func TestpondNeighborSelectionOblique(t *testing.T) {
+	pond, err := newpond(Dimensions{Height: 3, Width: 3}, NEIGHBORS_OBLIQUE)
+	if err != nil {
+		t.Fatalf("Unable to create pond: %s\n", err)
+	}
+
+	expected := make([]Location, 4)
+	expected[0] = Location{X: 0, Y: 0}
+	expected[1] = Location{X: 2, Y: 0}
+	expected[2] = Location{X: 0, Y: 2}
+	expected[3] = Location{X: 2, Y: 2}
+
+	var actual []Location
+	actual, err = pond.GetNeighbors(Location{X: 1, Y: 1})
+	if err != nil {
+		t.Fatalf("Unable to retrieve neighbors: %s\n", err)
+	}
+
+	if len(actual) != len(expected) {
+		t.Fatalf("Retrieved %d neighbors but expected %d\n", len(actual), len(expected))
+	}
 }
 
 func TestpondNeighborSelectionError(t *testing.T) {
-	t.Skip("Bad location should be the test")
-	/*
-		fake_selector := 999
-		pond := newpond(1, 1, fake_selector)
+	// t.Skip("Bad location should be the test")
+	pond, err := newpond(Dimensions{Height: 1, Width: 1}, NEIGHBORS_ALL)
+	if err != nil {
+		t.Fatalf("Unable to create pond: %s\n", err)
+	}
 
-		neighbors, err := pond.GetNeighbors(Location{X: 0, Y: 0})
-		if err != nil {
-			t.Error("Did not encounter error when retrieving neighbors using bogus selector")
-		}
-	*/
+	_, err = pond.GetNeighbors(Location{X: 2, Y: 2})
+	if err == nil {
+		t.Error("Did not encounter error when retrieving neighbors using bogus selector")
+	}
 }
 
 func TestpondOrganismValue(t *testing.T) {

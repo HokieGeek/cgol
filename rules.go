@@ -26,15 +26,6 @@ func (t *Rules) String() string {
 	return buf.String()
 }
 
-// Returns a Rules object when given a string in the format of "###/##" where
-// to the left of the slash (/) each integer (0 > # < 9) is the number of neighbors
-// an alive cell needs to have to survive and to the right of the slash is the number of
-// neighbors a dead cell needs to be born.
-func RulesFromString(rules string) *Rules {
-	// TODO: split this: ####/#### (0 > # <= 8)
-	return nil
-}
-
 // This function tests the number of neighbors that a cell has against
 // the rules given. If the cell lives (or continues to live) based on the
 // rules, then the function returns true.

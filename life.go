@@ -92,7 +92,9 @@ func (t *Life) Start(alert chan bool, rate time.Duration) func() {
 				select {
 				case <-ticker.C:
 					t.process()
-					alert <- true
+					if alert != nil {
+						alert <- true
+					}
 				}
 			}
 		}()
@@ -109,7 +111,9 @@ func (t *Life) Start(alert chan bool, rate time.Duration) func() {
 					break
 				} else {
 					t.process()
-					alert <- true
+					if alert != nil {
+						alert <- true
+					}
 				}
 			}
 		}()

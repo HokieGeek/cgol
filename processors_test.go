@@ -40,7 +40,7 @@ func generateBlinkers(t *testing.T) (Dimensions, func(Dimensions) []Location, []
 
 	// Period 2
 	var err error
-	expected[0], err = newLifeboard(size)
+	expected[0], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -49,7 +49,7 @@ func generateBlinkers(t *testing.T) (Dimensions, func(Dimensions) []Location, []
 	}
 
 	// Period 1
-	expected[1], err = newLifeboard(size)
+	expected[1], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -68,7 +68,7 @@ func generateToads(t *testing.T) (Dimensions, func(Dimensions) []Location, []*bo
 
 	// Period 2
 	var err error
-	expected[0], err = newLifeboard(size)
+	expected[0], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -82,7 +82,7 @@ func generateToads(t *testing.T) (Dimensions, func(Dimensions) []Location, []*bo
 	expected[0].SetValue(Location{X: 1, Y: 3}, 0)
 
 	// Period 1
-	expected[1], err = newLifeboard(size)
+	expected[1], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -101,7 +101,7 @@ func generateBeacons(t *testing.T) (Dimensions, func(Dimensions) []Location, []*
 
 	// Period 2
 	var err error
-	expected[0], err = newLifeboard(size)
+	expected[0], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -117,7 +117,7 @@ func generateBeacons(t *testing.T) (Dimensions, func(Dimensions) []Location, []*
 	}
 
 	// Period 1
-	expected[1], err = newLifeboard(size)
+	expected[1], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -136,7 +136,7 @@ func generatePulsar(t *testing.T) (Dimensions, func(Dimensions) []Location, []*b
 
 	// Period 2
 	var err error
-	expected[0], err = newLifeboard(size)
+	expected[0], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -168,7 +168,7 @@ func generatePulsar(t *testing.T) (Dimensions, func(Dimensions) []Location, []*b
 	}
 
 	// Period 3
-	expected[1], err = newLifeboard(size)
+	expected[1], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -216,7 +216,7 @@ func generatePulsar(t *testing.T) (Dimensions, func(Dimensions) []Location, []*b
 	}
 
 	// Period 1
-	expected[2], err = newLifeboard(size)
+	expected[2], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -235,7 +235,7 @@ func generateGlider(t *testing.T) (Dimensions, func(Dimensions) []Location, []*b
 
 	var err error
 	////// Period 2
-	expected[0], err = newLifeboard(size)
+	expected[0], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -249,7 +249,7 @@ func generateGlider(t *testing.T) (Dimensions, func(Dimensions) []Location, []*b
 	expected[0].SetValue(Location{X: 1, Y: 3}, 0)
 
 	////// Period 3
-	expected[1], err = newLifeboard(size)
+	expected[1], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -263,7 +263,7 @@ func generateGlider(t *testing.T) (Dimensions, func(Dimensions) []Location, []*b
 	expected[1].SetValue(Location{X: 2, Y: 3}, 0)
 
 	////// Period 4
-	expected[2], err = newLifeboard(size)
+	expected[2], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -278,7 +278,7 @@ func generateGlider(t *testing.T) (Dimensions, func(Dimensions) []Location, []*b
 
 	////// Period 5
 	// This is the same seed except shifted over
-	expected[3], err = newLifeboard(size)
+	expected[3], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -297,7 +297,7 @@ func generateGlider(t *testing.T) (Dimensions, func(Dimensions) []Location, []*b
 	// 000-       -00-       0-0-       --00      ---0      -0-0
 	// ----       -0--       -00-       -00-      -000      --00
 	// ----       ----       ----       ----      ----      --0-
-	expected[4], err = newLifeboard(size)
+	expected[4], err = newBoard(size)
 	if err != nil {
 		t.Fatalf("board of size %s could not be created\n", size.String())
 	}
@@ -321,7 +321,7 @@ func generateBlock(t *testing.T) (Dimensions, func(Dimensions) []Location, []*bo
 
 	var err error
 	for period := 0; period < len(expected); period++ {
-		expected[period], err = newLifeboard(size)
+		expected[period], err = newBoard(size)
 		if err != nil {
 			t.Fatalf("board of size %s could not be created\n", size.String())
 		}
@@ -343,7 +343,7 @@ func generateBeehive(t *testing.T) (Dimensions, func(Dimensions) []Location, []*
 
 	var err error
 	for period := 0; period < len(expected); period++ {
-		expected[period], err = newLifeboard(size)
+		expected[period], err = newBoard(size)
 		if err != nil {
 			t.Fatalf("board of size %s could not be created\n", size.String())
 		}
@@ -370,7 +370,7 @@ func generateLoaf(t *testing.T) (Dimensions, func(Dimensions) []Location, []*boa
 
 	var err error
 	for period := 0; period < len(expected); period++ {
-		expected[period], err = newLifeboard(size)
+		expected[period], err = newBoard(size)
 		if err != nil {
 			t.Fatalf("board of size %s could not be created\n", size.String())
 		}
@@ -398,7 +398,7 @@ func generateBoat(t *testing.T) (Dimensions, func(Dimensions) []Location, []*boa
 
 	var err error
 	for period := 0; period < len(expected); period++ {
-		expected[period], err = newLifeboard(size)
+		expected[period], err = newBoard(size)
 		if err != nil {
 			t.Fatalf("board of size %s could not be created\n", size.String())
 		}

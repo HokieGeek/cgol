@@ -50,7 +50,7 @@ func TestLifeCreation(t *testing.T) {
 		t.Fatalf("Unable to create strategy: %s\n", err)
 	}
 
-	expected, _ := newLifeboard(Dimensions{3, 3})
+	expected, _ := newBoard(Dimensions{3, 3})
 	expected.SetValue(Location{X: 0, Y: 1}, 0)
 	expected.SetValue(Location{X: 1, Y: 1}, 0)
 	expected.SetValue(Location{X: 2, Y: 1}, 0)
@@ -91,8 +91,7 @@ func TestLifeProcess(t *testing.T) {
 	}
 }
 
-func TestLifeStartStop(t *testing.T) {
-	t.Skip("This doesn't work as expected")
+func TestLifeStartRated(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New("TestLifeStartStop",
 		dims,
@@ -111,21 +110,52 @@ func TestLifeStartStop(t *testing.T) {
 
 	testRate := time.Second
 
-	updates := make(chan bool)
-	stop := strategy.Start(updates, testRate)
+	stop := strategy.Start(nil, testRate)
 
-	// go func() {
-	time.Sleep(testRate * 1)
+	// t.Log(strategy.String())
+
+	time.Sleep(testRate * 4)
 	stop()
-	/*}()
+	// t.Log(strategy.String())
 
-	for {
-		select {
-		case <-updates:
-			t.Log(strategy.String())
-		}
+	processedpond := strategy.pond
+
+	if seededpond.Equals(processedpond) {
+		t.Fatal("pond did not change after processing")
 	}
-	*/
+
+	// Check statistics
+	if strategy.Stats.Generations < 2 {
+		t.Errorf("Tracked %d generations when there should be two or more\n", strategy.Stats.Generations)
+	}
+}
+
+func TestLifeStartFullTilt(t *testing.T) {
+	dims := Dimensions{Height: 3, Width: 3}
+	strategy, err := New("TestLifeStartStop",
+		dims,
+		NEIGHBORS_ALL,
+		func(dimensions Dimensions) []Location {
+			return Random(dimensions, 85)
+		},
+		GetConwayTester(),
+		SimultaneousProcessor)
+	if err != nil {
+		t.Fatalf("Unable to create strategy: %s\n", err)
+	}
+
+	seededpond, err := strategy.pond.Clone()
+	if err != nil {
+		t.Fatalf("Unable to clone pond: %s\n", err)
+	}
+
+	stop := strategy.Start(nil, 0)
+
+	// t.Log(strategy.String())
+
+	time.Sleep(time.Second * 2)
+	stop()
+	// t.Log(strategy.String())
 
 	processedpond := strategy.pond
 

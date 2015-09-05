@@ -2,6 +2,7 @@ package life
 
 import (
 	"bytes"
+	"errors"
 	// "fmt"
 	// "io/ioutil"
 	// "log"
@@ -35,17 +36,21 @@ type pond struct {
 	living            *tracker
 }
 
-func (t *pond) GetNeighbors(organism Location) []Location {
-	switch {
-	case t.neighborsSelector == NEIGHBORS_ORTHOGONAL:
-		return t.board.GetOrthogonalNeighbors(organism)
-	case t.neighborsSelector == NEIGHBORS_OBLIQUE:
-		return t.board.GetObliqueNeighbors(organism)
-	case t.neighborsSelector == NEIGHBORS_ALL:
-		return t.board.GetAllNeighbors(organism)
+func (t *pond) GetNeighbors(organism Location) ([]Location, error) {
+	if !t.board.isValidLocation(organism) {
+		return nil, errors.New("Location is out of bounds")
 	}
 
-	return nil
+	switch {
+	case t.neighborsSelector == NEIGHBORS_ORTHOGONAL:
+		return t.board.GetOrthogonalNeighbors(organism), nil
+	case t.neighborsSelector == NEIGHBORS_OBLIQUE:
+		return t.board.GetObliqueNeighbors(organism), nil
+	case t.neighborsSelector == NEIGHBORS_ALL:
+		return t.board.GetAllNeighbors(organism), nil
+	}
+
+	return nil, errors.New("Did not recognize neighbor selector")
 }
 
 func (t *pond) isOrganismAlive(organism Location) bool {
@@ -85,7 +90,10 @@ func (t *pond) setOrganismValue(organism Location, num int) {
 
 func (t *pond) calculateNeighborCount(organism Location) (int, []Location) {
 	numNeighbors := 0
-	neighbors := t.GetNeighbors(organism)
+	neighbors, err := t.GetNeighbors(organism)
+	if err != nil {
+		// FIXME
+	}
 	for _, neighbor := range neighbors {
 		if t.isOrganismAlive(neighbor) {
 			numNeighbors++
@@ -148,7 +156,7 @@ func newpond(dims Dimensions, neighbors neighborsSelector) (*pond, error) {
 
 	// Add the given values
 	var err error
-	p.board, err = newLifeboard(dims)
+	p.board, err = newBoard(dims)
 	if err != nil {
 		return nil, err
 	}
