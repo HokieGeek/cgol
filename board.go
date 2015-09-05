@@ -239,19 +239,33 @@ func (t *board) String() string {
 	buf.WriteString(strconv.Itoa(t.Dims.Width))
 	buf.WriteString("\n")
 
+	// Draw the top border
+	buf.WriteString("┌")
+	for j := t.Dims.Width; j > 0; j-- {
+		buf.WriteString("─")
+	}
+	buf.WriteString("┐\n")
+
 	// Draw out the matrix
 	snapshot := t.getSnapshot()
 	for i := 0; i < t.Dims.Height; i++ {
+		buf.WriteString("│") // Left border
 		for j := 0; j < t.Dims.Width; j++ {
-			val := snapshot[i][j]
-			if val >= 0 {
+			if val := snapshot[i][j]; val >= 0 {
 				buf.WriteString(strconv.Itoa(val))
 			} else {
-				buf.WriteString("-")
+				buf.WriteString(" ")
 			}
 		}
-		buf.WriteString("\n")
+		buf.WriteString("│\n") // Right border
 	}
+
+	// Draw the bottom border
+	buf.WriteString("└")
+	for j := t.Dims.Width; j > 0; j-- {
+		buf.WriteString("─")
+	}
+	buf.WriteString("┘\n")
 
 	return buf.String()
 }
