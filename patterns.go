@@ -51,11 +51,11 @@ func getRepeatingPattern(dimensions Dimensions, height int, width int,
 func Random(dimensions Dimensions, percent int) []Location {
 	seed := make([]Location, 0)
 
+	rand.Seed(time.Now().UnixNano())
 	for i := 0; i < dimensions.Height; i++ {
-		rand.Seed(time.Now().UnixNano())
 		for j := 0; j < dimensions.Width; j++ {
 			if rand.Intn(100) > percent {
-				seed = append(seed, Location{X: i, Y: j})
+				seed = append(seed, Location{X: j, Y: i})
 			}
 		}
 	}

@@ -56,7 +56,7 @@ func displayTestpond(width int, height int, rate time.Duration, initializer func
 
 func main() {
 
-	patternPtr := flag.String("pattern", "blinkers", "Specify the pattern to run")
+	patternPtr := flag.String("pattern", "random", "Specify the pattern to run")
 	widthPtr := flag.Int("width", 1, "Width of the Life board")
 	heightPtr := flag.Int("height", 1, "Height of the Life board")
 	ratePtr := flag.Duration("rate", -1, "Rate at which the board should be updated in milliseconds")
@@ -112,12 +112,12 @@ func main() {
 		}
 
 		displayTestpond(width, height, *ratePtr, life.Pulsar)
-	default:
-		width := 10
+	case "random":
+		width := 120
 		if *widthPtr > width {
 			width = *widthPtr
 		}
-		height := 20
+		height := 45
 		if *heightPtr > height {
 			height = *heightPtr
 		}
@@ -126,5 +126,7 @@ func main() {
 			func(dimensions life.Dimensions) []life.Location {
 				return life.Random(dimensions, 80)
 			})
+	default:
+		fmt.Println("Did not recognize pattern")
 	}
 }

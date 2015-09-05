@@ -155,7 +155,7 @@ func (t *Life) String() string {
 	buf.WriteString("]\n")
 	buf.WriteString("Status: ")
 	buf.WriteString(t.Status.String())
-	buf.WriteString("\tGeneration: ")
+	buf.WriteString("\t")
 	buf.WriteString(t.Stats.String())
 	buf.WriteString("\n")
 	buf.WriteString(t.pond.String())
@@ -172,7 +172,7 @@ func New(label string,
 	s := new(Life)
 
 	var err error
-	s.pond, err = newpond(Dimensions{Height: dims.Height, Width: dims.Width}, neighbors)
+	s.pond, err = newpond(dims, neighbors)
 	if err != nil {
 		return nil, err
 	}
