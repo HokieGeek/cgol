@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/hokiegeek/life"
+	"github.com/hokiegeek/life/core"
 	"os"
 	"time"
 )
