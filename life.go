@@ -2,9 +2,18 @@ package life
 
 import (
 	"bytes"
+	// "crypto/sha1"
 	"strconv"
 	"time"
 )
+
+/*
+func GetUniqueId() [sha1.Size]byte {
+	h := sha1.New()
+	h.Write([]byte(time.Now().UnixNano()))
+	return h.Sum(nil)
+}
+*/
 
 type Statistics struct {
 	OrganismsCreated int
