@@ -2,10 +2,6 @@
 var analyses = {}
 
 function getIdStr(id) {
-    // console.log("getIdStr():", id);
-    // console.log("getIdStr():", id.toString(16));
-    // console.log("getIdStr():", parseInt(id, 16));
-    // console.log("getIdStr():", parseInt(id, 16).toString(16));
     var idStr = id.toString(16).replace(new RegExp("[/+=]", 'g'), "");
     return idStr.substring(0, idStr.length-1);
 }

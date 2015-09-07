@@ -54,33 +54,18 @@ func CreateAnalysis(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req CreateAnalysisRequest
-	// req.Dims = life.Dimensions{Height: 42, Width: 24}
-	// blah, _ := json.Marshal(req)
-	// fmt.Println(string(blah))
-
-	// fmt.Println(string(body))
 	if err := json.Unmarshal(body, &req); err != nil {
-		fmt.Printf("HERE: %s\n", err)
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Add("Access-Control-Allow-Methods", "PUT")
-		w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
-		w.WriteHeader(422) // unprocessable entity
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		postJson(w, 422, err)
 	} else {
 
+		// FIXME: this should be sent to a logger
 		fmt.Printf("Received create request: %s\n", req.String())
 
 		// Create the analyzer
 		analyzer, err := life.NewAnalyzer(req.Dims)
 		if err != nil {
-			// fmt.Println("crapola")
 			panic(err)
 		}
-		// fmt.Println(analyzer.String())
-
 		// TODO: Add to the manager
 
 		fmt.Printf("Id: %x\n", analyzer.Id)
@@ -88,16 +73,7 @@ func CreateAnalysis(w http.ResponseWriter, r *http.Request) {
 		// Respond the request with the ID of the analyzer
 		resp := NewCreateAnalysisResponse(analyzer)
 
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Add("Access-Control-Allow-Methods", "PUT")
-		w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
-
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusCreated)
-
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			panic(err)
-		}
+		postJson(w, http.StatusCreated, resp)
 	}
 }
 
@@ -133,14 +109,7 @@ func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(string(body))
 	if err := json.Unmarshal(body, &req); err != nil {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Add("Access-Control-Allow-Methods", "PUT")
-		w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
-		w.WriteHeader(422) // unprocessable entity
-		if err := json.NewEncoder(w).Encode(err); err != nil {
-			panic(err)
-		}
+		postJson(w, 422, err)
 	} else {
 
 		fmt.Printf("Received poll request: %x\n", req.Id)
@@ -157,16 +126,20 @@ func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
 		updates := []AnalysisUpdate{*update}
 		resp := &AnalysisUpdateResponse{Id: req.Id, Updates: updates}
 
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Add("Access-Control-Allow-Methods", "PUT")
-		w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+		postJson(w, http.StatusCreated, resp)
+	}
+}
 
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		w.WriteHeader(http.StatusCreated)
+func postJson(w http.ResponseWriter, httpStatus int, send interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			panic(err)
-		}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "PUT")
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+
+	w.WriteHeader(httpStatus)
+	if err := json.NewEncoder(w).Encode(send); err != nil {
+		panic(err)
 	}
 }
 

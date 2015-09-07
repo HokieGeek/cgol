@@ -5,10 +5,13 @@ import (
 	"fmt"
 )
 
+type Analysis struct {
+}
+
 type Analyzer struct {
-	Id   []byte
-	Life *Life
-	// Stats
+	Id       []byte
+	Life     *Life
+	analyses []Analysis
 }
 
 func (t *Analyzer) String() string {
