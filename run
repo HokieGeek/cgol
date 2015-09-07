@@ -1,0 +1,4 @@
+#!/bin/sh
+
+[ ! -f ./cli ] && go build core/client/cli.go
+./cli --width 197 --height 50 --extra 15
