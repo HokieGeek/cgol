@@ -2,18 +2,19 @@ package life
 
 import (
 	"bytes"
-	// "crypto/sha1"
+	"crypto/sha1"
+	"encoding/binary"
 	"strconv"
 	"time"
 )
 
-/*
-func GetUniqueId() [sha1.Size]byte {
+func uniqueId() []byte {
 	h := sha1.New()
-	h.Write([]byte(time.Now().UnixNano()))
+	buf := make([]byte, sha1.Size)
+	binary.PutVarint(buf, time.Now().UnixNano())
+	h.Write(buf)
 	return h.Sum(nil)
 }
-*/
 
 type Statistics struct {
 	OrganismsCreated int
@@ -158,6 +159,10 @@ func (t *Life) Generation(num int) *Generation {
 	}
 
 	return &Generation{Num: num, Living: p.living.GetAll()}
+}
+
+func (t *Life) Dimensions() Dimensions {
+	return t.pond.Dimensions()
 }
 
 func (t *Life) String() string {

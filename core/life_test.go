@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+func TestUniqueId(t *testing.T) {
+	id := uniqueId()
+	t.Log(id)
+}
+
 func TestStatisticsString(t *testing.T) {
 	stats := new(Statistics)
 	stats.Generations++

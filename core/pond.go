@@ -113,6 +113,10 @@ func (t *pond) GetLifeboard() [][]int {
 	return t.board.getSnapshot()
 }
 
+func (t *pond) Dimensions() Dimensions {
+	return t.board.Dims
+}
+
 func (t *pond) Clone() (*pond, error) {
 	shadowpond, err := newpond(t.board.Dims, t.neighborsSelector)
 	if err != nil {
