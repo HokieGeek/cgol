@@ -1,4 +1,40 @@
 #!/bin/sh
 
-[ ! -f ./cli ] && go build core/client/cli.go
-./cli --width 197 --height 50 --extra 15
+[ $# -gt 0 -a "$1" == "--kill" ] && {
+    pkill lifed
+    pkill -f SimpleHTTPServer
+    exit 0
+}
+
+[ $# -gt 0 -a "$1" == "--cli" ] && {
+    shift
+    [ ! -f ./cli ] && go build core/client/cli.go
+    [ $# -gt 0 ] && {
+        ./cli $@
+    } || {
+        ./cli --width 197 --height 50 --extra 15
+    }
+    exit $?
+}
+
+echo "[Starting lifed server]"
+
+me=$(cd $(dirname $0); pwd)
+cd ${me}
+
+pkill lifed
+
+# [ $# -gt 0 ] && lifedPort=$1 || lifedPort=8080
+
+rm -rf lifed
+go build lifed.go && ./lifed&
+
+echo "[Starting httpd server]"
+cd html
+
+pkill -f SimpleHTTPServer
+
+[ $# -gt 0 ] && httpdPort=$1 || httpdPort=8080
+python2.7 -m SimpleHTTPServer ${httpdPort}&
+#./server.py
+# ./run&
