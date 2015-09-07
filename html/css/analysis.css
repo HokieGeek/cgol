@@ -1,0 +1,31 @@
+#btnNewAnalysis {
+    border: 1px solid #000000;
+    background-color: #c0c0c0;
+    padding: 2px 2px 2px 2px;
+    margin-bottom: 10px
+}
+
+.analysisField {
+    font-weight: normal;
+}
+
+.analysisField:first-child {
+    font-weight: bold;
+}
+
+.analysisBoard {
+    border: 1px solid #c0c0c0;
+    padding: 1px 1px 1px 1px;
+}
+
+.analysisBoardCell {
+    background-color: #e0e0e0;
+    padding-top: 0px;
+    padding-bottom: 1px;
+    padding-left: 0px;
+    padding-right: 1px;
+}
+
+.analysisBeardCellAlive {
+    background-color: #d29c0e;
+}
