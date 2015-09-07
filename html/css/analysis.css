@@ -1,16 +1,24 @@
+.center {
+    margin: auto;
+    width: 98%;
+    border:3px solid #8AC007;
+    padding: 10px;
+}
+
 #btnNewAnalysis {
     border: 1px solid #000000;
     background-color: #c0c0c0;
-    padding: 2px 2px 2px 2px;
-    margin-bottom: 10px
-}
-
-.analysisField {
-    font-weight: normal;
+    padding: 2px;
+    margin-bottom: 10px;
+    text-align: center
 }
 
 .analysisField:first-child {
     font-weight: bold;
+}
+
+.analysisField:first-child + span {
+    font-weight: normal;
 }
 
 .analysisBoard {
@@ -26,6 +34,10 @@
     padding-right: 1px;
 }
 
-.analysisBeardCellAlive {
+.analysisBoardCell:hover {
+    background-color: #7fffd4;
+}
+
+.analysisBoardCellAlive {
     background-color: #d29c0e;
 }
