@@ -4,49 +4,22 @@
 
 <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
 <meta http-equiv="Content-Language" content="EN" />
-<meta http-equiv="imagetoolbar" content="no" />
 <meta name="keywords" content="conway,game,life" />
 <meta name="author" content="HokieGeek" />
-<meta name="distribution" content="Global" />
-<meta name="revisit-after" content="1 days" />
-<meta name="robots" content="follow,index" />
 <meta name="description" content="Conway's Game of Life Analyzer" />
 
 <script type="text/JavaScript" src="js/jquery.js"></script>
-<script type="text/JavaScript" src="js/main.js" async="true"></script>
+<!-- script type="text/JavaScript" src="js/main.js" async="true"></script-->
 <script type="text/JavaScript" src="js/analysis.js" async="true"></script>
 
 <!--link rel="shortcut icon" type="image/x-icon" href="img/hg_icon.png"-->
 <link type="text/css" rel="StyleSheet" href="css/analysis.css" />
 
-<script type="text/javascript">
-// setInterval(pollAnalyses, 10000)
-</script>
 </head>
 <body>
-    <div class="analysisBoard">
-        <span>
-            <div>
-                <span class="analysisBoardCell analysisBoardCellAlive"></span>
-                <span class="analysisBoardCell analysisBoardCellAlive"></span>
-                <span class="analysisBoardCell"></span>
-            </div>
-            <div>
-                <span class="analysisBoardCell analysisBoardCellAlive"></span>
-                <span class="analysisBoardCell analysisBoardCellAlive"></span>
-                <span class="analysisBoardCell"></span>
-            </div>
-            <div>
-                <span class="analysisBoardCell"></span>
-                <span class="analysisBoardCell"></span>
-                <span class="analysisBoardCell analysisBoardCellAlive"></span>
-            </div>
-        </span>
-    </div>
-
     <div id="btnNewAnalysis" class="center" onclick="createNewAnalysis()">Create new analysis</div>
-    <div id="newAnalysisForm"></div>
-    <div id="analyses">No analysis created</div>
+    <div id="newAnalysisForm" style="visibility: hidden" ></div>
+    <div id="analyses">Create an analysis</div>
 </body>
 </html>
 
