@@ -70,8 +70,8 @@ function createAnalysis(data) {
                 .html(createBoard(data)))
     );
 
-    analyses[data.Id] = [];
     analysesIdMap[idStr] = data.Id;
+    analyses[data.Id] = [];
 }
 
 function updateBoard(idStr, data) {
@@ -116,16 +116,17 @@ function processAnalysisUpdate(idStr, gen) {
 
 function updateAnalysis(data) {
     console.log("  updateAnalysis()", data);
-
-    console.log("  Num updates = "+data.Updates.length);
+    // console.log("  Num updates = "+data.Updates.length);
     for (var i = 0; i < data.Updates.length; i++) {
-        console.log("   updateAnalysis(): i = ", i);
+        // console.log("   updateAnalysis(): i = ", i);
+        // console.log("   num changes = ", data.Updates[i].Changes.length);
         var idStr = getIdStr(data.Id);
 
-        console.log("   !!!PUSH!!!")
-        analyses[data.Id].push(data.Updates);
-        console.log("   analyses len = "+analyses[data.Id].length);
+        // console.log("   !!!PUSH!!!")
+        analyses[data.Id].push(data.Updates[i]);
+        // console.log("   analyses len = "+analyses[data.Id].length);
 
+        /*
         var updates = analyses[data.Id];
         var update = analyses[data.Id][i];
         console.log("1      analyses", analyses);
@@ -133,13 +134,12 @@ function updateAnalysis(data) {
         console.log("1          wtf2 = ", analyses[data.Id][i]);
         console.log("1       updates = ", updates);
         console.log("1        update = ", update);
-        /*
         */
 
         // scheduleUpdateProcessing(data.Id, i, (i * 1000));
         // setTimeout(function() { eval("processAnalysisUpdate("+data.Id+", "+i+")"); }, (i * 1000));
         // console.log("WANT TO CALL: setTimeout(function() { processAnalysisUpdate('"+idStr+"', "+i+"); }, "+(i * 1000)+");")
-        // eval("setTimeout(function() { processAnalysisUpdate('"+idStr+"', "+i+"); }, "+(i * 1000)+");")
+        eval("setTimeout(function() { processAnalysisUpdate('"+idStr+"', "+i+"); }, "+(i * 1000)+");")
     }
 }
 

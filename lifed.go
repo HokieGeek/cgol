@@ -125,11 +125,11 @@ func NewAnalysisUpdateResponse(analyzer *life.Analyzer) *AnalysisUpdateResponse 
 
 	// TODO: only add the most recent ones. The manager should keep a pointer
 	// r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, 0))
-	fmt.Printf("Num updates: %d\n", len(r.Updates))
 	for i := 0; i < analyzer.NumAnalyses(); i++ {
-		// fmt.Printf("Num updates: %d\n", len(r.Updates))
 		r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, i))
+		fmt.Printf("Num changes: %d\n", len(r.Updates[i].Changes))
 	}
+	fmt.Printf("Num updates: %d\n", len(r.Updates))
 
 	return r
 }
