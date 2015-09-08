@@ -124,16 +124,19 @@ func NewAnalysisUpdateResponse(analyzer *life.Analyzer) *AnalysisUpdateResponse 
 	r.Updates = make([]AnalysisUpdate, 0)
 
 	// TODO: only add the most recent ones. The manager should keep a pointer
-	r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, 0))
-	// for i := 0; i < analyzer.NumAnalyses(); i++ {
-	// 	r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, i))
-	// }
+	// r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, 0))
+	fmt.Printf("Num updates: %d\n", len(r.Updates))
+	for i := 0; i < analyzer.NumAnalyses(); i++ {
+		// fmt.Printf("Num updates: %d\n", len(r.Updates))
+		r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, i))
+	}
 
 	return r
 }
 
 func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 	// func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("GetAnalysisStatus()\n")
 	// Retrieve the necessary stuffs
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -196,9 +199,6 @@ func main() {
 		func(w http.ResponseWriter, r *http.Request) {
 			GetAnalysisStatus(mgr, w, r)
 		})
-
-	// mux.HandleFunc("/create", CreateAnalysis)
-	// mux.HandleFunc("/poll", GetAnalysisStatus)
 
 	http.ListenAndServe(":8081", mux)
 }

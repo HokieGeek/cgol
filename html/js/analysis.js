@@ -1,8 +1,9 @@
 //  function add
 var analyses = {}
+var analysesIdMap = {}
 
 function getIdStr(id) {
-    console.log("getIdStr(): ", id);
+    // console.log("getIdStr(): ", id);
     var idStr = id.toString(16).replace(new RegExp("[/+=]", 'g'), "");
     return idStr.substring(0, idStr.length-1);
 }
@@ -26,7 +27,7 @@ function createBoard(data) {
 }
 
 function createAnalysis(data) {
-    console.log("createAnalysis()", data)
+    // console.log("createAnalysis()", data)
 
     var idStr = getIdStr(data.Id);
 
@@ -70,6 +71,7 @@ function createAnalysis(data) {
     );
 
     analyses[data.Id] = [];
+    analysesIdMap[idStr] = data.Id;
 }
 
 function updateBoard(idStr, data) {
@@ -94,17 +96,17 @@ function updateBoard(idStr, data) {
 
 var StatusStr = ["Seeded", "Active", "Stable", "Dead"]
 
-function processAnalysisUpdate(aId, gen) {
-    console.log("processAnalysisUpdate()", aId, gen);
+function processAnalysisUpdate(idStr, gen) {
+    console.log("   processAnalysisUpdate()", idStr, gen);
 
-    console.log("analyses", analyses);
-
-    var id = parseInt(aId, 16);
-    console.log("    id: ", id)
+    var id = analysesIdMap[idStr];
+    var updates = analyses[id];
     var update = analyses[id][gen];
-    console.log("    update = ", update)
 
-    var idStr = getIdStr(update.Id);
+    console.log("2    analyses", analyses);
+    console.log("2      wtf = ", analyses[id]);
+    console.log("2      updates = ", updates);
+    console.log("2      update = ", update);
 
     $("#status-"+idStr).text(StatusStr[update.Status]);
     $("#generaton-"+idStr).text(update.Generation);
@@ -113,15 +115,31 @@ function processAnalysisUpdate(aId, gen) {
 }
 
 function updateAnalysis(data) {
-    console.log("updateAnalysis()", data, data.Updates.length);
+    console.log("  updateAnalysis()", data);
 
+    console.log("  Num updates = "+data.Updates.length);
     for (var i = 0; i < data.Updates.length; i++) {
-        console.log("updateAnalysis(): ", i);
+        console.log("   updateAnalysis(): i = ", i);
+        var idStr = getIdStr(data.Id);
+
+        console.log("   !!!PUSH!!!")
         analyses[data.Id].push(data.Updates);
+        console.log("   analyses len = "+analyses[data.Id].length);
+
+        var updates = analyses[data.Id];
+        var update = analyses[data.Id][i];
+        console.log("1      analyses", analyses);
+        console.log("1           wtf = ", analyses[data.Id]);
+        console.log("1          wtf2 = ", analyses[data.Id][i]);
+        console.log("1       updates = ", updates);
+        console.log("1        update = ", update);
+        /*
+        */
+
         // scheduleUpdateProcessing(data.Id, i, (i * 1000));
         // setTimeout(function() { eval("processAnalysisUpdate("+data.Id+", "+i+")"); }, (i * 1000));
-        // console.log("WANT TO CALL: setTimeout(function() { processAnalysisUpdate('"+data.Id+"', "+i+"); }, "+(i * 1000)+");")
-        eval("setTimeout(function() { processAnalysisUpdate('"+data.Id+"', "+i+"); }, "+(i * 1000)+");")
+        // console.log("WANT TO CALL: setTimeout(function() { processAnalysisUpdate('"+idStr+"', "+i+"); }, "+(i * 1000)+");")
+        // eval("setTimeout(function() { processAnalysisUpdate('"+idStr+"', "+i+"); }, "+(i * 1000)+");")
     }
 }
 
@@ -134,7 +152,7 @@ function newAnalysisData(data) {
 }
 
 function pollAnalyses() {
-    console.log("pollAnalyses()")
+    // console.log("pollAnalyses()")
     for (var key in analyses) {
         console.log("pollAnalyses(): ", key)
         $.post( "http://localhost:8081/poll", 
