@@ -2,6 +2,7 @@
 var analyses = {}
 
 function getIdStr(id) {
+    console.log("getIdStr(): ", id);
     var idStr = id.toString(16).replace(new RegExp("[/+=]", 'g'), "");
     return idStr.substring(0, idStr.length-1);
 }
@@ -68,13 +69,13 @@ function createAnalysis(data) {
                 .html(createBoard(data)))
     );
 
-    analyses[data.Id] = data;
+    analyses[data.Id] = [];
 }
 
-function updateBoard(data) {
+function updateBoard(idStr, data) {
     console.log("updateBoard()", data);
 
-    var idStr = getIdStr(data.Id);
+    // var idStr = getIdStr(data.Id);
     for (var i = data.Living.length-1; i >= 0; i--) {
         var changed = data.Changes[i];
         // console.log("Changes["+i+"]: ", changed);
@@ -93,17 +94,35 @@ function updateBoard(data) {
 
 var StatusStr = ["Seeded", "Active", "Stable", "Dead"]
 
-function updateAnalysis(data) {
-    console.log("updateAnalysis()", data);
+function processAnalysisUpdate(aId, gen) {
+    console.log("processAnalysisUpdate()", aId, gen);
 
-    var idStr = getIdStr(data.Id);
+    console.log("analyses", analyses);
 
-    var update = data.Updates[0];
+    var id = parseInt(aId, 16);
+    console.log("    id: ", id)
+    var update = analyses[id][gen];
+    console.log("    update = ", update)
+
+    var idStr = getIdStr(update.Id);
+
     $("#status-"+idStr).text(StatusStr[update.Status]);
     $("#generaton-"+idStr).text(update.Generation);
 
-    // TODO: Loop through the updates, but no too quickly
-    updateBoard(update);
+    updateBoard(idStr, update);
+}
+
+function updateAnalysis(data) {
+    console.log("updateAnalysis()", data, data.Updates.length);
+
+    for (var i = 0; i < data.Updates.length; i++) {
+        console.log("updateAnalysis(): ", i);
+        analyses[data.Id].push(data.Updates);
+        // scheduleUpdateProcessing(data.Id, i, (i * 1000));
+        // setTimeout(function() { eval("processAnalysisUpdate("+data.Id+", "+i+")"); }, (i * 1000));
+        // console.log("WANT TO CALL: setTimeout(function() { processAnalysisUpdate('"+data.Id+"', "+i+"); }, "+(i * 1000)+");")
+        eval("setTimeout(function() { processAnalysisUpdate('"+data.Id+"', "+i+"); }, "+(i * 1000)+");")
+    }
 }
 
 function newAnalysisData(data) {

@@ -52,6 +52,60 @@ func (t *Analyzer) Analysis(generation int) *Analysis {
 	return &t.analyses[generation]
 }
 
+func (t *Analyzer) analyze(cells []Location, generation int) {
+	var analysis Analysis
+
+	// Copy the living cells
+	analysis.Living = make([]Location, len(cells))
+	copy(analysis.Living, cells)
+
+	// Initialize and start processing the living cells
+	analysis.Changes = make([]ChangedLocation, 0)
+
+	if generation <= 0 { // Special case to reduce code duplication
+		for _, loc := range cells {
+			analysis.Changes = append(analysis.Changes, ChangedLocation{Location: loc, Change: Born})
+		}
+	} else {
+		// Add any new cells
+		previousLiving := t.analyses[generation-1].Living
+		for _, newCell := range cells {
+			found := false
+			for _, oldCell := range previousLiving {
+				if oldCell.Equals(&newCell) {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				analysis.Changes = append(analysis.Changes, ChangedLocation{Location: newCell, Change: Born})
+			}
+		}
+
+		// Add any cells which died
+		for _, oldCell := range previousLiving {
+			found := false
+			for _, newCell := range cells {
+				if newCell.Equals(&oldCell) {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				analysis.Changes = append(analysis.Changes, ChangedLocation{Location: oldCell, Change: Died})
+			}
+		}
+
+	}
+
+	t.analyses = append(t.analyses, analysis)
+}
+
+func (t *Analyzer) NumAnalyses() int {
+	return len(t.analyses)
+}
 func (t *Analyzer) String() string {
 	var buf bytes.Buffer
 
@@ -82,17 +136,25 @@ func NewAnalyzer(dims Dimensions) (*Analyzer, error) {
 	a.Id = uniqueId()
 
 	// Generate first analysis (for generation 0 / the seed)
-	var seedAnalysis Analysis
-	seedAnalysis.Living = make([]Location, len(a.Life.Seed))
-	copy(seedAnalysis.Living, a.Life.Seed)
+	a.analyze(a.Life.Seed, 0)
 
-	seedAnalysis.Changes = make([]ChangedLocation, 0)
-	for _, loc := range a.Life.Seed {
-		seedAnalysis.Changes = append(seedAnalysis.Changes, ChangedLocation{Location: loc, Change: Born})
-	}
+	/*
+		// Generate first analysis (for generation 0 / the seed)
+		var seedAnalysis Analysis
+		seedAnalysis.Living = make([]Location, len(a.Life.Seed))
+		copy(seedAnalysis.Living, a.Life.Seed)
 
-	a.analyses = make([]Analysis, 0)
-	a.analyses = append(a.analyses, seedAnalysis)
+		seedAnalysis.Changes = make([]ChangedLocation, 0)
+		for _, loc := range a.Life.Seed {
+			seedAnalysis.Changes = append(seedAnalysis.Changes, ChangedLocation{Location: loc, Change: Born})
+		}
+
+		a.analyses = make([]Analysis, 0)
+		a.analyses = append(a.analyses, seedAnalysis)
+	*/
+
+	gen := a.Life.Generation(1)
+	a.analyze(gen.Living, 1)
 
 	return a, nil
 }
