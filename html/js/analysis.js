@@ -16,7 +16,8 @@ function createBoard(data) {
             row.append($("<span></span>")
                     .attr("id", "cell-"+idStr+"-"+i+"x"+j)
                     .addClass("analysisBoardCell")
-                    .html("&nbsp"))
+                    // .html("&nbsp")
+                    )
         }
         span.append(row);
     }
@@ -93,7 +94,7 @@ function updateAnalysis(data) {
     $("#generaton-"+idStr).text(update.Generation);
 
     // TODO: Loop through the updates
-    updateBoard(update);
+    // updateBoard(update);
 }
 
 function newAnalysisData(data) {
@@ -105,6 +106,7 @@ function newAnalysisData(data) {
 }
 
 function pollAnalyses() {
+    console.log("pollAnalyses()")
     for (var key in analyses) {
         console.log("pollAnalyses(): ", key)
         $.post( "http://localhost:8081/poll", 
@@ -120,7 +122,7 @@ function createNewAnalysis() {
             JSON.stringify({"Dims":{"Height": 30, "Width": 200}}))
   .done(function( data ) {
       createAnalysis(data);
-      pollAnalyses();
+      setTimeout(pollAnalyses, 5000) // setInterval
   });
 }
 

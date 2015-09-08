@@ -22,16 +22,25 @@
 }
 
 .analysisBoard {
+    display: table;
     border: 1px solid #c0c0c0;
     padding: 1px 1px 1px 1px;
 }
 
 .analysisBoardCell {
+    display: table-cell;
     background-color: #e0e0e0;
+    width: 2px;
+    height: 4px;
+    /*
+    margin: 0px;
     padding-top: 0px;
     padding-bottom: 1px;
     padding-left: 0px;
+    */
     padding-right: 1px;
+    border-bottom: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
 }
 
 .analysisBoardCell:hover {

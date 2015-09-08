@@ -20,10 +20,30 @@
 <link type="text/css" rel="StyleSheet" href="css/analysis.css" />
 
 <script type="text/javascript">
-// setInterval(pollAnalyses, 2000)
+// setInterval(pollAnalyses, 10000)
 </script>
 </head>
 <body>
+    <div class="analysisBoard">
+        <span>
+            <div>
+                <span class="analysisBoardCell analysisBoardCellAlive"></span>
+                <span class="analysisBoardCell analysisBoardCellAlive"></span>
+                <span class="analysisBoardCell"></span>
+            </div>
+            <div>
+                <span class="analysisBoardCell analysisBoardCellAlive"></span>
+                <span class="analysisBoardCell analysisBoardCellAlive"></span>
+                <span class="analysisBoardCell"></span>
+            </div>
+            <div>
+                <span class="analysisBoardCell"></span>
+                <span class="analysisBoardCell"></span>
+                <span class="analysisBoardCell analysisBoardCellAlive"></span>
+            </div>
+        </span>
+    </div>
+
     <div id="btnNewAnalysis" class="center" onclick="createNewAnalysis()">Create new analysis</div>
     <div id="newAnalysisForm"></div>
     <div id="analyses">No analysis created</div>

@@ -24,6 +24,7 @@ type Statistics struct {
 
 func (t *Statistics) String() string {
 	var buf bytes.Buffer
+
 	buf.WriteString("Generation: ")
 	buf.WriteString(strconv.Itoa(t.Generations))
 
@@ -55,13 +56,13 @@ func (t Status) String() string {
 }
 
 type Life struct {
-	Label            string
-	Stats            Statistics
-	Status           Status
-	pond             *pond
-	processor        func(pond *pond, rules func(int, bool) bool)
-	ruleset          func(int, bool) bool
-	initialOrganisms []Location
+	Label     string
+	Stats     Statistics
+	Status    Status
+	pond      *pond
+	processor func(pond *pond, rules func(int, bool) bool)
+	ruleset   func(int, bool) bool
+	Seed      []Location
 }
 
 func (t *Life) process() {
@@ -150,7 +151,7 @@ func (t *Life) Generation(num int) *Generation {
 			// logf("Unable to clone pond: %s\n", err)
 			return nil // FIXME
 		}
-		cloned.SetOrganisms(t.initialOrganisms)
+		cloned.SetOrganisms(t.Seed)
 		for i := 0; i < num; i++ {
 			t.processor(cloned, t.ruleset)
 		}
@@ -205,9 +206,9 @@ func New(label string,
 	s.Status = Seeded
 
 	// Initialize the pond and schedule the currently living organisms
-	s.initialOrganisms = initializer(s.pond.board.Dims, Location{})
-	s.pond.SetOrganisms(s.initialOrganisms)
-	s.Stats.OrganismsCreated = len(s.initialOrganisms)
+	s.Seed = initializer(s.pond.board.Dims, Location{})
+	s.pond.SetOrganisms(s.Seed)
+	s.Stats.OrganismsCreated = len(s.Seed)
 
 	return s, nil
 }

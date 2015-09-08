@@ -42,6 +42,8 @@ func (t *CreateAnalysisRequest) String() string {
 	return buf.String()
 }
 
+var currentAnalyzer *life.Analyzer // FIXME: holy crap!!
+
 func CreateAnalysis(w http.ResponseWriter, r *http.Request) {
 	// Retrieve the necessary stuffs
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
@@ -62,16 +64,16 @@ func CreateAnalysis(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Received create request: %s\n", req.String())
 
 		// Create the analyzer
-		analyzer, err := life.NewAnalyzer(req.Dims)
+		currentAnalyzer, err := life.NewAnalyzer(req.Dims)
 		if err != nil {
 			panic(err)
 		}
 		// TODO: Add to the manager
 
-		fmt.Printf("Id: %x\n", analyzer.Id)
+		fmt.Printf("Id: %x\n", currentAnalyzer.Id)
 
 		// Respond the request with the ID of the analyzer
-		resp := NewCreateAnalysisResponse(analyzer)
+		resp := NewCreateAnalysisResponse(currentAnalyzer)
 
 		postJson(w, http.StatusCreated, resp)
 	}
@@ -82,7 +84,22 @@ type AnalysisUpdate struct {
 	Status     life.Status
 	Generation int
 	Living     []life.Location
+	Changes    []life.ChangedLocation
 	// Neighbors life.NeighborSelector
+}
+
+func NewAnalysisUpdate(analyzer *life.Analyzer, generation int) *AnalysisUpdate {
+	a := new(AnalysisUpdate)
+
+	a.Id = analyzer.Id
+	a.Status = analyzer.Life.Status
+	a.Generation = generation
+
+	analysis := analyzer.Analysis(generation)
+	copy(a.Living, analysis.Living)
+	copy(a.Changes, analysis.Changes)
+
+	return a
 }
 
 type AnalysisUpdateRequest struct {
@@ -92,6 +109,17 @@ type AnalysisUpdateRequest struct {
 type AnalysisUpdateResponse struct {
 	Id      []byte
 	Updates []AnalysisUpdate
+}
+
+func NewAnalysisUpdateResponse(analyzer *life.Analyzer) *AnalysisUpdateResponse {
+	r := new(AnalysisUpdateResponse)
+
+	r.Id = analyzer.Id
+
+	r.Updates = make([]AnalysisUpdate, 0)
+	r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, 0))
+
+	return r
 }
 
 func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
@@ -119,12 +147,15 @@ func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
 		// fmt.Printf("ID: %x\n", analyzer.Id)
 
 		// Respond the request with the ID of the analyzer
-		living := []life.Location{life.Location{X: 10, Y: 10},
-			life.Location{X: 11, Y: 10},
-			life.Location{X: 12, Y: 10}}
-		update := &AnalysisUpdate{Id: req.Id, Status: life.Seeded, Generation: 1, Living: living}
-		updates := []AnalysisUpdate{*update}
-		resp := &AnalysisUpdateResponse{Id: req.Id, Updates: updates}
+		/*
+			living := []life.Location{life.Location{X: 10, Y: 10},
+				life.Location{X: 11, Y: 10},
+				life.Location{X: 12, Y: 10}}
+			update := &AnalysisUpdate{Id: req.Id, Status: life.Seeded, Generation: 1, Living: living}
+			updates := []AnalysisUpdate{*update}
+			resp := &AnalysisUpdateResponse{Id: req.Id, Updates: updates}
+		*/
+		resp := NewAnalysisUpdateResponse(currentAnalyzer)
 
 		postJson(w, http.StatusCreated, resp)
 	}
