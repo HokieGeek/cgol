@@ -35,6 +35,6 @@ cd html
 pkill -f SimpleHTTPServer
 
 [ $# -gt 0 ] && httpdPort=$1 || httpdPort=8080
-python2.7 -m SimpleHTTPServer ${httpdPort}&
+python2 -m SimpleHTTPServer ${httpdPort}&
 #./server.py
 # ./run&
