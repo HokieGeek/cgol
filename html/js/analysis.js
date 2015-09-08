@@ -76,13 +76,22 @@ function updateBoard(data) {
 
     var idStr = getIdStr(data.Id);
     for (var i = data.Living.length-1; i >= 0; i--) {
-        var living = data.Living[i];
-        console.log("Living["+i+"]: ", living);
-        console.log("   ID:", "#cell-"+idStr+"-"+living.Y+"x"+living.X)
-        $("#cell-"+idStr+"-"+living.Y+"x"+living.X).addClass("analysisBoardCellAlive");
+        var changed = data.Changes[i];
+        // console.log("Changes["+i+"]: ", changed);
+        // console.log("   ID:", "#cell-"+idStr+"-"+living.Y+"x"+living.X)
+
+        switch (changed.Change) {
+        case 0: // Born
+            $("#cell-"+idStr+"-"+changed.Y+"x"+changed.X).addClass("analysisBoardCellAlive");
+            break;
+        case 1: // Died
+            $("#cell-"+idStr+"-"+changed.Y+"x"+changed.X).removeClass("analysisBoardCellAlive");
+            break;
+        }
     }
-    // TODO
 }
+
+var StatusStr = ["Seeded", "Active", "Stable", "Dead"]
 
 function updateAnalysis(data) {
     console.log("updateAnalysis()", data);
@@ -90,11 +99,11 @@ function updateAnalysis(data) {
     var idStr = getIdStr(data.Id);
 
     var update = data.Updates[0];
-    $("#status-"+idStr).text(update.Status);
+    $("#status-"+idStr).text(StatusStr[update.Status]);
     $("#generaton-"+idStr).text(update.Generation);
 
-    // TODO: Loop through the updates
-    // updateBoard(update);
+    // TODO: Loop through the updates, but no too quickly
+    updateBoard(update);
 }
 
 function newAnalysisData(data) {
@@ -119,7 +128,7 @@ function pollAnalyses() {
 
 function createNewAnalysis() {
     $.post( "http://localhost:8081/analyze", 
-            JSON.stringify({"Dims":{"Height": 30, "Width": 200}}))
+            JSON.stringify({"Dims":{"Height": 100, "Width": 200}}))
   .done(function( data ) {
       createAnalysis(data);
       setTimeout(pollAnalyses, 2000) // setInterval

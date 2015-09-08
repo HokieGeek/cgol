@@ -45,8 +45,10 @@ type Analyzer struct {
 
 func (t *Analyzer) Analysis(generation int) *Analysis {
 	// TODO: input validation
-	fmt.Printf("Analysis(%d)\n", generation)
-	fmt.Printf("Num analyses: %d\n", len(t.analyses))
+	// fmt.Printf("Analysis(%d)\n", generation)
+	// fmt.Printf("Num analyses: %d\n", len(t.analyses))
+	// fmt.Printf("Num analyses.Living: %d\n", len(t.analyses[generation].Living))
+	// fmt.Printf("Num analyses.Changes: %d\n", len(t.analyses[generation].Changes))
 	return &t.analyses[generation]
 }
 
@@ -81,14 +83,16 @@ func NewAnalyzer(dims Dimensions) (*Analyzer, error) {
 
 	// Generate first analysis (for generation 0 / the seed)
 	var seedAnalysis Analysis
+	seedAnalysis.Living = make([]Location, len(a.Life.Seed))
 	copy(seedAnalysis.Living, a.Life.Seed)
+
 	seedAnalysis.Changes = make([]ChangedLocation, 0)
 	for _, loc := range a.Life.Seed {
 		seedAnalysis.Changes = append(seedAnalysis.Changes, ChangedLocation{Location: loc, Change: Born})
 	}
 
-	analyses := make([]Analysis, 0)
-	analyses = append(analyses, seedAnalysis)
+	a.analyses = make([]Analysis, 0)
+	a.analyses = append(a.analyses, seedAnalysis)
 
 	return a, nil
 }

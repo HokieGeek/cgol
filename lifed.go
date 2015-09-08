@@ -95,9 +95,13 @@ func NewAnalysisUpdate(analyzer *life.Analyzer, generation int) *AnalysisUpdate 
 	a.Generation = generation
 
 	analyzer.Analysis(generation)
-	// analysis := analyzer.Analysis(generation)
-	// copy(a.Living, analysis.Living)
-	// copy(a.Changes, analysis.Changes)
+	analysis := analyzer.Analysis(generation)
+
+	a.Living = make([]life.Location, len(analysis.Living))
+	copy(a.Living, analysis.Living)
+
+	a.Changes = make([]life.ChangedLocation, len(analysis.Changes))
+	copy(a.Changes, analysis.Changes)
 
 	return a
 }
@@ -109,6 +113,7 @@ type AnalysisUpdateRequest struct {
 type AnalysisUpdateResponse struct {
 	Id      []byte
 	Updates []AnalysisUpdate
+	// TODO: timestamp
 }
 
 func NewAnalysisUpdateResponse(analyzer *life.Analyzer) *AnalysisUpdateResponse {
@@ -148,15 +153,6 @@ func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 		// fmt.Printf("ID: %x\n", analyzer.Id)
 
 		// Respond the request with the ID of the analyzer
-		/*
-			living := []life.Location{life.Location{X: 10, Y: 10},
-				life.Location{X: 11, Y: 10},
-				life.Location{X: 12, Y: 10}}
-			update := &AnalysisUpdate{Id: req.Id, Status: life.Seeded, Generation: 1, Living: living}
-			updates := []AnalysisUpdate{*update}
-			resp := &AnalysisUpdateResponse{Id: req.Id, Updates: updates}
-		*/
-		fmt.Printf("Num analyzers: %d\n", len(mgr.Analyzers))
 		resp := NewAnalysisUpdateResponse(mgr.Analyzers[0])
 
 		postJson(w, http.StatusCreated, resp)
