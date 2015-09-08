@@ -177,6 +177,8 @@ func postJson(w http.ResponseWriter, httpStatus int, send interface{}) {
 func main() {
 	mux := http.NewServeMux()
 
+	// TODO: create the manager here and the handlers below will take an anon func
+
 	mux.HandleFunc("/create", CreateAnalysis)
 	mux.HandleFunc("/poll", GetAnalysisStatus)
 
