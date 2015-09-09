@@ -83,6 +83,7 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 
 type AnalysisUpdate struct {
 	Id         []byte
+	Dims       life.Dimensions
 	Status     life.Status
 	Generation int
 	Living     []life.Location
@@ -94,6 +95,7 @@ func NewAnalysisUpdate(analyzer *life.Analyzer, generation int) *AnalysisUpdate 
 	a := new(AnalysisUpdate)
 
 	a.Id = analyzer.Id
+	a.Dims = analyzer.Life.Dimensions()
 	a.Status = analyzer.Life.Status
 	a.Generation = generation
 
