@@ -45,6 +45,8 @@ type Analyzer struct {
 
 func (t *Analyzer) Analysis(generation int) *Analysis {
 	// TODO: input validation
+	fmt.Printf("Analysis(%d)\n", generation)
+	fmt.Printf("Num analyses: %d\n", len(t.analyses))
 	return &t.analyses[generation]
 }
 

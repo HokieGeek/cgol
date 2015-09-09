@@ -42,9 +42,7 @@ func (t *CreateAnalysisRequest) String() string {
 	return buf.String()
 }
 
-var currentAnalyzer *life.Analyzer // FIXME: holy crap!!
-
-func CreateAnalysis(w http.ResponseWriter, r *http.Request) {
+func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 	// Retrieve the necessary stuffs
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -64,16 +62,17 @@ func CreateAnalysis(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Received create request: %s\n", req.String())
 
 		// Create the analyzer
-		currentAnalyzer, err := life.NewAnalyzer(req.Dims)
+		anaylzer, err := life.NewAnalyzer(req.Dims)
 		if err != nil {
 			panic(err)
 		}
 		// TODO: Add to the manager
+		mgr.Analyzers = append(mgr.Analyzers, anaylzer)
 
-		fmt.Printf("Id: %x\n", currentAnalyzer.Id)
+		fmt.Printf("Id: %x\n", anaylzer.Id)
 
 		// Respond the request with the ID of the analyzer
-		resp := NewCreateAnalysisResponse(currentAnalyzer)
+		resp := NewCreateAnalysisResponse(anaylzer)
 
 		postJson(w, http.StatusCreated, resp)
 	}
@@ -95,9 +94,10 @@ func NewAnalysisUpdate(analyzer *life.Analyzer, generation int) *AnalysisUpdate 
 	a.Status = analyzer.Life.Status
 	a.Generation = generation
 
-	analysis := analyzer.Analysis(generation)
-	copy(a.Living, analysis.Living)
-	copy(a.Changes, analysis.Changes)
+	analyzer.Analysis(generation)
+	// analysis := analyzer.Analysis(generation)
+	// copy(a.Living, analysis.Living)
+	// copy(a.Changes, analysis.Changes)
 
 	return a
 }
@@ -122,7 +122,8 @@ func NewAnalysisUpdateResponse(analyzer *life.Analyzer) *AnalysisUpdateResponse 
 	return r
 }
 
-func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
+func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
+	// func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
 	// Retrieve the necessary stuffs
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -142,7 +143,7 @@ func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Received poll request: %x\n", req.Id)
 
-		// TODO: Add to the manager
+		// TODO: Retrieve from the manager
 
 		// fmt.Printf("ID: %x\n", analyzer.Id)
 
@@ -155,7 +156,8 @@ func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
 			updates := []AnalysisUpdate{*update}
 			resp := &AnalysisUpdateResponse{Id: req.Id, Updates: updates}
 		*/
-		resp := NewAnalysisUpdateResponse(currentAnalyzer)
+		fmt.Printf("Num analyzers: %d\n", len(mgr.Analyzers))
+		resp := NewAnalysisUpdateResponse(mgr.Analyzers[0])
 
 		postJson(w, http.StatusCreated, resp)
 	}
@@ -174,13 +176,29 @@ func postJson(w http.ResponseWriter, httpStatus int, send interface{}) {
 	}
 }
 
+type Manager struct {
+	Analyzers []*life.Analyzer
+}
+
 func main() {
 	mux := http.NewServeMux()
 
 	// TODO: create the manager here and the handlers below will take an anon func
 
-	mux.HandleFunc("/create", CreateAnalysis)
-	mux.HandleFunc("/poll", GetAnalysisStatus)
+	mgr := new(Manager)
+	mgr.Analyzers = make([]*life.Analyzer, 0)
+
+	mux.HandleFunc("/analyze",
+		func(w http.ResponseWriter, r *http.Request) {
+			CreateAnalysis(mgr, w, r)
+		})
+	mux.HandleFunc("/poll",
+		func(w http.ResponseWriter, r *http.Request) {
+			GetAnalysisStatus(mgr, w, r)
+		})
+
+	// mux.HandleFunc("/create", CreateAnalysis)
+	// mux.HandleFunc("/poll", GetAnalysisStatus)
 
 	http.ListenAndServe(":8081", mux)
 }

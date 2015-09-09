@@ -118,11 +118,11 @@ function pollAnalyses() {
 }
 
 function createNewAnalysis() {
-    $.post( "http://localhost:8081/create", 
+    $.post( "http://localhost:8081/analyze", 
             JSON.stringify({"Dims":{"Height": 30, "Width": 200}}))
   .done(function( data ) {
       createAnalysis(data);
-      setTimeout(pollAnalyses, 5000) // setInterval
+      setTimeout(pollAnalyses, 2000) // setInterval
   });
 }
 
