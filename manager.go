@@ -1,9 +1,9 @@
 package main
 
-import (
-	"bytes"
-	"github.com/hokiegeek/life/core"
-)
+// import (
+// 	"bytes"
+// 	"github.com/hokiegeek/life/core"
+// )
 
 /*
 type Manager struct {
