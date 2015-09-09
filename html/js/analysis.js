@@ -1,18 +1,34 @@
-//  function add
-var analyses = {};
-var analysesIdMap = {};
-var updateQueues = {}
+var server = "http://localhost:8081";
+var pollRate_ms = "1500";
+var processingRate_ms = "500";
+var StatusStr = ["Seeded", "Active", "Stable", "Dead"];
 
 function getIdStr(id) {
-    // console.log("getIdStr(): ", id);
     var idStr = id.toString(16).replace(new RegExp("[/+=]", 'g'), "");
     return idStr.substring(0, idStr.length-1);
 }
 
-function createBoard(data) {
+function createAnalysis(data) {
     var idStr = getIdStr(data.Id);
 
-    var span = $("<span></span>");
+    // TODO: EACH UPDATE SHOULD HAVE ITS OWN ID
+    analyses[idStr] = {
+        id: data.Id,
+        // idAsStr: idAsStr, // Might not need this
+        poller : null,
+        // processor : eval("processAnalysisUpdates('"+idStr+"')"),
+        // processor : eval("function() { processAnalysisUpdate('"+idStr+"') }"),
+        generations : [],
+        test : function() { console.log("id:", this.id); },
+        updateQueue : []
+    };
+    eval("analyses['"+idStr+"'].processor = function() { processAnalysisUpdate('"+idStr+"'); }");
+
+
+    // Create the dom entity
+    // TODO: consider, perhaps, a map with each cell element for quicker updating?
+
+    var board = $("<span></span>");
     for (var i = 0; i < data.Dims.Height; i++) {
         var row = $("<div></div>");
         for(var j = 0; j < data.Dims.Width; j++) {
@@ -21,15 +37,8 @@ function createBoard(data) {
                     .addClass("analysisBoardCell")
                     )
         }
-        span.append(row);
+        board.append(row);
     }
-    return span;
-}
-
-function createAnalysis(data) {
-    // console.log("createAnalysis()", data)
-
-    var idStr = getIdStr(data.Id);
 
     $("#analyses").html(
         $("<div></div>").attr("id", "analysis-"+idStr)
@@ -70,30 +79,39 @@ function createAnalysis(data) {
         // Control
         .append($("<div></div>")
                 .append($("<span></span>").addClass("analysisControl")
-                                        .click(function() { controlAnalysis(data.Id,0) })
+                                        .click(function() { startAnalysis(idStr) })
+                                        // .click(function() { controlAnalysisRequest(data.Id,0) })
                                         .text("Start"))
                 .append($("<span></span>").addClass("analysisControl")
-                                        .click(function() { controlAnalysis(data.Id,1) })
+                                        .click(function() { stopAnalysis(idStr) })
                                         .text("Stop"))
                 )
 
-        // Living cells
+        // Create the board
         .append($("<div></div>").attr("class", "analysisBoard").attr("id", "board-"+idStr)
-                .html(createBoard(data)))
+                .html(board))
     );
-
-    analysesIdMap[idStr] = data.Id;
-    analyses[data.Id] = [];
-
-    updateQueues[data.Id] = { "timeout" : null, "updates" : [] };
 }
 
-function updateBoard(idStr, data) {
-    // console.log("updateBoard()", data);
+function startAnalysis(idStr) {
+    analyses[idStr].poller = setInterval(function() { pollAnalysisRequest(key, analyses[idStr].generations.length) }, pollRate_ms);
+    controlAnalysisRequest(analyses[idStr].id, 0);
+}
 
+function stopAnalysis(idStr) {
+    clearInterval(analyses[idStr].poller);
+    controlAnalysisRequest(analyses[idStr].id, 1);
+}
+
+function processAnalysisUpdates(idStr) {
+    var update = analyses[idStr].updateQueue.pop();
+
+    $("#generation-"+idStr).html(update.Generation);
+
+    // updateBoard(idStr, update);
     var idPrefix = "#cell-"+idStr+"-";
-    for (var i = data.Changes.length-1; i >= 0; i--) {
-        var changed = data.Changes[i];
+    for (var i = update.Changes.length-1; i >= 0; i--) {
+        var changed = update.Changes[i];
 
         switch (changed.Change) {
         case 0: // Born
@@ -104,128 +122,46 @@ function updateBoard(idStr, data) {
             break;
         }
     }
-}
 
-/*
-function getLivingMap(living) {
-    var map = {};
-
-    for (var i = living.length-1; i >= 0; i--) {
-        var loc = living[i]
-        if (!(loc.Y in map)) {
-            map[loc.Y] = {};
-        }
-        if (!(loc.X in map[loc.Y])) {
-            map[loc.Y][loc.X] = true;
-        }
-
+    // Keep processing
+    if (analyses[idStr].updateQueue.length > 0) {
+        setTimeout(analyses[idStr].processor, processingRate_ms);
     }
-
-    return map;
 }
 
-function updateBoard2(idStr, data) {
-    console.log("   updateBoard2()", idStr, data.Living);
-    livingMap = getLivingMap(data.Living);
-
-    // var idStr = getIdStr(data.Id);
-    var board = $("<span></span>");
-    for (var y = 0; y < data.Dims.Height; y++) {
-        var row = $("<div></div>");
-        for(var x = 0; x < data.Dims.Width; x++) {
-            var cell = $("<span></span>")
-                    .attr("id", "cell-"+idStr+"-"+y+"x"+x)
-                    .addClass("analysisBoardCell")
-            if (y in livingMap && x in livingMap[y]) {
-                cell.addClass("analysisBoardCellAlive")
-            }
-            row.append(cell);
-        }
-        board.append(row);
-    }
-    return board;
-}
-*/
-
-var StatusStr = ["Seeded", "Active", "Stable", "Dead"]
-
-function processAnalysisUpdate(idStr, gen) {
-    console.log("   processAnalysisUpdate()", idStr, gen);
-
-    var id = analysesIdMap[idStr];
-    var update = analyses[id][gen];
-    // console.log("   update = ", update);
-
-    // $("#status-"+idStr).text(StatusStr[update.Status]);
-    $("#generation-"+idStr).html(update.Generation);
-
-    updateBoard(idStr, update);
-    // console.log("Adding created row:", $("#board-"+idStr));
-    // console.log("New board:", newBoard);
-    // var newBoard = updateBoard2(idStr, update);
-    // $("#board-"+idStr).html(newBoard);
-}
-
-function updateAnalysis(data) {
+function queueAnalysisUpdates(data) {
     // console.log("  updateAnalysis()", data);
+    // Add each update to the queue
     for (var i = 0; i < data.Updates.length; i++) {
         var idStr = getIdStr(data.Id);
 
-        analyses[data.Id].push(data.Updates[i]);
+        analyses[idStr].updateQueue.push(data.Updates[i])
 
-        // setTimeout(function() { processAnalysisUpdate(idStr, i); }, (i * 500));
-        setTimeout(function() { eval("processAnalysisUpdate('"+idStr+"', "+i+")"); }, (i * 500));
-        // eval("setTimeout(function() { processAnalysisUpdate('"+idStr+"', "+i+"); }, "+(i * 500)+");")
+        setTimeout(analyses[idStr].processor, processingRate_ms);
     }
 }
 
-function newAnalysisData(data) {
-    if (data.Id in analyses) {
-        updateAnalysis(data);
-    } else {
+//////////////////// REQUESTORS ////////////////////
+
+function createNewAnalysisRequest() {
+    $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 100, "Width": 200}})) // FIXME
+    .done(function( data ) {
         createAnalysis(data);
-    }
-}
-
-function pollAnalyses() {
-    // console.log("pollAnalyses()")
-    for (var key in analyses) {
-        console.log("pollAnalyses(): ", key)
-        $.post( "http://localhost:8081/poll", 
-            JSON.stringify({"Id": key, "StartingGeneration": analyses[key].length}))
-    .done(function( data ) {
-        newAnalysisData(data);
-    });
-    }
-}
-
-function pollAnalysis(key, startingGen) {
-        console.log("pollAnalysis(): ", key, startingGen)
-        $.post( "http://localhost:8081/poll", 
-            JSON.stringify({"Id": key, "StartingGeneration": startingGen}))
-    .done(function( data ) {
-        newAnalysisData(data);
     });
 }
 
-function createNewAnalysis() {
-    $.post( "http://localhost:8081/analyze", 
-            JSON.stringify({"Dims":{"Height": 100, "Width": 200}}))
-  .done(function( data ) {
-      createAnalysis(data);
-      // setInterval(pollAnalyses, 1500) // setInterval
-  });
+function pollAnalysisRequest(key, startingGen) {
+    $.post(server+"/poll", JSON.stringify({"Id": key, "StartingGeneration": startingGen}))
+    .done(function( data ) {
+        if (getIdStr(data.Id) in analyses) {
+            queueAnalysisUpdates(data);
+        } else {
+            console.log("Got update for unknown analysis")
+            // createAnalysis(data);
+        }
+    });
 }
 
-function controlAnalysis(key, order) {
-    $.post( "http://localhost:8081/control", 
-            JSON.stringify({"Id":  key, "Order": order}))
-    switch order {
-    case 0: // Start
-        // TODO: create the polling call updateQueues[key].poller = setInterval(function() { pollAnalysis(key, analyses[key].length) }, 1500);
-        break;
-    case 1: // Stop
-        // TODO: clearInterval(updateQueues[key].poller)
-        break;
-    }
+function controlAnalysisRequest(key, order) {
+    $.post(server+"/control", JSON.stringify({"Id":  key, "Order": order}));
 }
