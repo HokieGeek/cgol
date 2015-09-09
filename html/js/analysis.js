@@ -1,6 +1,6 @@
 //  function add
-var analyses = {}
-var analysesIdMap = {}
+var analyses = {};
+var analysesIdMap = {};
 
 function getIdStr(id) {
     // console.log("getIdStr(): ", id);
@@ -47,6 +47,7 @@ function createAnalysis(data) {
         //         .addClass("analysisField").addClass("analysisRule"))
 
         // Neighbors
+        /*
         .append($("<div></div>").addClass("analysisField")
                 .append("<span>Neighbors: </span>")
                 .append($("<span></span>").addClass("analysisNeighbors").text("TODO")))
@@ -58,12 +59,23 @@ function createAnalysis(data) {
                     .attr("id", "status-"+idStr)
                     .addClass("analysisStatus")))
 
+        */
         // Generation
         .append($("<div></div>").addClass("analysisField")
                 .append("<span>Generation: </span>")
                 .append($("<span></span>").text("0")
                     .attr("id", "generation-"+idStr)
                     .addClass("analysisGeneration")))
+
+        // Control
+        .append($("<div></div>")
+                .append($("<span></span>").addClass("analysisControl")
+                                        .click(function() { controlAnalysis(data.Id,0) })
+                                        .text("Start"))
+                .append($("<span></span>").addClass("analysisControl")
+                                        .click(function() { controlAnalysis(data.Id,1) })
+                                        .text("Stop"))
+                )
 
         // Living cells
         .append($("<div></div>").attr("class", "analysisBoard").attr("id", "board-"+idStr)
@@ -77,8 +89,11 @@ function createAnalysis(data) {
 function updateBoard(idStr, data) {
     console.log("updateBoard()", data);
 
+    var born = 0;
+    var died = 0;
+
     // var idStr = getIdStr(data.Id);
-    for (var i = data.Living.length-1; i >= 0; i--) {
+    for (var i = data.Changes.length-1; i >= 0; i--) {
         var changed = data.Changes[i];
         // console.log("Changes["+i+"]: ", changed);
         // console.log("   ID:", "#cell-"+idStr+"-"+living.Y+"x"+living.X)
@@ -86,60 +101,43 @@ function updateBoard(idStr, data) {
         switch (changed.Change) {
         case 0: // Born
             $("#cell-"+idStr+"-"+changed.Y+"x"+changed.X).addClass("analysisBoardCellAlive");
+            born++;
             break;
         case 1: // Died
             $("#cell-"+idStr+"-"+changed.Y+"x"+changed.X).removeClass("analysisBoardCellAlive");
+            died++;
             break;
         }
     }
+
+    // console.log("   num born = ", born);
+    // console.log("   num died = ", died);
 }
 
 var StatusStr = ["Seeded", "Active", "Stable", "Dead"]
 
 function processAnalysisUpdate(idStr, gen) {
-    console.log("   processAnalysisUpdate()", idStr, gen);
+    // console.log("   processAnalysisUpdate()", idStr, gen);
 
     var id = analysesIdMap[idStr];
-    var updates = analyses[id];
     var update = analyses[id][gen];
+    // console.log("   update = ", update);
 
-    console.log("2    analyses", analyses);
-    console.log("2      wtf = ", analyses[id]);
-    console.log("2      updates = ", updates);
-    console.log("2      update = ", update);
-
-    $("#status-"+idStr).text(StatusStr[update.Status]);
-    $("#generaton-"+idStr).text(update.Generation);
+    // $("#status-"+idStr).text(StatusStr[update.Status]);
+    $("#generation-"+idStr).html(update.Generation);
 
     updateBoard(idStr, update);
 }
 
 function updateAnalysis(data) {
     console.log("  updateAnalysis()", data);
-    // console.log("  Num updates = "+data.Updates.length);
     for (var i = 0; i < data.Updates.length; i++) {
-        // console.log("   updateAnalysis(): i = ", i);
-        // console.log("   num changes = ", data.Updates[i].Changes.length);
         var idStr = getIdStr(data.Id);
 
-        // console.log("   !!!PUSH!!!")
         analyses[data.Id].push(data.Updates[i]);
-        // console.log("   analyses len = "+analyses[data.Id].length);
 
-        /*
-        var updates = analyses[data.Id];
-        var update = analyses[data.Id][i];
-        console.log("1      analyses", analyses);
-        console.log("1           wtf = ", analyses[data.Id]);
-        console.log("1          wtf2 = ", analyses[data.Id][i]);
-        console.log("1       updates = ", updates);
-        console.log("1        update = ", update);
-        */
-
-        // scheduleUpdateProcessing(data.Id, i, (i * 1000));
         // setTimeout(function() { eval("processAnalysisUpdate("+data.Id+", "+i+")"); }, (i * 1000));
-        // console.log("WANT TO CALL: setTimeout(function() { processAnalysisUpdate('"+idStr+"', "+i+"); }, "+(i * 1000)+");")
-        eval("setTimeout(function() { processAnalysisUpdate('"+idStr+"', "+i+"); }, "+(i * 1000)+");")
+        eval("setTimeout(function() { processAnalysisUpdate('"+idStr+"', "+i+"); }, "+(i * 500)+");")
     }
 }
 
@@ -156,7 +154,7 @@ function pollAnalyses() {
     for (var key in analyses) {
         console.log("pollAnalyses(): ", key)
         $.post( "http://localhost:8081/poll", 
-            JSON.stringify({"Id":key}))
+            JSON.stringify({"Id": key, "StartingGeneration": analyses[key].length}))
     .done(function( data ) {
         newAnalysisData(data);
     });
@@ -168,7 +166,11 @@ function createNewAnalysis() {
             JSON.stringify({"Dims":{"Height": 100, "Width": 200}}))
   .done(function( data ) {
       createAnalysis(data);
-      setTimeout(pollAnalyses, 2000) // setInterval
+      setInterval(pollAnalyses, 1500) // setInterval
   });
 }
 
+function controlAnalysis(key, order) {
+    $.post( "http://localhost:8081/control", 
+            JSON.stringify({"Id":  key, "Order": order}))
+}

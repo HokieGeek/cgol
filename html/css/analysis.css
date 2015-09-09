@@ -21,6 +21,19 @@
     font-weight: normal;
 }
 
+.analysisControl {
+    font-height: 0.7em;
+    border: 1px solid #000000;
+    width: 50px;
+    padding: 3px;
+    text-align: center;
+    background-color: #c0c0c0;
+}
+
+.analysisControl:hover {
+    background-color: #eee8aa;
+}
+
 .analysisBoard {
     display: table;
     border: 1px solid #c0c0c0;
@@ -44,7 +57,7 @@
 }
 
 .analysisBoardCell:hover {
-    background-color: #7fffd4;
+    background-color: #d29c0e; /*#7fffd4;*/
 }
 
 .analysisBoardCellAlive {

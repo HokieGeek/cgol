@@ -22,6 +22,7 @@ type ChangedLocation struct {
 }
 
 type Analysis struct {
+	Status  Status
 	Living  []Location
 	Changes []ChangedLocation
 	// TODO: checksum []byte
@@ -38,9 +39,10 @@ type Analysis struct {
 // }
 
 type Analyzer struct {
-	Id       []byte
-	Life     *Life
-	analyses []Analysis // Each index is a generation
+	Id           []byte
+	Life         *Life
+	analyses     []Analysis // Each index is a generation
+	stopAnalysis func()
 }
 
 func (t *Analyzer) Analysis(generation int) *Analysis {
@@ -54,6 +56,9 @@ func (t *Analyzer) Analysis(generation int) *Analysis {
 
 func (t *Analyzer) analyze(cells []Location, generation int) {
 	var analysis Analysis
+
+	// Record the status
+	// analysis.Status =
 
 	// Copy the living cells
 	analysis.Living = make([]Location, len(cells))
@@ -106,6 +111,25 @@ func (t *Analyzer) analyze(cells []Location, generation int) {
 func (t *Analyzer) NumAnalyses() int {
 	return len(t.analyses)
 }
+
+func (t *Analyzer) Start() {
+	updates := make(chan bool)
+	t.stopAnalysis = t.Life.Start(updates, -1)
+
+	for {
+		select {
+		case <-updates:
+			nextGen := len(t.analyses)
+			gen := t.Life.Generation(nextGen)
+			t.analyze(gen.Living, nextGen)
+		}
+	}
+}
+
+func (t *Analyzer) Stop() {
+	t.stopAnalysis()
+}
+
 func (t *Analyzer) String() string {
 	var buf bytes.Buffer
 
@@ -138,23 +162,9 @@ func NewAnalyzer(dims Dimensions) (*Analyzer, error) {
 	// Generate first analysis (for generation 0 / the seed)
 	a.analyze(a.Life.Seed, 0)
 
-	/*
-		// Generate first analysis (for generation 0 / the seed)
-		var seedAnalysis Analysis
-		seedAnalysis.Living = make([]Location, len(a.Life.Seed))
-		copy(seedAnalysis.Living, a.Life.Seed)
-
-		seedAnalysis.Changes = make([]ChangedLocation, 0)
-		for _, loc := range a.Life.Seed {
-			seedAnalysis.Changes = append(seedAnalysis.Changes, ChangedLocation{Location: loc, Change: Born})
-		}
-
-		a.analyses = make([]Analysis, 0)
-		a.analyses = append(a.analyses, seedAnalysis)
-	*/
-
-	gen := a.Life.Generation(1)
-	a.analyze(gen.Living, 1)
+	// TODO: TESTING Second generation
+	// gen := a.Life.Generation(1)
+	// a.analyze(gen.Living, 1)
 
 	return a, nil
 }

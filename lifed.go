@@ -10,6 +10,8 @@ import (
 	"net/http"
 )
 
+/////////////////////////////////// CREATE ANALYSIS ///////////////////////////////////
+
 type CreateAnalysisResponse struct {
 	Id   []byte
 	Dims life.Dimensions
@@ -62,21 +64,22 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Received create request: %s\n", req.String())
 
 		// Create the analyzer
-		anaylzer, err := life.NewAnalyzer(req.Dims)
+		analyzer, err := life.NewAnalyzer(req.Dims)
 		if err != nil {
 			panic(err)
 		}
-		// TODO: Add to the manager
-		mgr.Analyzers = append(mgr.Analyzers, anaylzer)
+		mgr.Add(analyzer)
 
-		fmt.Printf("Id: %x\n", anaylzer.Id)
+		fmt.Printf("Id: %x\n", analyzer.Id)
 
 		// Respond the request with the ID of the analyzer
-		resp := NewCreateAnalysisResponse(anaylzer)
+		resp := NewCreateAnalysisResponse(analyzer)
 
 		postJson(w, http.StatusCreated, resp)
 	}
 }
+
+/////////////////////////////////// UPDATE ANALYSIS ///////////////////////////////////
 
 type AnalysisUpdate struct {
 	Id         []byte
@@ -107,7 +110,8 @@ func NewAnalysisUpdate(analyzer *life.Analyzer, generation int) *AnalysisUpdate 
 }
 
 type AnalysisUpdateRequest struct {
-	Id []byte
+	Id                 []byte
+	StartingGeneration int
 }
 
 type AnalysisUpdateResponse struct {
@@ -116,27 +120,22 @@ type AnalysisUpdateResponse struct {
 	// TODO: timestamp
 }
 
-func NewAnalysisUpdateResponse(analyzer *life.Analyzer) *AnalysisUpdateResponse {
+func NewAnalysisUpdateResponse(analyzer *life.Analyzer, startingGeneration int) *AnalysisUpdateResponse {
 	r := new(AnalysisUpdateResponse)
 
 	r.Id = analyzer.Id
 
 	r.Updates = make([]AnalysisUpdate, 0)
 
-	// TODO: only add the most recent ones. The manager should keep a pointer
-	// r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, 0))
-	for i := 0; i < analyzer.NumAnalyses(); i++ {
+	// only add the most recent ones
+	for i := startingGeneration; i < analyzer.NumAnalyses(); i++ {
 		r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, i))
-		fmt.Printf("Num changes: %d\n", len(r.Updates[i].Changes))
 	}
-	fmt.Printf("Num updates: %d\n", len(r.Updates))
 
 	return r
 }
 
 func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
-	// func GetAnalysisStatus(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("GetAnalysisStatus()\n")
 	// Retrieve the necessary stuffs
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -156,13 +155,63 @@ func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Received poll request: %x\n", req.Id)
 
+		resp := NewAnalysisUpdateResponse(mgr.Analyzer(req.Id), req.StartingGeneration)
+		postJson(w, http.StatusCreated, resp)
+	}
+}
+
+/////////////////////////////////// CONTROL ANALYSIS ///////////////////////////////////
+
+type ControlOrder int
+
+const (
+	Start ControlOrder = 0
+	Stop  ControlOrder = 1
+)
+
+type ControlRequest struct {
+	Id    []byte
+	Order ControlOrder
+}
+
+func ControlAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("ControlAnalysis()\n")
+
+	// Retrieve the necessary stuffs
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+	if err != nil {
+		panic(err)
+	}
+
+	if err := r.Body.Close(); err != nil {
+		panic(err)
+	}
+
+	var req ControlRequest
+
+	fmt.Println(string(body))
+	if err := json.Unmarshal(body, &req); err != nil {
+		postJson(w, 422, err)
+	} else {
+
+		fmt.Printf("Received control request: %x\n", req.Id)
+
+		analyzer := mgr.Analyzer(req.Id)
+
+		switch req.Order {
+		case Start:
+			analyzer.Start()
+		case Stop:
+			analyzer.Stop()
+		}
+
 		// TODO: Retrieve from the manager
 
 		// fmt.Printf("ID: %x\n", analyzer.Id)
 
 		// Respond the request with the ID of the analyzer
-		resp := NewAnalysisUpdateResponse(mgr.Analyzers[0])
-		postJson(w, http.StatusCreated, resp)
+		// resp := NewAnalysisUpdateResponse(mgr.Analyzers[0], req.StartingGeneration)
+		// postJson(w, http.StatusCreated, resp)
 	}
 }
 
@@ -180,7 +229,36 @@ func postJson(w http.ResponseWriter, httpStatus int, send interface{}) {
 }
 
 type Manager struct {
-	Analyzers []*life.Analyzer
+	analyzers map[string]*life.Analyzer
+}
+
+func (t *Manager) stringId(id []byte) string {
+	// n := bytes.IndexByte(id, 0)
+	// return string(id[:n])
+	return fmt.Sprintf("%x", id)
+}
+
+func (t *Manager) Analyzer(id []byte) *life.Analyzer {
+	// TODO: validate the input
+	return t.analyzers[t.stringId(id)]
+}
+
+func (t *Manager) Add(analyzer *life.Analyzer) {
+	// TODO: validate the input
+	t.analyzers[t.stringId(analyzer.Id)] = analyzer
+}
+
+func (t *Manager) Remove(id []byte) {
+	// TODO: validate the input
+	delete(t.analyzers, t.stringId(id))
+}
+
+func NewManager() *Manager {
+	m := new(Manager)
+
+	m.analyzers = make(map[string]*life.Analyzer, 0)
+
+	return m
 }
 
 func main() {
@@ -188,8 +266,10 @@ func main() {
 
 	// TODO: create the manager here and the handlers below will take an anon func
 
-	mgr := new(Manager)
-	mgr.Analyzers = make([]*life.Analyzer, 0)
+	mgr := NewManager()
+	// mgr := new(Manager)
+	// mgr.Analyzers = make([]*life.Analyzer, 0)
+	// mgr.Analyzers = make(map[[]byte]*life.Analyzer, 0)
 
 	mux.HandleFunc("/analyze",
 		func(w http.ResponseWriter, r *http.Request) {
@@ -198,6 +278,10 @@ func main() {
 	mux.HandleFunc("/poll",
 		func(w http.ResponseWriter, r *http.Request) {
 			GetAnalysisStatus(mgr, w, r)
+		})
+	mux.HandleFunc("/control",
+		func(w http.ResponseWriter, r *http.Request) {
+			ControlAnalysis(mgr, w, r)
 		})
 
 	http.ListenAndServe(":8081", mux)
