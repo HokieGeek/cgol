@@ -23,18 +23,14 @@ function createAnalysis(data) {
         updateQueue : [],
         AddToQueue : function(data) {
                         // console.log("  AddToQueue()", data);
-                        // console.log("  AddToQueue2()", this);
                         // Add each update to the queue
                         for (var i = 0; i < data.Updates.length; i++) {
                             this.updateQueue.push(data.Updates[i])
                         }
-                        setTimeout(this.processor, processingRate_ms);
-                        // setTimeout(analyses[idStr].Processor, processingRate_ms);
+                        setTimeout($.proxy(this.Processor, this), processingRate_ms);
                     },
-        /*
         Processor : function() {
-                    // if (idStr == undefined) return; //FIXME: wtf?
-                    console.log("Process()", this);
+                    // console.log("Process()", this);
 
                     var update = this.updateQueue.shift();
 
@@ -58,13 +54,22 @@ function createAnalysis(data) {
 
                     // Keep processing
                     if (this.updateQueue.length > 0) {
-                        setTimeout(this.Processor, processingRate_ms);
+                        setTimeout($.proxy(this.Processor, this), processingRate_ms);
                     }
+                },
+        Start : function() {
+                    this.poller = setInterval(function() { pollAnalysisRequest(this.id, this.generations.length+this.updateQueue.length) },
+                                                         pollRate_ms);
+                    controlAnalysisRequest(this.id, 0);
+                },
+        Stop : function() {
+                    clearInterval(this.poller);
+                    controlAnalysisRequest(this.id, 1);
                 }
-                */
+        /*
+        */
 
     };
-    eval("analyses['"+idStr+"'].processor = function() { processAnalysisUpdates('"+idStr+"'); }");
 
     // Create the dom entity
     // TODO: consider, perhaps, a map with each cell element for quicker updating?
@@ -121,10 +126,11 @@ function createAnalysis(data) {
         .append($("<div></div>")
                 .append($("<span></span>").addClass("analysisControl")
                                         .click(function() { startAnalysis(idStr) })
-                                        // .click(function() { controlAnalysisRequest(data.Id,0) })
+                                        // .click($.proxy(this.Start, this))
                                         .text("Start"))
                 .append($("<span></span>").addClass("analysisControl")
                                         .click(function() { stopAnalysis(idStr) })
+                                        // .click($.proxy(this.Stop, this))
                                         .text("Stop"))
                 )
 
@@ -133,51 +139,6 @@ function createAnalysis(data) {
                 .html(board))
     );
 }
-
-function processAnalysisUpdates(idStr) {
-    if (idStr == undefined || analyses[idStr].updateQueue.length <= 0) return; //FIXME: wtf?
-
-    var update = analyses[idStr].updateQueue.shift();
-    // console.log("processAnalysisUpdates()", update);
-
-    $("#generation-"+idStr).html(update.Generation);
-
-    var idPrefix = "#cell-"+idStr+"-";
-    for (var i = update.Changes.length-1; i >= 0; i--) {
-        var changed = update.Changes[i];
-
-        switch (changed.Change) {
-        case 0: // Born
-            $(idPrefix+changed.Y+"x"+changed.X).addClass("analysisBoardCellAlive");
-            break;
-        case 1: // Died
-            $(idPrefix+changed.Y+"x"+changed.X).removeClass("analysisBoardCellAlive");
-            break;
-        }
-    }
-
-    analyses[idStr].generations.push(update)
-
-    // Keep processing
-    // clearInterval(analyses[idStr].poller);
-    if (analyses[idStr].updateQueue.length > 0) {
-        setTimeout(analyses[idStr].processor, processingRate_ms);
-    }
-}
-
-/*
-function queueAnalysisUpdates(data) {
-    console.log("  queueAnalysisUpdates()", data);
-    // Add each update to the queue
-    for (var i = 0; i < data.Updates.length; i++) {
-        var idStr = getIdStr(data.Id);
-
-        analyses[idStr].updateQueue.push(data.Updates[i])
-
-        setTimeout(analyses[idStr].processor, processingRate_ms);
-    }
-}
-*/
 
 function startAnalysis(idStr) {
     analyses[idStr].poller = setInterval(function() { pollAnalysisRequest(analyses[idStr].id,
