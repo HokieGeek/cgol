@@ -90,7 +90,7 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create the analyzer
-		analyzer, err := life.NewAnalyzer(req.Dims, patternFun)
+		analyzer, err := life.NewAnalyzer(req.Dims, patternFunc)
 		if err != nil {
 			panic(err)
 		}
