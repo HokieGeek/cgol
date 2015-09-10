@@ -116,9 +116,13 @@ func (t *Analyzer) Start() {
 	updates := make(chan bool)
 	t.stopAnalysis = t.Life.Start(updates, -1)
 
+	var genCount int
+
 	for {
 		select {
 		case <-updates:
+			fmt.Printf("Generation %d\n", genCount)
+			genCount++
 			nextGen := len(t.analyses)
 			gen := t.Life.Generation(nextGen)
 			t.analyze(gen.Living, nextGen)
@@ -140,7 +144,7 @@ func (t *Analyzer) String() string {
 	return buf.String()
 }
 
-func NewAnalyzer(dims Dimensions) (*Analyzer, error) {
+func NewAnalyzer(dims Dimensions, pattern func(Dimensions, Location) []Location) (*Analyzer, error) {
 	// fmt.Println("NewAnalyzer")
 	a := new(Analyzer)
 
@@ -148,7 +152,7 @@ func NewAnalyzer(dims Dimensions) (*Analyzer, error) {
 	a.Life, err = New("HTTP REQUEST",
 		dims,
 		NEIGHBORS_ALL,
-		Blinkers,
+		pattern,
 		ConwayTester(),
 		SimultaneousProcessor)
 	if err != nil {

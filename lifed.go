@@ -29,8 +29,24 @@ func NewCreateAnalysisResponse(analyzer *life.Analyzer) *CreateAnalysisResponse 
 	return resp
 }
 
+type PatternType int
+
+const (
+	RANDOM PatternType = iota
+	BLINKERS
+	TOADS
+	BEACONS
+	PULSARS
+	GLIDERS
+	BLOCKS
+	BEEHIVES
+	LOAVES
+	BOATS
+)
+
 type CreateAnalysisRequest struct {
-	Dims life.Dimensions
+	Dims    life.Dimensions
+	Pattern PatternType
 	// life.Rules
 	// Seed
 	// Processor
@@ -63,8 +79,18 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 		// FIXME: this should be sent to a logger
 		fmt.Printf("Received create request: %s\n", req.String())
 
+		var patternFunc func(life.Dimensions, life.Location) []life.Location
+		switch req.Pattern {
+		case RANDOM:
+			patternFunc = func(dims life.Dimensions, offset life.Location) []life.Location {
+				return life.Random(dims, offset, 35)
+			}
+		case BLINKERS:
+			patternFunc = life.Blinkers
+		}
+
 		// Create the analyzer
-		analyzer, err := life.NewAnalyzer(req.Dims)
+		analyzer, err := life.NewAnalyzer(req.Dims, patternFun)
 		if err != nil {
 			panic(err)
 		}
@@ -92,6 +118,7 @@ type AnalysisUpdate struct {
 }
 
 func NewAnalysisUpdate(analyzer *life.Analyzer, generation int) *AnalysisUpdate {
+	fmt.Printf(" NewAnalysisUpdate(%d)\n", generation)
 	a := new(AnalysisUpdate)
 
 	a.Id = analyzer.Id
@@ -123,6 +150,7 @@ type AnalysisUpdateResponse struct {
 }
 
 func NewAnalysisUpdateResponse(analyzer *life.Analyzer, startingGeneration int) *AnalysisUpdateResponse {
+	fmt.Printf("NewAnalysisUpdateResponse(%d)\n", startingGeneration)
 	r := new(AnalysisUpdateResponse)
 
 	r.Id = analyzer.Id
