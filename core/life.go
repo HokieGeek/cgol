@@ -34,10 +34,10 @@ func (t *Statistics) String() string {
 type Status int
 
 const (
-	Seeded Status = 0
-	Active Status = 1
-	Stable Status = 2
-	Dead   Status = 3
+	Seeded Status = iota
+	Active
+	Stable
+	Dead
 )
 
 func (t Status) String() string {

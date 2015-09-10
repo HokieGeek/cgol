@@ -13,9 +13,9 @@ import (
 type neighborsSelector int
 
 const (
-	NEIGHBORS_ALL        neighborsSelector = 0
-	NEIGHBORS_ORTHOGONAL neighborsSelector = 1
-	NEIGHBORS_OBLIQUE    neighborsSelector = 2
+	NEIGHBORS_ALL neighborsSelector = iota
+	NEIGHBORS_ORTHOGONAL
+	NEIGHBORS_OBLIQUE
 )
 
 func (t neighborsSelector) String() string {

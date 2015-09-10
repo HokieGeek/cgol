@@ -10,8 +10,8 @@ import (
 type ChangeType int
 
 const (
-	Born ChangeType = 0
-	Died ChangeType = 1
+	Born ChangeType = iota
+	Died
 )
 
 type ChangedLocation struct {
