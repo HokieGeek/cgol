@@ -21,6 +21,10 @@ function createAnalysis(data) {
         poller : null,
         generations : [],
         updateQueue : [],
+        elements : {
+            currentGeneration : null,
+            cells : {},
+        },
         AddToQueue : function(data) {
                         // console.log("  AddToQueue()", data);
                         // Add each update to the queue
@@ -34,28 +38,35 @@ function createAnalysis(data) {
 
                     var update = this.updateQueue.shift();
 
-                    // TODO: Why is update sometimes undefined?
-                    $("#generation-"+this.idAsStr).html(update.Generation);
+                    if (update != undefined) { // TODO: Why is update sometimes undefined?
+                        // $("#generation-"+this.idAsStr).text(update.Generation);
+                        this.elements.currentGeneration.text(update.Generation);
 
-                    var idPrefix = "#cell-"+this.idAsStr+"-";
-                    for (var i = update.Changes.length-1; i >= 0; i--) {
-                        var changed = update.Changes[i];
+                        // console.log("CELLS: ", this.elements.cells);
+                        var idPrefix = "#cell-"+this.idAsStr+"-";
+                        for (var i = update.Changes.length-1; i >= 0; i--) {
+                            var changed = update.Changes[i];
 
-                        switch (changed.Change) {
-                        case 0: // Born
-                            $(idPrefix+changed.Y+"x"+changed.X).addClass("analysisBoardCellAlive");
-                            break;
-                        case 1: // Died
-                            $(idPrefix+changed.Y+"x"+changed.X).removeClass("analysisBoardCellAlive");
-                            break;
+                            switch (changed.Change) {
+                            case 0: // Born
+                                // console.log("BIRTHING: ", changed.Y, changed.X, this.elements.cells[changed.Y][changed.X]);
+                                this.elements.cells[changed.Y][changed.X].addClass("analysisBoardCellAlive");
+                                // $(idPrefix+changed.Y+"x"+changed.X).addClass("analysisBoardCellAlive");
+                                break;
+                            case 1: // Died
+                                // console.log("KILLING: ", changed.Y, changed.X);
+                                this.elements.cells[changed.Y][changed.X].removeClass("analysisBoardCellAlive");
+                                // $(idPrefix+changed.Y+"x"+changed.X).removeClass("analysisBoardCellAlive");
+                                break;
+                            }
                         }
-                    }
 
-                    this.generations.push(update)
+                        this.generations.push(update)
 
-                    // Keep processing
-                    if (this.updateQueue.length > 0) {
-                        setTimeout($.proxy(this.Processor, this), processingRate_ms);
+                        // Keep processing
+                        if (this.updateQueue.length > 0) {
+                            setTimeout($.proxy(this.Processor, this), processingRate_ms);
+                        }
                     }
                 },
         Start : function() {
@@ -67,27 +78,44 @@ function createAnalysis(data) {
                     clearInterval(this.poller);
                     controlAnalysisRequest(this.id, 1);
                 }
-        /*
-        */
 
     };
 
     // Create the dom entity
     // TODO: consider, perhaps, a map with each cell element for quicker updating?
 
+    var cells = analyses[idStr].elements.cells;
     var board = $("<span></span>");
-    for (var i = 0; i < data.Dims.Height; i++) {
+    for (var y = 0; y < data.Dims.Height; y++) {
         var row = $("<div></div>");
-        for(var j = 0; j < data.Dims.Width; j++) {
-            row.append($("<span></span>")
-                    .attr("id", "cell-"+idStr+"-"+i+"x"+j)
-                    .addClass("analysisBoardCell")
-                    )
+        for(var x = 0; x < data.Dims.Width; x++) {
+            var cell = $("<span></span>")
+                    // .attr("id", "cell-"+idStr+"-"+y+"x"+x)
+                    .addClass("analysisBoardCell");
+            // analyses[idStr].elements.cells[y][x] = cell;
+            if (!(y in cells)) {
+                cells[y] = {};
+            }
+            cells[y][x] = cell;
+            // console.log("CREATING: ", y, x, cells[y][x]);
+            row.append(cell);
         }
         board.append(row);
     }
+    // console.log("CELLS: ", cells);
 
-    $("#analyses").html(
+    // if (analyses.length <= 1) {
+    //     console.log("HERE")
+    //     $("#analyses").text("");
+    // } else {
+    //     console.log("WTF: ", analyses.length);
+    // }
+
+    analyses[idStr].elements.currentGeneration = $("<span></span>").text("0")
+                                                                   // .attr("id", "generation-"+idStr)
+                                                                   .addClass("analysisGeneration");
+
+    $("#analyses").append(
         $("<div></div>").attr("id", "analysis-"+idStr)
 
         // ID
@@ -119,19 +147,20 @@ function createAnalysis(data) {
         // Generation
         .append($("<div></div>").addClass("analysisField")
                 .append("<span>Generation: </span>")
-                .append($("<span></span>").text("0")
-                    .attr("id", "generation-"+idStr)
-                    .addClass("analysisGeneration")))
+                .append(analyses[idStr].elements.currentGeneration))
+                // .append($("<span></span>").text("0")
+                    // .attr("id", "generation-"+idStr)
+                    // .addClass("analysisGeneration")))
 
         // Control
-        .append($("<div></div>")
+        .append($("<div style='height: 40px'></div>")
                 .append($("<span></span>").addClass("analysisControl")
                                         .click(function() { startAnalysis(idStr) })
-                                        // .click($.proxy(this.Start, this))
+                                        // .click($.proxy(analyses[idStr].Start, analyses[idStr]))
                                         .text("Start"))
                 .append($("<span></span>").addClass("analysisControl")
                                         .click(function() { stopAnalysis(idStr) })
-                                        // .click($.proxy(this.Stop, this))
+                                        // .click($.proxy(analyses[idStr].Stop, analyses[idStr]))
                                         .text("Stop"))
                 )
 
@@ -156,7 +185,7 @@ function stopAnalysis(idStr) {
 //////////////////// REQUESTORS ////////////////////
 
 function createNewAnalysisRequest() {
-    $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 100, "Width": 200}})) // FIXME
+    $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 100, "Width": 200}, "Pattern": 0})) // FIXME
     .done(function( data ) {
         createAnalysis(data);
         pollAnalysisRequest(data.Id, 0);
