@@ -1,5 +1,5 @@
 var server = "http://localhost:8081";
-var pollRate_ms = "1000";
+var pollRate_ms = "500";
 var processingRate_ms = "250";
 var StatusStr = ["Seeded", "Active", "Stable", "Dead"];
 
@@ -34,6 +34,7 @@ function createAnalysis(data) {
 
                     var update = this.updateQueue.shift();
 
+                    // TODO: Why is update sometimes undefined?
                     $("#generation-"+this.idAsStr).html(update.Generation);
 
                     var idPrefix = "#cell-"+this.idAsStr+"-";
