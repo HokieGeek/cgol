@@ -19,7 +19,8 @@ function createAnalysis(data) {
         id: data.Id,
         idAsStr: idStr,
         poller : null,
-        generations : [],
+        processed : 0,
+        // generations : [],
         updateQueue : [],
         elements : {
             currentGeneration : null,
@@ -61,7 +62,8 @@ function createAnalysis(data) {
                             }
                         }
 
-                        this.generations.push(update)
+                        processed++;
+                        // this.generations.push(update)
 
                         // Keep processing
                         if (this.updateQueue.length > 0) {
@@ -70,7 +72,8 @@ function createAnalysis(data) {
                     }
                 },
         Start : function() {
-                    this.poller = setInterval(function() { pollAnalysisRequest(this.id, this.generations.length+this.updateQueue.length) },
+                    // this.poller = setInterval(function() { pollAnalysisRequest(this.id, this.generations.length+this.updateQueue.length) },
+                    this.poller = setInterval(function() { pollAnalysisRequest(this.id, this.processed+this.updateQueue.length) },
                                                          pollRate_ms);
                     controlAnalysisRequest(this.id, 0);
                 },
@@ -162,6 +165,10 @@ function createAnalysis(data) {
                                         .click(function() { stopAnalysis(idStr) })
                                         // .click($.proxy(analyses[idStr].Stop, analyses[idStr]))
                                         .text("Stop"))
+                .append($("<span></span>").addClass("analysisControl")
+                                        // .click(function() { stopAnalysis(idStr) })
+                                        // .click($.proxy(analyses[idStr].Stop, analyses[idStr]))
+                                        .text("Restart")) // TODO
                 )
 
         // Create the board
@@ -172,7 +179,8 @@ function createAnalysis(data) {
 
 function startAnalysis(idStr) {
     analyses[idStr].poller = setInterval(function() { pollAnalysisRequest(analyses[idStr].id,
-                                                     analyses[idStr].generations.length+analyses[idStr].updateQueue.length) },
+                                                     analyses[idStr].processed+analyses[idStr].updateQueue.length) },
+                                                     // analyses[idStr].generations.length+analyses[idStr].updateQueue.length) },
                                          pollRate_ms);
     controlAnalysisRequest(analyses[idStr].id, 0);
 }
