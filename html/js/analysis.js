@@ -20,6 +20,7 @@ function createAnalysis(data) {
         idAsStr: idStr,
         poller : null,
         processed : 0,
+        running : false,
         // generations : [],
         updateQueue : [],
         elements : {
@@ -33,13 +34,13 @@ function createAnalysis(data) {
                             this.updateQueue.push(data.Updates[i]);
                         }
 
-                        // if(this.UpdateQueue.length < updateQueueLimit && NOT STOPPED) {
-                        setTimeout($.proxy(this.Processor, this), processingRate_ms);
-                        // }
+                        if(this.updateQueue.length < updateQueueLimit) {
+                        // if(this.updateQueue.length < updateQueueLimit && this.running) {
+                            setTimeout($.proxy(this.Processor, this), processingRate_ms);
+                        }
                     },
         Processor : function() {
                     // console.log("Process()", this);
-
                     var update = this.updateQueue.shift();
 
                     if (update != undefined) { // TODO: Why is update sometimes undefined?
@@ -68,8 +69,8 @@ function createAnalysis(data) {
                         this.processed++;
 
                         // Keep processing
-                        if (this.updateQueue.length > 0) {
-                        // if (this.updateQueue.length > 0 && this.updateQueue.length < updateQueueLimit && NOT STOPPED) {
+                        // if (this.updateQueue.length > 0) {
+                        if (this.updateQueue.length > 0 && this.updateQueue.length < updateQueueLimit && this.running) {
                             setTimeout($.proxy(this.Processor, this), processingRate_ms);
                         }
                     }
@@ -80,10 +81,12 @@ function createAnalysis(data) {
                                                                                maxPollGenerations) },
                                                            pollRate_ms);
                     controlAnalysisRequest(this.id, 0);
+                    this.running = true;
                 },
         Stop : function() {
                     clearInterval(this.poller);
                     controlAnalysisRequest(this.id, 1);
+                    this.running = false;
                 }
 
     };
@@ -173,16 +176,20 @@ function createAnalysis(data) {
 }
 
 function startAnalysis(idStr) {
-    analyses[idStr].poller = setInterval(function() { pollAnalysisRequest(analyses[idStr].id,
-                                                                          analyses[idStr].processed + analyses[idStr].updateQueue.length + 1,
-                                                                          maxPollGenerations) },
-                                         pollRate_ms);
-    controlAnalysisRequest(analyses[idStr].id, 0);
+    var analysis = analyses[idStr];
+    analysis.poller = setInterval(function() { pollAnalysisRequest(analysis.id,
+                                                                   analysis.processed + analysis.updateQueue.length + 1,
+                                                                   maxPollGenerations) },
+                                  pollRate_ms);
+    controlAnalysisRequest(analysis.id, 0);
+    analysis.running = true;
 }
 
 function stopAnalysis(idStr) {
-    clearInterval(analyses[idStr].poller);
-    controlAnalysisRequest(analyses[idStr].id, 1);
+    var analysis = analyses[idStr];
+    clearInterval(analysis.poller);
+    controlAnalysisRequest(analysis.id, 1);
+    analysis.running = false;
 }
 
 //////////////////// REQUESTORS ////////////////////
