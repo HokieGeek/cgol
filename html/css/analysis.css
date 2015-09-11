@@ -13,25 +13,14 @@
     text-align: center
 }
 
-.analysisField:first-child {
-    font-weight: bold;
-}
-
-.analysisField:first-child + span {
-    font-weight: normal;
-}
-
 .analysisControl {
     font-height: 0.7em;
-    border: 1px solid #000000;
-    width: 50px;
-    padding: 3px;
+    margin: 3px;
     text-align: center;
-    background-color: #c0c0c0;
 }
 
 .analysisControl:hover {
-    background-color: #eee8aa;
+    font-color: #c0c0c0;
 }
 
 .analysisBoard {

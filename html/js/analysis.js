@@ -120,9 +120,11 @@ function createAnalysis(data) {
         $("<div></div>").attr("id", "analysis-"+idStr)
 
         // ID
+        /*
         .append($("<div></div>").addClass("analysisField")
                 .append("<span>ID: </span>")
                 .append($("<span></span>").addClass("analysisId").text(idStr)))
+        */
 
 
         // Rule
@@ -145,9 +147,10 @@ function createAnalysis(data) {
                     .addClass("analysisStatus")))
 
         */
+
         // Generation
         .append($("<div></div>").addClass("analysisField")
-                .append("<span>Generation: </span>")
+        .append($("<span>Generation: </span>"))
                 .append(analyses[idStr].elements.currentGeneration))
                 // .append($("<span></span>").text("0")
                     // .attr("id", "generation-"+idStr)
@@ -155,6 +158,12 @@ function createAnalysis(data) {
 
         // Control
         .append($("<div style='height: 40px'></div>")
+                /*
+                .append($("<span></span>").addClass("analysisControl")
+                                        // .click(function() { stopAnalysis(idStr) })
+                                        // .click($.proxy(analyses[idStr].Stop, analyses[idStr]))
+                                        .text("⟲")) // TODO
+                */
                 .append($("<span></span>").addClass("analysisControl")
                                         .click(function() { startAnalysis(idStr) })
                                         // .click($.proxy(analyses[idStr].Start, analyses[idStr]))
@@ -163,10 +172,6 @@ function createAnalysis(data) {
                                         .click(function() { stopAnalysis(idStr) })
                                         // .click($.proxy(analyses[idStr].Stop, analyses[idStr]))
                                         .text("⬛"))
-                .append($("<span></span>").addClass("analysisControl")
-                                        // .click(function() { stopAnalysis(idStr) })
-                                        // .click($.proxy(analyses[idStr].Stop, analyses[idStr]))
-                                        .text("⟲")) // TODO
                 )
 
         // Create the board
@@ -195,7 +200,8 @@ function stopAnalysis(idStr) {
 //////////////////// REQUESTORS ////////////////////
 
 function createNewAnalysisRequest() {
-    $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 100, "Width": 200}, "Pattern": 0})) // FIXME
+    // $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 200, "Width": 300}, "Pattern": 0})) // FIXME
+    $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 50, "Width": 100}, "Pattern": 0})) // FIXME
     .done(function( data ) {
         createAnalysis(data);
         pollAnalysisRequest(data.Id, 0, maxPollGenerations);
