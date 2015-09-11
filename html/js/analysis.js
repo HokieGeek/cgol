@@ -1,6 +1,8 @@
 var server = "http://localhost:8081";
 var pollRate_ms = "500";
 var processingRate_ms = "250";
+var maxPollGenerations = 15;
+var updateQueueLimit = 100;
 var StatusStr = ["Seeded", "Active", "Stable", "Dead"];
 
 var analyses = {};
@@ -12,8 +14,6 @@ function getIdStr(id) {
 
 function createAnalysis(data) {
     var idStr = getIdStr(data.Id);
-
-    // TODO: EACH UPDATE SHOULD HAVE ITS OWN ID
 
     analyses[idStr] = {
         id: data.Id,
@@ -30,9 +30,12 @@ function createAnalysis(data) {
                         // console.log("  AddToQueue()", data);
                         // Add each update to the queue
                         for (var i = 0; i < data.Updates.length; i++) {
-                            this.updateQueue.push(data.Updates[i])
+                            this.updateQueue.push(data.Updates[i]);
                         }
+
+                        // if(this.UpdateQueue.length < updateQueueLimit && NOT STOPPED) {
                         setTimeout($.proxy(this.Processor, this), processingRate_ms);
+                        // }
                     },
         Processor : function() {
                     // console.log("Process()", this);
@@ -44,7 +47,7 @@ function createAnalysis(data) {
                         this.elements.currentGeneration.text(update.Generation);
 
                         // console.log("CELLS: ", this.elements.cells);
-                        var idPrefix = "#cell-"+this.idAsStr+"-";
+                        // var idPrefix = "#cell-"+this.idAsStr+"-";
                         for (var i = update.Changes.length-1; i >= 0; i--) {
                             var changed = update.Changes[i];
 
@@ -62,19 +65,20 @@ function createAnalysis(data) {
                             }
                         }
 
-                        processed++;
-                        // this.generations.push(update)
+                        this.processed++;
 
                         // Keep processing
                         if (this.updateQueue.length > 0) {
+                        // if (this.updateQueue.length > 0 && this.updateQueue.length < updateQueueLimit && NOT STOPPED) {
                             setTimeout($.proxy(this.Processor, this), processingRate_ms);
                         }
                     }
                 },
         Start : function() {
-                    // this.poller = setInterval(function() { pollAnalysisRequest(this.id, this.generations.length+this.updateQueue.length) },
-                    this.poller = setInterval(function() { pollAnalysisRequest(this.id, this.processed+this.updateQueue.length) },
-                                                         pollRate_ms);
+                    this.poller = setInterval(function() { pollAnalysisRequest(this.id,
+                                                                               this.processed + this.updateQueue.length + 1,
+                                                                               maxPollGenerations) },
+                                                           pollRate_ms);
                     controlAnalysisRequest(this.id, 0);
                 },
         Stop : function() {
@@ -85,8 +89,6 @@ function createAnalysis(data) {
     };
 
     // Create the dom entity
-    // TODO: consider, perhaps, a map with each cell element for quicker updating?
-
     var cells = analyses[idStr].elements.cells;
     var board = $("<span></span>");
     for (var y = 0; y < data.Dims.Height; y++) {
@@ -106,13 +108,6 @@ function createAnalysis(data) {
         board.append(row);
     }
     // console.log("CELLS: ", cells);
-
-    // if (analyses.length <= 1) {
-    //     console.log("HERE")
-    //     $("#analyses").text("");
-    // } else {
-    //     console.log("WTF: ", analyses.length);
-    // }
 
     analyses[idStr].elements.currentGeneration = $("<span></span>").text("0")
                                                                    // .attr("id", "generation-"+idStr)
@@ -160,15 +155,15 @@ function createAnalysis(data) {
                 .append($("<span></span>").addClass("analysisControl")
                                         .click(function() { startAnalysis(idStr) })
                                         // .click($.proxy(analyses[idStr].Start, analyses[idStr]))
-                                        .text("Start"))
+                                        .text("▶"))
                 .append($("<span></span>").addClass("analysisControl")
                                         .click(function() { stopAnalysis(idStr) })
                                         // .click($.proxy(analyses[idStr].Stop, analyses[idStr]))
-                                        .text("Stop"))
+                                        .text("⬛"))
                 .append($("<span></span>").addClass("analysisControl")
                                         // .click(function() { stopAnalysis(idStr) })
                                         // .click($.proxy(analyses[idStr].Stop, analyses[idStr]))
-                                        .text("Restart")) // TODO
+                                        .text("⟲")) // TODO
                 )
 
         // Create the board
@@ -179,8 +174,8 @@ function createAnalysis(data) {
 
 function startAnalysis(idStr) {
     analyses[idStr].poller = setInterval(function() { pollAnalysisRequest(analyses[idStr].id,
-                                                     analyses[idStr].processed+analyses[idStr].updateQueue.length) },
-                                                     // analyses[idStr].generations.length+analyses[idStr].updateQueue.length) },
+                                                                          analyses[idStr].processed + analyses[idStr].updateQueue.length + 1,
+                                                                          maxPollGenerations) },
                                          pollRate_ms);
     controlAnalysisRequest(analyses[idStr].id, 0);
 }
@@ -196,19 +191,19 @@ function createNewAnalysisRequest() {
     $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 100, "Width": 200}, "Pattern": 0})) // FIXME
     .done(function( data ) {
         createAnalysis(data);
-        pollAnalysisRequest(data.Id, 0);
+        pollAnalysisRequest(data.Id, 0, maxPollGenerations);
     });
 }
 
-function pollAnalysisRequest(key, startingGen) {
-    $.post(server+"/poll", JSON.stringify({"Id": key, "StartingGeneration": startingGen, "NumMaxGenerations": 15})) // FIXME
+function pollAnalysisRequest(key, startingGen, maxGen) {
+    // console.log("pollAnalysisRequest()", startingGen, maxGen);
+    $.post(server+"/poll", JSON.stringify({"Id": key, "StartingGeneration": startingGen, "NumMaxGenerations": maxGen}))
     .done(function( data ) {
         var idStr = getIdStr(data.Id);
         if (idStr in analyses) {
             analyses[idStr].AddToQueue(data);
         } else {
             console.log("Got update for unknown analysis")
-            // createAnalysis(data);
         }
     });
 }

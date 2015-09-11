@@ -47,10 +47,6 @@ type Analyzer struct {
 
 func (t *Analyzer) Analysis(generation int) *Analysis {
 	// TODO: input validation
-	// fmt.Printf("Analysis(%d)\n", generation)
-	// fmt.Printf("Num analyses: %d\n", len(t.analyses))
-	// fmt.Printf("Num analyses.Living: %d\n", len(t.analyses[generation].Living))
-	// fmt.Printf("Num analyses.Changes: %d\n", len(t.analyses[generation].Changes))
 	return &t.analyses[generation]
 }
 
@@ -165,10 +161,6 @@ func NewAnalyzer(dims Dimensions, pattern func(Dimensions, Location) []Location)
 
 	// Generate first analysis (for generation 0 / the seed)
 	a.analyze(a.Life.Seed, 0)
-
-	// TODO: TESTING Second generation
-	// gen := a.Life.Generation(1)
-	// a.analyze(gen.Living, 1)
 
 	return a, nil
 }

@@ -61,7 +61,6 @@ func (t *CreateAnalysisRequest) String() string {
 }
 
 func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
-	// Retrieve the necessary stuffs
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -75,7 +74,6 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &req); err != nil {
 		postJson(w, 422, err)
 	} else {
-
 		// FIXME: this should be sent to a logger
 		fmt.Printf("Received create request: %s\n", req.String())
 
@@ -96,7 +94,7 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 		}
 		mgr.Add(analyzer)
 
-		fmt.Printf("Id: %x\n", analyzer.Id)
+		// fmt.Printf("Id: %x\n", analyzer.Id)
 
 		// Respond the request with the ID of the analyzer
 		resp := NewCreateAnalysisResponse(analyzer)
@@ -151,22 +149,22 @@ type AnalysisUpdateResponse struct {
 }
 
 func NewAnalysisUpdateResponse(analyzer *life.Analyzer, startingGeneration int, maxGenerations int) *AnalysisUpdateResponse {
-	fmt.Printf("NewAnalysisUpdateResponse(%d)\n", startingGeneration)
+	// fmt.Printf("NewAnalysisUpdateResponse(%d, %d)\n", startingGeneration, maxGenerations)
 	r := new(AnalysisUpdateResponse)
 
 	r.Id = analyzer.Id
 
 	r.Updates = make([]AnalysisUpdate, 0)
 
-	var maxGen int
-	if analyzer.NumAnalyses() < maxGenerations {
-		maxGen = analyzer.NumAnalyses()
+	endGen := startingGeneration + maxGenerations
+	if analyzer.NumAnalyses() < endGen {
+		endGen = analyzer.NumAnalyses()
 	} else {
-		maxGen = maxGenerations
+		endGen = maxGenerations
 	}
 
 	// only add the most recent ones
-	for i := startingGeneration; i < maxGen; i++ {
+	for i := startingGeneration; i < endGen; i++ {
 		r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, i))
 	}
 
@@ -174,7 +172,6 @@ func NewAnalysisUpdateResponse(analyzer *life.Analyzer, startingGeneration int, 
 }
 
 func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
-	// Retrieve the necessary stuffs
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -190,7 +187,6 @@ func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &req); err != nil {
 		postJson(w, 422, err)
 	} else {
-
 		fmt.Printf("Received poll request: %x\n", req.Id)
 
 		resp := NewAnalysisUpdateResponse(mgr.Analyzer(req.Id), req.StartingGeneration, req.NumMaxGenerations)
@@ -213,9 +209,6 @@ type ControlRequest struct {
 }
 
 func ControlAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("ControlAnalysis()\n")
-
-	// Retrieve the necessary stuffs
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
 		panic(err)
@@ -231,7 +224,6 @@ func ControlAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(body, &req); err != nil {
 		postJson(w, 422, err)
 	} else {
-
 		fmt.Printf("Received control request: %x\n", req.Id)
 
 		analyzer := mgr.Analyzer(req.Id)
@@ -242,37 +234,16 @@ func ControlAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 		case Stop:
 			analyzer.Stop()
 		}
-
-		// TODO: Retrieve from the manager
-
-		// fmt.Printf("ID: %x\n", analyzer.Id)
-
-		// Respond the request with the ID of the analyzer
-		// resp := NewAnalysisUpdateResponse(mgr.Analyzers[0], req.StartingGeneration)
-		// postJson(w, http.StatusCreated, resp)
 	}
 }
 
-func postJson(w http.ResponseWriter, httpStatus int, send interface{}) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Add("Access-Control-Allow-Methods", "PUT")
-	w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
-
-	w.WriteHeader(httpStatus)
-	if err := json.NewEncoder(w).Encode(send); err != nil {
-		panic(err)
-	}
-}
+/////////////////////////////////// MANAGER ///////////////////////////////////
 
 type Manager struct {
 	analyzers map[string]*life.Analyzer
 }
 
 func (t *Manager) stringId(id []byte) string {
-	// n := bytes.IndexByte(id, 0)
-	// return string(id[:n])
 	return fmt.Sprintf("%x", id)
 }
 
@@ -299,15 +270,25 @@ func NewManager() *Manager {
 	return m
 }
 
+/////////////////////////////////// OTHER ///////////////////////////////////
+
+func postJson(w http.ResponseWriter, httpStatus int, send interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Add("Access-Control-Allow-Methods", "PUT")
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type")
+
+	w.WriteHeader(httpStatus)
+	if err := json.NewEncoder(w).Encode(send); err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	mux := http.NewServeMux()
 
-	// TODO: create the manager here and the handlers below will take an anon func
-
 	mgr := NewManager()
-	// mgr := new(Manager)
-	// mgr.Analyzers = make([]*life.Analyzer, 0)
-	// mgr.Analyzers = make(map[[]byte]*life.Analyzer, 0)
 
 	mux.HandleFunc("/analyze",
 		func(w http.ResponseWriter, r *http.Request) {
