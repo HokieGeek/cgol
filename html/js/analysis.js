@@ -201,7 +201,7 @@ function createNewAnalysisRequest() {
 }
 
 function pollAnalysisRequest(key, startingGen) {
-    $.post(server+"/poll", JSON.stringify({"Id": key, "StartingGeneration": startingGen}))
+    $.post(server+"/poll", JSON.stringify({"Id": key, "StartingGeneration": startingGen, "NumMaxGenerations": 15})) // FIXME
     .done(function( data ) {
         var idStr = getIdStr(data.Id);
         if (idStr in analyses) {

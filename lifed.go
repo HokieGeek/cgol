@@ -141,6 +141,7 @@ func NewAnalysisUpdate(analyzer *life.Analyzer, generation int) *AnalysisUpdate 
 type AnalysisUpdateRequest struct {
 	Id                 []byte
 	StartingGeneration int
+	NumMaxGenerations  int
 }
 
 type AnalysisUpdateResponse struct {
@@ -149,7 +150,7 @@ type AnalysisUpdateResponse struct {
 	// TODO: timestamp
 }
 
-func NewAnalysisUpdateResponse(analyzer *life.Analyzer, startingGeneration int) *AnalysisUpdateResponse {
+func NewAnalysisUpdateResponse(analyzer *life.Analyzer, startingGeneration int, maxGenerations int) *AnalysisUpdateResponse {
 	fmt.Printf("NewAnalysisUpdateResponse(%d)\n", startingGeneration)
 	r := new(AnalysisUpdateResponse)
 
@@ -157,8 +158,15 @@ func NewAnalysisUpdateResponse(analyzer *life.Analyzer, startingGeneration int) 
 
 	r.Updates = make([]AnalysisUpdate, 0)
 
+	var maxGen int
+	if analyzer.NumAnalyses() < maxGenerations {
+		maxGen = analyzer.NumAnalyses()
+	} else {
+		maxGen = maxGenerations
+	}
+
 	// only add the most recent ones
-	for i := startingGeneration; i < analyzer.NumAnalyses(); i++ {
+	for i := startingGeneration; i < maxGen; i++ {
 		r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, i))
 	}
 
@@ -185,7 +193,7 @@ func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Received poll request: %x\n", req.Id)
 
-		resp := NewAnalysisUpdateResponse(mgr.Analyzer(req.Id), req.StartingGeneration)
+		resp := NewAnalysisUpdateResponse(mgr.Analyzer(req.Id), req.StartingGeneration, req.NumMaxGenerations)
 		postJson(w, http.StatusCreated, resp)
 	}
 }
