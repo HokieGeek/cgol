@@ -1,5 +1,9 @@
 language: go
 
+script:
+    - go build cli.go
+    - go build lifed.go
+
 go:
   - 1.4
   - 1.5
