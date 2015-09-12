@@ -97,7 +97,6 @@ func TestLifeProcess(t *testing.T) {
 }
 
 func TestLifeStartRated(t *testing.T) {
-	t.Skip("Unpredictable. Needs refactoring")
 	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New("TestLifeStartStop",
 		dims,
@@ -114,13 +113,13 @@ func TestLifeStartRated(t *testing.T) {
 		t.Fatalf("Unable to clone pond: %s\n", err)
 	}
 
-	testRate := time.Second
+	testRate := time.Millisecond
 
 	stop := strategy.Start(nil, testRate)
 
 	// t.Log(strategy.String())
 
-	time.Sleep(testRate * 4)
+	time.Sleep(testRate * 2)
 	stop()
 	// t.Log(strategy.String())
 
@@ -131,13 +130,13 @@ func TestLifeStartRated(t *testing.T) {
 	}
 
 	// Check statistics
-	if strategy.Stats.Generations < 2 {
-		t.Errorf("Tracked %d generations when there should be two or more\n", strategy.Stats.Generations)
+	expectedGen := 1
+	if strategy.Stats.Generations < expectedGen {
+		t.Errorf("Tracked %d generations but expected %d\n", strategy.Stats.Generations, expectedGen)
 	}
 }
 
 func TestLifeStartFullTilt(t *testing.T) {
-	t.Skip("Unpredictable. Needs refactoring")
 	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New("TestLifeStartStop",
 		dims,
@@ -160,7 +159,7 @@ func TestLifeStartFullTilt(t *testing.T) {
 
 	// t.Log(strategy.String())
 
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Millisecond * 10)
 	stop()
 	// t.Log(strategy.String())
 
