@@ -47,3 +47,40 @@
     background-color: #4863a0; /*#342d7e;*/
     /*background-color: #d29c0e;*/
 }
+
+/** BOARD CREATOR **/
+#boardCreator {
+    border: 1px solid #000000;
+    width: 100px;
+    height: 100px;
+
+    overflow: visible;
+    position: relative;
+}
+#board {
+    width: 100%;
+    height: 100%;
+    background: #e0e0e0;
+    position: absolute;
+    top:0;left:0;bottom:0;right:0;
+
+    overflow:hidden;
+}
+#segrip, #egrip, #sgrip {
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    border: 1px solid #000000;
+}
+
+#segrip {
+    bottom:-6px; right:-6px;
+}
+#egrip {
+    right:-6px; 
+    top:50%; margin-top:-6px;
+}
+#sgrip {
+    bottom:-6px; 
+    left:50%; margin-left:-6px;
+}

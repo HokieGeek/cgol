@@ -8,7 +8,11 @@
 <meta name="author" content="HokieGeek" />
 <meta name="description" content="Conway's Game of Life Analyzer" />
 
-<script type="text/JavaScript" src="js/jquery.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+
+<!-- script type="text/JavaScript" src="js/jquery.js"></script-->
 <!-- script type="text/JavaScript" src="js/main.js" async="true"></script-->
 <script type="text/JavaScript" src="js/analysis.js" async="true"></script>
 
@@ -18,7 +22,13 @@
 </head>
 <body>
     <div id="btnNewAnalysis" class="center" onclick="createNewAnalysisRequest()">Create new analysis</div>
-    <div id="newAnalysisForm" style="visibility: hidden" ></div>
+    <div id="newAnalysisForm" style="visibility: hidden" >
+        <canvas id="canvas" style="border:1px solid #000000; background-color: #e0e0e0;"></canvas>
+        <br />
+        Board size: <input id="boardWidth" type="text" value="300" size="2" onblur="updateFromInputs()"></input>x<input id="boardHeight" type="text" value="200" size="2" onblur="updateFromInputs()"></input><br />
+        Cell size: <input id="cellSize" type="text" value="2" size="1" onblur="updateFromInputs()"></input>&nbsp;<input type="range" name="cellsize" min="1" max="5" value="2" onchange="document.getElementById('cellSize').value = this.value; updateFromInputs();"></input><br />
+        Coverage: <input id="coverage" type="text" value="60" size="2" onblur="updateFromInputs()"></input>%
+    </div>
     <div id="analyses"></div>
 </body>
 </html>
