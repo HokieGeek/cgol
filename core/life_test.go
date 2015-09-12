@@ -7,7 +7,9 @@ import (
 
 func TestUniqueId(t *testing.T) {
 	id := uniqueId()
-	t.Log(id)
+	if id == nil {
+		t.Error("Unexpectedly got a nil unique id")
+	}
 }
 
 func TestStatisticsString(t *testing.T) {

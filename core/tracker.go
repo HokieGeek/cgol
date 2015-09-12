@@ -94,16 +94,20 @@ func (t *tracker) living() {
 	}
 }
 
-func (t *tracker) Set(location Location) {
+func (t *tracker) Set(location Location) bool {
 	add := &trackerAddOp{loc: location, resp: make(chan bool)}
 	t.trackerAdd <- add
-	<-add.resp
+	val := <-add.resp
+
+	return val
 }
 
-func (t *tracker) Remove(location Location) {
+func (t *tracker) Remove(location Location) bool {
 	remove := &trackerRemoveOp{loc: location, resp: make(chan bool)}
 	t.trackerRemove <- remove
-	<-remove.resp
+	val := <-remove.resp
+
+	return val
 }
 
 func (t *tracker) Test(location Location) bool {

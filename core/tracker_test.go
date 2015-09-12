@@ -39,7 +39,16 @@ func TestTrackerRemove(t *testing.T) {
 }
 
 func TestTrackerRemoveError(t *testing.T) {
-	t.Skip("TODO")
+	tracker := newTracker()
+
+	// Ok, set the value
+	loc := Location{X: 42, Y: 24}
+	tracker.Set(loc)
+
+	loc = Location{X: 0, Y: 0}
+	if tracker.Remove(loc) {
+		t.Fatal("Unexpectedly able to remove a location that doesn't exist")
+	}
 }
 
 func TestTrackerGetAll(t *testing.T) {
