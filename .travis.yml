@@ -5,5 +5,5 @@ go:
   - 1.5
   - tip
 
-script: 
-    - go test -v ./core
+script:
+  - go test -v ./core
