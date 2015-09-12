@@ -101,7 +101,9 @@ func TestLifeStartRated(t *testing.T) {
 	strategy, err := New("TestLifeStartStop",
 		dims,
 		NEIGHBORS_ALL,
-		Blinkers,
+		func(dimensions Dimensions, offset Location) []Location {
+			return Random(dimensions, offset, 85)
+		},
 		ConwayTester(),
 		SimultaneousProcessor)
 	if err != nil {
