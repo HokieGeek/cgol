@@ -20,7 +20,7 @@ func TestDimensionsString(t *testing.T) {
 	}
 }
 
-func TestLifeboardCreation(t *testing.T) {
+func TestBoardCreation(t *testing.T) {
 	// Create a board of random size
 	rand.Seed(time.Now().UnixNano())
 	size := Dimensions{Height: rand.Intn(100) + 1, Width: rand.Intn(100) + 1}
@@ -49,7 +49,7 @@ func TestLifeboardCreation(t *testing.T) {
 	}
 }
 
-func TestLifeboardCreateWithErrors(t *testing.T) {
+func TestBoardCreateWithErrors(t *testing.T) {
 	// No height
 	board, err := newBoard(Dimensions{Height: 0, Width: 1})
 	if err == nil {
@@ -78,7 +78,7 @@ func TestLifeboardCreateWithErrors(t *testing.T) {
 	}
 }
 
-func TestLifeboardSetValue(t *testing.T) {
+func TestBoardSetValue(t *testing.T) {
 	// Create the test board
 	dims := Dimensions{Height: 1, Width: 1}
 	board, err := newBoard(dims)
@@ -100,7 +100,7 @@ func TestLifeboardSetValue(t *testing.T) {
 	}
 }
 
-func TestLifeboardSetValueOutOfBounds(t *testing.T) {
+func TestBoardSetValueOutOfBounds(t *testing.T) {
 	// Create the test board
 	dims := Dimensions{Height: 1, Width: 1}
 	board, err := newBoard(dims)
@@ -124,7 +124,7 @@ func TestLifeboardSetValueOutOfBounds(t *testing.T) {
 	}
 }
 
-func TestLifeboardGetValueOutOfBounds(t *testing.T) {
+func TestBoardGetValueOutOfBounds(t *testing.T) {
 	// Create the test board
 	dims := Dimensions{Height: 1, Width: 1}
 	board, err := newBoard(dims)
@@ -147,7 +147,7 @@ func TestLifeboardGetValueOutOfBounds(t *testing.T) {
 	}
 }
 
-func testLifeboardNeighbors(t *testing.T, expected []Location, actual []Location) {
+func testBoardNeighbors(t *testing.T, expected []Location, actual []Location) {
 	// Check the results
 	if len(actual) != len(expected) {
 		t.Fatalf("Number of neighbors (%d) does not match expected (%d)\n", len(actual), len(expected))
@@ -182,7 +182,7 @@ func testLifeboardNeighbors(t *testing.T, expected []Location, actual []Location
 	}
 }
 
-func TestLifeboardGetOrthogonalNeighbors(t *testing.T) {
+func TestBoardGetOrthogonalNeighbors(t *testing.T) {
 	// Build list of expected locations
 	expected := make([]Location, 4)
 	expected[0] = Location{X: 1, Y: 0}
@@ -203,10 +203,10 @@ func TestLifeboardGetOrthogonalNeighbors(t *testing.T) {
 	// Retrieve neighbors
 	actual := board.GetOrthogonalNeighbors(Location{X: 1, Y: 1})
 
-	testLifeboardNeighbors(t, expected, actual)
+	testBoardNeighbors(t, expected, actual)
 }
 
-func TestLifeboardGetObliqueNeighbors(t *testing.T) {
+func TestBoardGetObliqueNeighbors(t *testing.T) {
 	// Build list of expected locations
 	expected := make([]Location, 4)
 	expected[0] = Location{X: 0, Y: 0}
@@ -227,10 +227,10 @@ func TestLifeboardGetObliqueNeighbors(t *testing.T) {
 	// Retrieve neighbors
 	actual := board.GetObliqueNeighbors(Location{X: 1, Y: 1})
 
-	testLifeboardNeighbors(t, expected, actual)
+	testBoardNeighbors(t, expected, actual)
 }
 
-func TestLifeboardGetAllNeighbors(t *testing.T) {
+func TestBoardGetAllNeighbors(t *testing.T) {
 	// Build list of expected locations
 	expected := make([]Location, 0)
 	for i := 0; i < 4; i++ {
@@ -258,10 +258,10 @@ func TestLifeboardGetAllNeighbors(t *testing.T) {
 	// Retrieve neighbors
 	actual := board.GetAllNeighbors(Location{X: 1, Y: 1})
 
-	testLifeboardNeighbors(t, expected, actual)
+	testBoardNeighbors(t, expected, actual)
 }
 
-func TestLifeboardGetSnapshot(t *testing.T) {
+func TestBoardGetSnapshot(t *testing.T) {
 	// Initialize boards
 	dims := Dimensions{Height: 2, Width: 2}
 	locations := make([]Location, 2)
@@ -297,7 +297,7 @@ func TestLifeboardGetSnapshot(t *testing.T) {
 	}
 }
 
-func TestLifeboardEquals(t *testing.T) {
+func TestBoardEquals(t *testing.T) {
 	// Initialize one board
 	dims := Dimensions{Height: 2, Width: 2}
 	locations := make([]Location, 2)
@@ -318,7 +318,7 @@ func TestLifeboardEquals(t *testing.T) {
 	}
 }
 
-func TestLifeboardNotEquals(t *testing.T) {
+func TestBoardNotEquals(t *testing.T) {
 	dims := Dimensions{Height: 2, Width: 2}
 
 	// Create one board
@@ -353,7 +353,7 @@ func TestLifeboardNotEquals(t *testing.T) {
 	}
 }
 
-func TestLifeboardString(t *testing.T) {
+func TestBoardString(t *testing.T) {
 	// Create the test board
 	dims := Dimensions{Height: 2, Width: 2}
 	board, err := newBoard(dims)
