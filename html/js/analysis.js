@@ -199,29 +199,6 @@ function stopAnalysis(idStr) {
 
 //////////////////// BOARD CREATOR ////////////////////
 
-function resizeCanvas(w, h) {
-    var canvas = document.getElementById("board");
-    canvas.width = w;
-    canvas.height = h;
-}
-
-function addBoardCreator() {
-    $("body").append($("<div></div>").attr("id", "boardCreator")
-                       .resize("resizeCanvas(parseInt(this.style.width), parseInt(this.style.height))")
-                       .append($("<div></div>").attr("id", "segrip").addClass("ui-resizable-handle").addClass("ui-resizable-se"))
-                       .append($("<div></div>").attr("id", "egrip").addClass("ui-resizable-handle").addClass("ui-resizable-e"))
-                       .append($("<div></div>").attr("id", "sgrip").addClass("ui-resizable-handle").addClass("ui-resizable-s"))
-                       .append($("<canvas></canvas>").attr("id", "board"))
-                      );
-    $('#boardCreator').resizable({
-          handles: {
-            'se': '#segrip',
-            'e': '#egrip',
-            's': '#sgrip',
-          }
-        });
-}
-
 var cellWidth = 3;
 var cellHeight = 3;
 var spacing = 1;
@@ -246,11 +223,14 @@ function updateBoard(id, cellWidth, cellHeight, spacing, coverage) {
   var numPerRow = canvas.width/(cellWidth+spacing);
   var numPerCol = canvas.height/(cellHeight+spacing);
 
+  // console.log(canvas.width);
+
   ctx.save();
 
+  // First
   var aliveVal = 100-coverage;
-  for (var row = 0; row < numPerCol; row++) {
-    for (var col = 0; col < numPerRow; col++) {
+  for (var row = numPerCol-1; row >= 0; row--) {
+    for (var col = numPerRow-1; col >= 0; col--) {
       if ((Math.random() * 100) > aliveVal) {
         ctx.save();
         ctx.fillStyle = '#4863a0';
@@ -263,19 +243,24 @@ function updateBoard(id, cellWidth, cellHeight, spacing, coverage) {
   ctx.restore();
 }
 
-function createBoardFromInputs() {
-  var width = parseInt(document.getElementById('boardWidth').value);
-  var height = parseInt(document.getElementById('boardHeight').value);
-  createBoard('canvas', width, height);
-}
-
-function updateFromInputs() {
-  createBoardFromInputs();
+function updateFromInputs(width, height) {
+  createBoard('board', width, height);
 
   cellWidth = parseInt(document.getElementById('cellSize').value);
   cellHeight = cellWidth;
   var coverage = parseInt(document.getElementById('coverage').value);
-  updateBoard('canvas', cellWidth, cellHeight, spacing, coverage);
+  updateBoard('board', cellWidth, cellHeight, spacing, coverage);
+}
+
+function initBoard() {
+  $("#board").addClass("board ui-widget-content");
+  $("#board").resizable({
+    animate: true,
+    helper: "board-resizable-helper",
+    stop: function( event, ui ) {
+      updateFromInputs(ui.size.width, ui.size.height); }
+  });
+  updateFromInputs();
 }
 
 //////////////////// REQUESTORS ////////////////////
