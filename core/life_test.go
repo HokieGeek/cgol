@@ -202,7 +202,6 @@ func TestLifeGeneration(t *testing.T) {
 	if len(gen.Living) != expectedNumLiving {
 		t.Fatalf("Retrieved %d living organisms instead of %d\n", len(gen.Living), expectedNumLiving)
 	}
-	// TODO
 }
 
 func TestLifeString(t *testing.T) {
@@ -219,5 +218,24 @@ func TestLifeString(t *testing.T) {
 
 	if len(strategy.String()) <= 0 {
 		t.Error("String function unexpectly returned an empty string")
+	}
+}
+
+func TestLifeDimensions(t *testing.T) {
+	dims := Dimensions{Height: 3, Width: 3}
+	life, err := New("TestLifeString",
+		dims,
+		NEIGHBORS_ALL,
+		Blinkers,
+		ConwayTester(),
+		SimultaneousProcessor)
+	if err != nil {
+		t.Fatalf("Unable to create strategy: %s\n", err)
+	}
+
+	retrievedDims := life.Dimensions()
+
+	if !retrievedDims.Equals(&dims) {
+		t.Error("Retrieved dimensions did not match expected dimensions")
 	}
 }

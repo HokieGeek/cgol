@@ -40,6 +40,18 @@ func (t *Dimensions) Capacity() int {
 	return t.Height * t.Width
 }
 
+func (t *Dimensions) Equals(rhs *Dimensions) bool {
+	if t.Height != rhs.Height {
+		return false
+	}
+
+	if t.Width != rhs.Width {
+		return false
+	}
+
+	return true
+}
+
 func (t *Dimensions) String() string {
 	var buf bytes.Buffer
 	buf.WriteString(strconv.Itoa(t.Height))

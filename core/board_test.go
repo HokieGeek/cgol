@@ -20,6 +20,33 @@ func TestDimensionsString(t *testing.T) {
 	}
 }
 
+func TestDimensionsEquals(t *testing.T) {
+	dims := Dimensions{Height: 42, Width: 42}
+
+	// Check that they are equal
+	if !dims.Equals(&dims) {
+		t.Fatal("Stupid equals function failed identity check")
+	}
+
+	// Check where height is not equal
+	notEqual := Dimensions{Height: 44, Width: 42}
+	if dims.Equals(&notEqual) {
+		t.Fatalf("Equals function says that %d is equal to %d\n", dims.Height, notEqual.Height)
+	}
+
+	// Check where width is not equal
+	notEqual = Dimensions{Height: 42, Width: 22}
+	if dims.Equals(&notEqual) {
+		t.Fatalf("Equals function says that %d is equal to %d\n", dims.Height, notEqual.Height)
+	}
+
+	// Check where neither is equal
+	notEqual = Dimensions{Height: 44, Width: 22}
+	if dims.Equals(&notEqual) {
+		t.Fatalf("Equals function says that %s is equal to %s\n", dims.String(), notEqual.String())
+	}
+}
+
 func TestBoardCreation(t *testing.T) {
 	// Create a board of random size
 	rand.Seed(time.Now().UnixNano())

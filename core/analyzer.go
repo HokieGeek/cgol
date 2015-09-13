@@ -46,7 +46,10 @@ type Analyzer struct {
 }
 
 func (t *Analyzer) Analysis(generation int) *Analysis {
-	// TODO: input validation
+	if generation < 0 || generation >= len(t.analyses) {
+		// TODO: maybe an error
+		return nil
+	}
 	return &t.analyses[generation]
 }
 
@@ -114,16 +117,21 @@ func (t *Analyzer) Start() {
 
 	var genCount int
 
-	for {
-		select {
-		case <-updates:
-			fmt.Printf("Generation %d\n", genCount)
-			genCount++
-			nextGen := len(t.analyses)
-			gen := t.Life.Generation(nextGen)
-			t.analyze(gen.Living, nextGen)
+	go func() {
+		for {
+			select {
+			case <-updates:
+				fmt.Printf("Generation %d\n", genCount)
+				genCount++
+				nextGen := len(t.analyses)
+				gen := t.Life.Generation(nextGen)
+				t.analyze(gen.Living, nextGen)
+				// if len(t.analyses[genCount].Changes) > len(t.analyses[genCount].Living) {
+				// fmt.Printf("%d: Changes > Living\n", genCount)
+				// }
+			}
 		}
-	}
+	}()
 }
 
 func (t *Analyzer) Stop() {

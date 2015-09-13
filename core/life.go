@@ -163,7 +163,7 @@ func (t *Life) Generation(num int) *Generation {
 }
 
 func (t *Life) Dimensions() Dimensions {
-	return t.pond.Dimensions()
+	return t.pond.board.Dims
 }
 
 func (t *Life) String() string {
