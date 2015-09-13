@@ -30,7 +30,6 @@ func (t *Rules) String() string {
 // the rules given. If the cell lives (or continues to live) based on the
 // rules, then the function returns true.
 func testRule(numNeighbors int, isAlive bool, rules *Rules) bool {
-	// TODO: would it be weird if this function returned the rules?
 	list := rules.Survive
 	if !isAlive {
 		list = rules.Born
