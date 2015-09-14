@@ -33,7 +33,8 @@ func NewCreateAnalysisResponse(analyzer *life.Analyzer) *CreateAnalysisResponse 
 type PatternType int
 
 const (
-	RANDOM PatternType = iota
+	USER PatternType = iota
+	RANDOM
 	BLINKERS
 	TOADS
 	BEACONS
@@ -48,8 +49,8 @@ const (
 type CreateAnalysisRequest struct {
 	Dims    life.Dimensions
 	Pattern PatternType
+	Seed    []life.Location
 	// life.Rules
-	// Seed
 	// Processor
 }
 
@@ -78,18 +79,29 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 		// FIXME: this should be sent to a logger
 		fmt.Printf("Received create request: %s\n", req.String())
 
+		// Determine the pattern to use for seeding the board
 		var patternFunc func(life.Dimensions, life.Location) []life.Location
 		switch req.Pattern {
+		case USER:
+			patternFunc = func(dims life.Dimensions, offset life.Location) []life.Location {
+				return req.Seed
+			}
 		case RANDOM:
 			patternFunc = func(dims life.Dimensions, offset life.Location) []life.Location {
 				return life.Random(dims, offset, 35)
 			}
 		case BLINKERS:
 			patternFunc = life.Blinkers
+		case PULSARS:
+			patternFunc = life.Pulsar
+		case GLIDERS:
+			patternFunc = life.Gliders
+		case BLOCKS:
+			patternFunc = life.Blocks
 		}
 
 		// Create the analyzer
-		analyzer, err := life.NewAnalyzer(req.Dims, patternFunc)
+		analyzer, err := life.NewAnalyzer(req.Dims, patternFunc, life.ConwayTester())
 		if err != nil {
 			panic(err)
 		}

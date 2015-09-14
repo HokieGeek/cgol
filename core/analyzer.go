@@ -148,7 +148,7 @@ func (t *Analyzer) String() string {
 	return buf.String()
 }
 
-func NewAnalyzer(dims Dimensions, pattern func(Dimensions, Location) []Location) (*Analyzer, error) {
+func NewAnalyzer(dims Dimensions, pattern func(Dimensions, Location) []Location, rulesTester func(int, bool) bool) (*Analyzer, error) {
 	// fmt.Println("NewAnalyzer")
 	a := new(Analyzer)
 
@@ -157,7 +157,7 @@ func NewAnalyzer(dims Dimensions, pattern func(Dimensions, Location) []Location)
 		dims,
 		NEIGHBORS_ALL,
 		pattern,
-		ConwayTester(),
+		rulesTester,
 		SimultaneousProcessor)
 	if err != nil {
 		fmt.Printf("ERROR: %s\n", err)

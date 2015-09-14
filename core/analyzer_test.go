@@ -7,7 +7,7 @@ import (
 
 func TestAnalyzerCreate(t *testing.T) {
 	size := Dimensions{Width: 3, Height: 3}
-	analyzer, err := NewAnalyzer(size, Blinkers)
+	analyzer, err := NewAnalyzer(size, Blinkers, ConwayTester())
 	if err != nil {
 		t.Fatalf("Unable to create analyzer: %s\n", err)
 	}
@@ -19,7 +19,7 @@ func TestAnalyzerCreate(t *testing.T) {
 
 func TestAnalyzerCreateError(t *testing.T) {
 	size := Dimensions{Width: 0, Height: 0}
-	_, err := NewAnalyzer(size, Blinkers)
+	_, err := NewAnalyzer(size, Blinkers, ConwayTester())
 	if err == nil {
 		t.Fatal("Unexpectedly successful at creating analyzer with board of 0 size")
 	}
@@ -27,7 +27,7 @@ func TestAnalyzerCreateError(t *testing.T) {
 
 func TestAnalyzerString(t *testing.T) {
 	size := Dimensions{Width: 3, Height: 3}
-	analyzer, err := NewAnalyzer(size, Blinkers)
+	analyzer, err := NewAnalyzer(size, Blinkers, ConwayTester())
 	if err != nil {
 		t.Fatalf("Unable to create analyzer: %s\n", err)
 	}
@@ -39,7 +39,7 @@ func TestAnalyzerString(t *testing.T) {
 
 func TestAnalyzerStart(t *testing.T) {
 	size := Dimensions{Width: 3, Height: 3}
-	analyzer, err := NewAnalyzer(size, Blinkers)
+	analyzer, err := NewAnalyzer(size, Blinkers, ConwayTester())
 	if err != nil {
 		t.Fatalf("Unable to create analyzer: %s\n", err)
 	}
@@ -56,7 +56,7 @@ func TestAnalyzerStart(t *testing.T) {
 
 func TestAnalyzerStop(t *testing.T) {
 	size := Dimensions{Width: 3, Height: 3}
-	analyzer, err := NewAnalyzer(size, Blinkers)
+	analyzer, err := NewAnalyzer(size, Blinkers, ConwayTester())
 	if err != nil {
 		t.Fatalf("Unable to create analyzer: %s\n", err)
 	}
@@ -78,7 +78,7 @@ func TestAnalyzerStop(t *testing.T) {
 
 func TestAnalyzerAnalysis(t *testing.T) {
 	size := Dimensions{Width: 3, Height: 3}
-	analyzer, err := NewAnalyzer(size, Blinkers)
+	analyzer, err := NewAnalyzer(size, Blinkers, ConwayTester())
 	if err != nil {
 		t.Fatalf("Unable to create analyzer: %s\n", err)
 	}
@@ -100,7 +100,7 @@ func TestAnalyzerAnalysis(t *testing.T) {
 
 func TestAnalyzerAnalysisError(t *testing.T) {
 	size := Dimensions{Width: 3, Height: 3}
-	analyzer, err := NewAnalyzer(size, Blinkers)
+	analyzer, err := NewAnalyzer(size, Blinkers, ConwayTester())
 	if err != nil {
 		t.Fatalf("Unable to create analyzer: %s\n", err)
 	}
