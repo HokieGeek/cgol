@@ -21,14 +21,15 @@
 </head>
 <body>
     <div id="btnNewAnalysis" class="center" onclick="createNewAnalysisRequest()">Create new analysis</div>
-    <div id="newAnalysisForm" style="visibility: hidden" >
+    <!--div id="newAnalysisForm" style="visibility: hidden" >
         <canvas id="board"></canvas>
         <br />
-        Cell size: <input id="cellSize" type="range" min="1" max="5" value="2" onchange="updateFromInputs()" style="width: 50px"></input><br />
-        % Coverage: <input id="coverage" type="range" value="60" min="1" max="100" onchange="updateFromInputs()"></input>
+        <b>Cells:</b>
+        Size: <input id="cellSize" type="range" min="1" max="5" value="2" onchange="updateFromInputs()" style="width: 50px"></input>&nbsp;
+        Density: <input id="coverage" type="range" value="60" min="1" max="100" onchange="updateFromInputs()"></input>
         <br />
         <button onclick="$('#board').resizable('destroy')">Start</button>
-    </div>
+    </div-->
     <div id="analyses"></div>
 </body>
 </html>

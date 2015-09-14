@@ -30,14 +30,20 @@
 }
 
 .analysisBoard2 {
+    /*
     width: 100%;
     border: 1px solid #000000;
     height: 100%;
+    */
     background: #e0e0e0;
 }
 
 .analysisBoard-resizable-helper {
       border: 1px dotted #000000;
+}
+
+.analysisBoardCellSizeSelector {
+    width: 40px;
 }
 
 .analysisBoardCell {

@@ -12,6 +12,93 @@ function getIdStr(id) {
     return idStr.substring(0, idStr.length-1);
 }
 
+//////////////////// BOARD CREATOR ////////////////////
+
+var cellWidth = 3;
+var cellHeight = 3;
+var cellSpacing = 1;
+var cellAliveColor = '#4863a0'; // FIXME: hmmm
+
+function applyRandomSeed(id, cellWidth, cellHeight, spacing, coverage) {
+  var adjWidth = cellSpacing+cellWidth;
+  var adjHeight = cellSpacing+cellHeight;
+
+  var board = document.getElementById(id);
+  var numPerRow = board.width/(cellWidth+cellSpacing);
+  var numPerCol = board.height/(cellHeight+cellSpacing);
+
+  var ctx = board.getContext('2d');
+  ctx.clearRect(0, 0, board.width, board.height);
+
+  ctx.save();
+
+  var aliveVal = 100-coverage;
+  for (var row = numPerCol-1; row >= 0; row--) {
+    for (var col = numPerRow-1; col >= 0; col--) {
+      if ((Math.random() * 100) > aliveVal) {
+        ctx.save();
+        ctx.fillStyle = cellAliveColor;
+        ctx.translate(col*adjWidth, row*adjHeight);
+        ctx.fillRect(0,0,cellWidth,cellHeight);
+        ctx.restore();
+      }
+    }
+  }
+  ctx.restore();
+}
+
+function updateFromInputs(key, width, height) {
+  var id = "board-"+key;
+  if (width > 0 && height > 0) {
+    // TODO: figure out real width and height based on cellWidth and cellHeight + spacing
+    var canvas = document.getElementById(id);
+    canvas.width = width;
+    canvas.height = height;
+  }
+
+  //cellWidth = parseInt(document.getElementById('cellSize').value);
+  cellWidth = parseInt($('#cellSize-'+key).val());
+  cellHeight = cellWidth;
+  var coverage = parseInt($('#cellDensity-'+key).val());
+  applyRandomSeed(id, cellWidth, cellHeight, cellSpacing, coverage);
+}
+
+function initBoard(key) {
+  $("body").append(
+    $("<span></span>")
+        .append($("<canvas></canvas>").attr("id", "board-"+key)
+                    .addClass("analysisBoard2 ui-widget-content"))
+    .append($("<br/>"))
+    // TODO: add the next "row" of controls to their own span that does vertical-align: center
+    .append($("<b></b>").text("Cells: "))
+    .append($("<span></span>").text("Size: "))
+    .append($("<input></input>").attr("type", "range")
+                                .attr("id", "cellSize-"+key)
+                                .attr("min", "1").attr("max", "5")
+                                .attr("value", "2")
+                                .change(function() { updateFromInputs(key, -1, -1); })
+                                .addClass("analysisBoardCellSizeSelector")
+           )
+    .append($("<span></span>").html("&nbsp;&nbsp;&nbsp;").text("Density: "))
+    .append($("<input></input>").attr("type", "range")
+                                     .attr("id", "cellDensity-"+key)
+                                     .attr("min", "1").attr("max", "100")
+                                     .attr("value", "60")
+                                     .change(function() { updateFromInputs(key, -1, -1); }))
+    .append($("<br/>"))
+    .append($("<button></button>").click(function() { $("#board-"+key).resizable('destroy'); })
+                                  .text("Start"))
+  );
+
+  $("#board-"+key).resizable({
+    helper: "analysisBoard-resizable-helper",
+    stop: function( event, ui ) { updateFromInputs(key, ui.size.width, ui.size.height); }
+  });
+  updateFromInputs(key);
+}
+
+//////////////////// NEW ANALYSIS ////////////////////
+
 function createAnalysis(data) {
     var idStr = getIdStr(data.Id);
 
@@ -175,9 +262,11 @@ function createAnalysis(data) {
                 )
 
         // Create the board
-        .append($("<div></div>").attr("class", "analysisBoard").attr("id", "board-"+idStr)
-                .html(board))
+        // .append($("<div></div>").attr("class", "analysisBoard").attr("id", "board-"+idStr).html(board))
+        // .append(initBoard(idStr))
     );
+    initBoard(idStr);
+    updateFromInputs(idStr, -1, -1);
 }
 
 function startAnalysis(idStr) {
@@ -195,72 +284,6 @@ function stopAnalysis(idStr) {
     clearInterval(analysis.poller);
     controlAnalysisRequest(analysis.id, 1);
     analysis.running = false;
-}
-
-//////////////////// BOARD CREATOR ////////////////////
-
-var cellWidth = 3;
-var cellHeight = 3;
-var spacing = 1;
-
-function createBoard(id, width, height) {
-  if (width > 0 && height > 0) {
-    // TODO: figure out real width and height based on cellWidth and cellHeight + spacing
-    var canvas = document.getElementById(id);
-    canvas.width = width;
-    canvas.height = height;
-  }
-}
-
-function updateBoard(id, cellWidth, cellHeight, spacing, coverage) {
-  var adjWidth = spacing+cellWidth;
-  var adjHeight = spacing+cellHeight;
-
-  var canvas = document.getElementById(id);
-  var ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  var numPerRow = canvas.width/(cellWidth+spacing);
-  var numPerCol = canvas.height/(cellHeight+spacing);
-
-  // console.log(canvas.width);
-
-  ctx.save();
-
-  // First
-  var aliveVal = 100-coverage;
-  for (var row = numPerCol-1; row >= 0; row--) {
-    for (var col = numPerRow-1; col >= 0; col--) {
-      if ((Math.random() * 100) > aliveVal) {
-        ctx.save();
-        ctx.fillStyle = '#4863a0';
-        ctx.translate(col*adjWidth, row*adjHeight);
-        ctx.fillRect(0,0,cellWidth,cellHeight);
-        ctx.restore();
-      }
-    }
-  }
-  ctx.restore();
-}
-
-function updateFromInputs(width, height) {
-  createBoard('board', width, height);
-
-  cellWidth = parseInt(document.getElementById('cellSize').value);
-  cellHeight = cellWidth;
-  var coverage = parseInt(document.getElementById('coverage').value);
-  updateBoard('board', cellWidth, cellHeight, spacing, coverage);
-}
-
-function initBoard() {
-  $("#board").addClass("board ui-widget-content");
-  $("#board").resizable({
-    animate: true,
-    helper: "board-resizable-helper",
-    stop: function( event, ui ) {
-      updateFromInputs(ui.size.width, ui.size.height); }
-  });
-  updateFromInputs();
 }
 
 //////////////////// REQUESTORS ////////////////////
