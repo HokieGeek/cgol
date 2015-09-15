@@ -63,41 +63,174 @@ function updateFromInputs(key, width, height) {
   applyRandomSeed(id, cellWidth, cellHeight, cellSpacing, coverage);
 }
 
-function initBoard(key) {
-  $("body").append(
-    $("<span></span>")
-        .append($("<canvas></canvas>").attr("id", "board-"+key)
-                    .addClass("analysisBoard2 ui-widget-content"))
-    .append($("<br/>"))
-    // TODO: add the next "row" of controls to their own span that does vertical-align: center
-    .append($("<b></b>").text("Cells: "))
-    .append($("<span></span>").text("Size: "))
-    .append($("<input></input>").attr("type", "range")
-                                .attr("id", "cellSize-"+key)
-                                .attr("min", "1").attr("max", "5")
-                                .attr("value", "2")
-                                .change(function() { updateFromInputs(key, -1, -1); })
-                                .addClass("analysisBoardCellSizeSelector")
-           )
-    .append($("<span></span>").html("&nbsp;&nbsp;&nbsp;").text("Density: "))
-    .append($("<input></input>").attr("type", "range")
-                                     .attr("id", "cellDensity-"+key)
-                                     .attr("min", "1").attr("max", "100")
-                                     .attr("value", "60")
-                                     .change(function() { updateFromInputs(key, -1, -1); }))
-    .append($("<br/>"))
-    .append($("<button></button>").click(function() { $("#board-"+key).resizable('destroy'); })
-                                  .text("Start"))
-  );
+function initBoard(key, padre) {
+    var board = $("<canvas></canvas>").attr("id", "board-"+key).addClass("analysisBoard2 ui-widget-content");
 
-  $("#board-"+key).resizable({
-    helper: "analysisBoard-resizable-helper",
-    stop: function( event, ui ) { updateFromInputs(key, ui.size.width, ui.size.height); }
-  });
-  updateFromInputs(key);
+    padre.append(
+        $("<span></span>")
+            .append(board)
+            .append($("<br/>"))
+            // TODO: add the next "row" of controls to their own span that does vertical-align: center
+            .append($("<b></b>").text("Cells: "))
+            .append($("<span></span>").text("Size: "))
+            .append($("<input></input>").attr("type", "range")
+                                        .attr("id", "cellSize-"+key)
+                                        .attr("min", "1").attr("max", "5")
+                                        .attr("value", "2")
+                                        .change(function() { updateFromInputs(key, -1, -1); })
+                                        .addClass("analysisBoardCellSizeSelector")
+                   )
+            .append($("<span></span>").html("&nbsp;&nbsp;&nbsp;").text("Density: "))
+            .append($("<input></input>").attr("type", "range")
+                                             .attr("id", "cellDensity-"+key)
+                                             .attr("min", "1").attr("max", "100")
+                                             .attr("value", "60")
+                                             .change(function() { updateFromInputs(key, -1, -1); }))
+            .append($("<br/>"))
+            .append($("<button></button>").click(function() { $("#board-"+key).resizable('destroy'); })
+                                    .text("Create"))
+    );
+
+    // $("#board-"+key).resizable({
+    board.resizable({
+      helper: "analysisBoard-resizable-helper",
+      stop: function( event, ui ) { updateFromInputs(key, ui.size.width, ui.size.height); }
+    });
+
+    updateFromInputs(key);
+
+    return board;
 }
 
 //////////////////// NEW ANALYSIS ////////////////////
+
+// Create an analysis blah blah blah
+// Fire the request and include a closure for the return id
+// From closure, continue filling out the analysis and add to the map
+
+var analysisIdToLifeId = {};
+
+function createAnalysisNEW() {
+    var key = 42;
+    analyses[key] = {
+        id: null, // TODO: how about this be the lifed id but this client can keep track of them with its own ID     <<-------
+        idAsStr: null,
+        poller : null,
+        processed : 0,
+        running : false,
+        updateQueue : [],
+        seed : [],
+        dimensions : { Width: 300, Height: 200 },
+        elements : {
+            currentGeneration : null,
+            board : null,
+        },
+        AddToQueue : function(data) {
+                        // console.log("  AddToQueue()", data);
+                        // Add each update to the queue
+                        for (var i = 0; i < data.Updates.length; i++) {
+                            this.updateQueue.push(data.Updates[i]);
+                        }
+
+                        if(this.updateQueue.length < updateQueueLimit) {
+                        // if(this.updateQueue.length < updateQueueLimit && this.running) {
+                            setTimeout($.proxy(this.Processor, this), processingRate_ms);
+                        }
+                    },
+        Processor : function() {
+                    // console.log("Process()", this);
+                    var update = this.updateQueue.shift();
+
+                    if (update != undefined) { // TODO: Why is update sometimes undefined?
+                        // $("#generation-"+this.idAsStr).text(update.Generation);
+                        this.elements.currentGeneration.text(update.Generation);
+
+                        // TODO: update the canvas board
+
+                        // for (var i = update.Changes.length-1; i >= 0; i--) {
+                        //     var changed = update.Changes[i];
+
+                        //     switch (changed.Change) {
+                        //     case 0: // Born
+                        //         this.elements.cells[changed.Y][changed.X].addClass("analysisBoardCellAlive");
+                        //         break;
+                        //     case 1: // Died
+                        //         this.elements.cells[changed.Y][changed.X].removeClass("analysisBoardCellAlive");
+                        //         break;
+                        //     }
+                        // }
+
+                        this.processed++;
+
+                        // Keep processing
+                        // if (this.updateQueue.length > 0) {
+                        if (this.updateQueue.length > 0 && this.updateQueue.length < updateQueueLimit && this.running) {
+                            setTimeout($.proxy(this.Processor, this), processingRate_ms);
+                        }
+                    }
+                },
+        Start : function() {
+                    this.poller = setInterval(function() { pollAnalysisRequest(this.id,
+                                                                               this.processed + this.updateQueue.length + 1,
+                                                                               maxPollGenerations) },
+                                                           pollRate_ms);
+                    controlAnalysisRequest(this.id, 0);
+                    this.running = true;
+                },
+        Stop : function() {
+                    clearInterval(this.poller);
+                    controlAnalysisRequest(this.id, 1);
+                    this.running = false;
+                }
+
+    };
+
+    // Create the generation object
+    analyses[key].elements.currentGeneration = $("<span></span>").text("0").addClass("analysisGeneration");
+
+    // Create a div for this analysis and attach it to the primary div
+    $("#analyses").append(
+        $("<div></div>").attr("id", "analysis-"+key)
+
+        // Generation field
+        .append($("<div></div>").addClass("analysisField")
+        .append($("<span>Generation: </span>")).append(analyses[key].elements.currentGeneration))
+
+        // Control
+        .append($("<div style='height: 40px'></div>")
+                .append($("<span></span>").addClass("analysisControl")
+                                        .click(function() { startAnalysis(key); })
+                                        // .click(function() {
+                                        //             this.poller = setInterval(function() { pollAnalysisRequest(key,
+                                        //                                                                        this.processed + this.updateQueue.length + 1,
+                                        //                                                                        maxPollGenerations) },
+                                        //                                                    pollRate_ms);
+                                        //             controlAnalysisRequest(this.id, 0);
+                                        //             this.running = true;
+                                        //         })
+                                        .text("▶"))
+                .append($("<span></span>").addClass("analysisControl")
+                                        .click(function() { stopAnalysis(key); })
+                                        // .click(function() {
+                                        //         clearInterval(this.poller);
+                                        //         controlAnalysisRequest(key, 1);
+                                        //         this.running = false;
+                                        //     })
+                                        .text("⬛"))
+                ) // Control
+
+    );
+
+    initBoard(key, $("analysis-"+key));
+    // updateFromInputs(idStr, -1, -1);
+
+    // TODO: when create is clicked...
+    // createNewAnalysisRequestNEW({"Dims": analyses[key].dimensions, "Pattern": 0, "Seed": analyses[key].Seed},
+    // function( data ) {
+    //     // TODO: this is when I first see the ID from the life server
+    //     pollAnalysisRequest(key, 0, maxPollGenerations);
+    // });
+}
 
 function createAnalysis(data) {
     var idStr = getIdStr(data.Id);
@@ -265,7 +398,7 @@ function createAnalysis(data) {
         // .append($("<div></div>").attr("class", "analysisBoard").attr("id", "board-"+idStr).html(board))
         // .append(initBoard(idStr))
     );
-    initBoard(idStr);
+    initBoard(idStr, $("analysis-"+idStr));
     updateFromInputs(idStr, -1, -1);
 }
 
@@ -288,8 +421,12 @@ function stopAnalysis(idStr) {
 
 //////////////////// REQUESTORS ////////////////////
 
+function createNewAnalysisRequestNEW(req, callback) {
+    $.post(server+"/analyze", JSON.stringify(req)).done(callback(data));
+}
+
 function createNewAnalysisRequest() {
-    // $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 200, "Width": 300}, "Pattern": 0})) // FIXME
+    // $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 50, "Width": 100}, "Pattern": 0}))
     $.post(server+"/analyze", JSON.stringify({"Dims":{"Height": 50, "Width": 100}, "Pattern": 0})) // FIXME
     .done(function( data ) {
         createAnalysis(data);
