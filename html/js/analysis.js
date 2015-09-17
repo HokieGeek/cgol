@@ -86,12 +86,10 @@ function initBoard(key, padre) {
                                              .attr("min", "1").attr("max", "100")
                                              .attr("value", "60")
                                              .change(function() { updateFromInputs(key, -1, -1); }))
-            .append($("<br/>"))
             .append($("<button></button>").click(function() { $("#board-"+key).resizable('destroy'); })
                                     .text("Create"))
     );
 
-    // $("#board-"+key).resizable({
     board.resizable({
       helper: "analysisBoard-resizable-helper",
       stop: function( event, ui ) { updateFromInputs(key, ui.size.width, ui.size.height); }
@@ -221,7 +219,7 @@ function createAnalysisNEW() {
 
     );
 
-    initBoard(key, $("analysis-"+key));
+    initBoard(key, $("#analysis-"+key));
     // updateFromInputs(idStr, -1, -1);
 
     // TODO: when create is clicked...
