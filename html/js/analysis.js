@@ -19,7 +19,9 @@ var cellHeight = 3;
 var cellSpacing = 1;
 var cellAliveColor = '#4863a0'; // FIXME: hmmm
 
-function applyRandomSeed(id, cellWidth, cellHeight, spacing, coverage) {
+function generateRandomSeed(id, cellWidth, cellHeight, spacing, coverage) {
+    var seed = [];
+
   var adjWidth = cellSpacing+cellWidth;
   var adjHeight = cellSpacing+cellHeight;
 
@@ -36,15 +38,22 @@ function applyRandomSeed(id, cellWidth, cellHeight, spacing, coverage) {
   for (var row = numPerCol-1; row >= 0; row--) {
     for (var col = numPerRow-1; col >= 0; col--) {
       if ((Math.random() * 100) > aliveVal) {
+        var x = col*adjWidth;
+        var y = row*adjHeight;
+
         ctx.save();
         ctx.fillStyle = cellAliveColor;
-        ctx.translate(col*adjWidth, row*adjHeight);
-        ctx.fillRect(0,0,cellWidth,cellHeight);
+        ctx.translate(x, y);
+        ctx.fillRect(0, 0, cellWidth, cellHeight);
         ctx.restore();
+
+        seed.push({"X":x, "Y": y});
       }
     }
   }
   ctx.restore();
+
+  return seed;
 }
 
 function updateFromInputs(key, width, height) {
@@ -60,7 +69,7 @@ function updateFromInputs(key, width, height) {
   cellWidth = parseInt($('#cellSize-'+key).val());
   cellHeight = cellWidth;
   var coverage = parseInt($('#cellDensity-'+key).val());
-  applyRandomSeed(id, cellWidth, cellHeight, cellSpacing, coverage);
+  analyses[key].seed = generateRandomSeed(id, cellWidth, cellHeight, cellSpacing, coverage);
 }
 
 function initBoard(key, padre) {
