@@ -1,4 +1,3 @@
-.red { background-color: #ff0000; }
 .center {
     margin: auto;
     width: 98%;
@@ -25,18 +24,18 @@
 }
 
 .analysisBoard {
-    display: table;
-    border: 1px solid #c0c0c0;
-    padding: 1px 1px 1px 1px;
+    background: #e0e0e0;
 }
 
-.analysisBoard2 {
-    /*
-    width: 100%;
-    border: 1px solid #000000;
-    height: 100%;
-    */
-    background: #e0e0e0;
+.newBoardControls span {
+    font-weight: bold;
+    vertical-align: top;
+    padding-left: 10px;
+    left: 15px;
+}
+.newBoardControls button {
+    margin-left: 15px;
+    vertical-align: top;
 }
 
 .analysisBoard-resizable-helper {
@@ -51,7 +50,7 @@
     display: table-cell;
     background-color: #e0e0e0;
     width: 2px;
-    height: 4px;
+    height:tive 4px;
     padding-right: 1px;
     border-bottom: 1px solid #e0e0e0;
     border-right: 1px solid #e0e0e0;
