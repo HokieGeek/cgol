@@ -54,9 +54,6 @@ func (t *Analyzer) Analysis(generation int) *Analysis {
 }
 
 func (t *Analyzer) analyze(cells []Location, generation int) {
-	if len(cells) <= 0 {
-		fmt.Println("WTF")
-	}
 	var analysis Analysis
 
 	// Record the status

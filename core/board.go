@@ -33,20 +33,20 @@ func (t *Location) String() string {
 }
 
 type Dimensions struct {
-	Height int
 	Width  int
+	Height int
 }
 
 func (t *Dimensions) Capacity() int {
-	return t.Height * t.Width
+	return t.Width * t.Height
 }
 
 func (t *Dimensions) Equals(rhs *Dimensions) bool {
-	if t.Height != rhs.Height {
+	if t.Width != rhs.Width {
 		return false
 	}
 
-	if t.Width != rhs.Width {
+	if t.Height != rhs.Height {
 		return false
 	}
 
@@ -55,9 +55,9 @@ func (t *Dimensions) Equals(rhs *Dimensions) bool {
 
 func (t *Dimensions) String() string {
 	var buf bytes.Buffer
-	buf.WriteString(strconv.Itoa(t.Height))
-	buf.WriteString("x")
 	buf.WriteString(strconv.Itoa(t.Width))
+	buf.WriteString("x")
+	buf.WriteString(strconv.Itoa(t.Height))
 	return buf.String()
 }
 
@@ -247,9 +247,7 @@ func (t *board) String() string {
 	var buf bytes.Buffer
 
 	buf.WriteString("Board size: ")
-	buf.WriteString(strconv.Itoa(t.Dims.Height))
-	buf.WriteString("x")
-	buf.WriteString(strconv.Itoa(t.Dims.Width))
+	buf.WriteString(t.Dims.String())
 	buf.WriteString("\n")
 
 	// Draw the top border

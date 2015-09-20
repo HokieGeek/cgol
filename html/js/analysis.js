@@ -23,8 +23,8 @@ function generateRandomSeed(id, boardSize, cellSize, coverage) {
     // console.log("generateRandomSeed()", id, cellWidth, cellHeight, coverage);
     var seed = [];
 
-    var cellWidth = cellSize.Width;
-    var cellHeight = cellSize.Height;
+    var cellWidth = cellSize.width;
+    var cellHeight = cellSize.height;
 
     var adjWidth = cellSpacing + cellWidth;
     var adjHeight = cellSpacing + cellHeight;
@@ -42,7 +42,11 @@ function generateRandomSeed(id, boardSize, cellSize, coverage) {
           ctx.save();
           ctx.fillStyle = cellAliveColor;
           // FIXME: yeah, this is no good
-          ctx.translate(Math.round(col * adjWidth), Math.round(row * adjHeight));
+          var x = col * adjWidth;
+          var y = row * adjHeight;
+          // console.log(x,y);
+          ctx.translate(x,y);
+          // ctx.translate(Math.round(col * adjWidth), Math.round(row * adjHeight));
           ctx.fillRect(0, 0, cellWidth, cellHeight);
           ctx.restore();
 
@@ -151,7 +155,7 @@ function initBoard(key, padre) {
                     .click(function() {
                         $("#board-"+key).resizable('destroy');
                         $("#boardControls-"+key).remove();
-                        createNewAnalysisRequestNEW({"Dims": analyses[key].dimensions, "Pattern": 0, "Seed": analyses[key].seed},
+                        createNewAnalysisRequest({"Dims": analyses[key].dimensions, "Pattern": 0, "Seed": analyses[key].seed},
                                                     function( data ) {
                                                         lifeIdtoAnalysisKey[data.Id] = key;
                                                         analyses[key].id = data.Id;
@@ -172,7 +176,7 @@ function initBoard(key, padre) {
     return board;
 }
 
-//////////////////// NEW ANALYSIS ////////////////////
+////////////////////  ANALYSIS ////////////////////
 
 // Create an analysis blah blah blah
 // Fire the request and include a closure for the return id
@@ -189,7 +193,7 @@ function analysisKey() {
 var getNextKey = analysisKey();
 
 var blah = 0;
-function createAnalysisNEW() {
+function createAnalysis() {
     var key = getNextKey();
     analyses[key] = {
         id: null, // TODO: how about this be the lifed id but this client can keep track of them with its own ID     <<-------
@@ -221,10 +225,9 @@ function createAnalysisNEW() {
                     var update = this.updateQueue.shift();
 
                     if (update != undefined) { // TODO: Why is update sometimes undefined
-                        console.log("Processing: ", update);
+                        console.log("Processing: ", update.Living.length, update);
                         this.elements.currentGeneration.text(update.Generation);
 
-                        // TODO: update the canvas board
                         var cellWidth = this.elements.cellSize.width;
                         var cellHeight = this.elements.cellSize.height;
                         var board = this.elements.board;
@@ -240,14 +243,18 @@ function createAnalysisNEW() {
 
                         ctx.save();
 
+                        // FIXME: go back to doing changed....
                         for (var i = update.Living.length-1; i >= 0; i--) {
                               // var x = col * adjWidth;
                               // var y = row * adjHeight;
+                              var x = update.Living[i].X * adjWidth;
+                              var y = update.Living[i].Y * adjHeight;
+                              // console.log(x,y);
 
                               ctx.save();
                               ctx.fillStyle = "#ff0000";
-                              // ctx.translate(x, y);
-                              ctx.translate(update.Living.X, update.Living.Y);
+                              ctx.translate(x, y);
+                              // ctx.translate(update.Living.X, update.Living.Y);
                               ctx.fillRect(0, 0, cellWidth, cellHeight);
                               ctx.restore();
                         }
@@ -328,7 +335,6 @@ function startAnalysis(key) {
                                   pollRate_ms);
     controlAnalysisRequest(analysis.id, 0);
     analysis.running = true;
-    stopAnalysis(key); // FIXME: have to remove this
 }
 
 function stopAnalysis(key) {
@@ -340,8 +346,8 @@ function stopAnalysis(key) {
 
 //////////////////// REQUESTORS ////////////////////
 
-function createNewAnalysisRequestNEW(req, callback) {
-    console.log("createNewAnalysisRequestNEW(): ", req);
+function createNewAnalysisRequest(req, callback) {
+    console.log("createNewAnalysisRequest(): ", req);
     $.post(server+"/analyze", JSON.stringify(req))
         .done(callback)
         .fail(function(err) {
@@ -364,5 +370,8 @@ function pollAnalysisRequest(analysisId, startingGen, maxGen) {
 }
 
 function controlAnalysisRequest(key, order) {
-    $.post(server+"/control", JSON.stringify({"Id":  key, "Order": order}));
+    $.post(server+"/control", JSON.stringify({"Id":  key, "Order": order}))
+        .fail(function(err) {
+            console.log("Got a post error:", err.status, err.responseText);
+        });
 }
