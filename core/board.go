@@ -3,6 +3,7 @@ package life
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -133,7 +134,7 @@ func (t *board) isValidLocation(location Location) bool {
 func (t *board) GetValue(location Location) (int, error) {
 	// Check that the given location is valid
 	if !t.isValidLocation(location) {
-		return -1, errors.New("Given location is out of bounds")
+		return -1, errors.New(fmt.Sprintf("Given location is out of bounds: %s", location.String()))
 	}
 
 	read := &boardReadOp{loc: location, resp: make(chan int)}
@@ -153,7 +154,7 @@ func (t *board) getSnapshot() [][]int {
 func (t *board) SetValue(location Location, val int) error {
 	// Check that the given location is valid
 	if !t.isValidLocation(location) {
-		return errors.New("Given location is out of bounds")
+		return errors.New(fmt.Sprintf("Given location is out of bounds: %s", location.String()))
 	}
 
 	// Write the value to the board

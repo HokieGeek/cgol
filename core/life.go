@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha1"
 	"encoding/binary"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -67,9 +68,12 @@ type Life struct {
 
 func (t *Life) process() {
 	startingLivingCount := t.pond.GetNumLiving()
+	fmt.Printf("Num living: %d\n", startingLivingCount)
 
 	// Process any organisms that need to be
 	t.processor(t.pond, t.ruleset)
+
+	fmt.Printf("Num living (processed): %d\n", t.pond.GetNumLiving())
 
 	// Update the pond's statistics
 	t.Stats.Generations++
@@ -88,6 +92,7 @@ func (t *Life) process() {
 
 	// If the pond is dead, let's just stop doing things
 	if t.pond.GetNumLiving() <= 0 {
+		fmt.Println("Oh shit")
 		t.Status = Dead
 	}
 }

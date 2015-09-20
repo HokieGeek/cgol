@@ -3,7 +3,7 @@ package life
 import (
 	"bytes"
 	"errors"
-	// "fmt"
+	"fmt"
 	// "io/ioutil"
 	// "log"
 	"strconv"
@@ -78,14 +78,21 @@ func (t *pond) setOrganismValue(organism Location, num int) {
 	originalNum := t.GetOrganismValue(organism)
 
 	// Write the value to the board
-	t.board.SetValue(organism, num)
+	err := t.board.SetValue(organism, num)
+	if err != nil {
+		fmt.Println("ERROR!")
+		panic(err)
+	}
 
 	// Update the living count if organism changed living state
 	if originalNum < 0 && num >= 0 {
 		t.living.Set(organism)
 	} else if originalNum >= 0 && num < 0 {
 		t.living.Remove(organism)
+	} else {
+		fmt.Println(">>>>> what am i doing in here?")
 	}
+	// fmt.Printf("Living count is: %d\n", t.living.GetCount())
 }
 
 func (t *pond) calculateNeighborCount(organism Location) (int, []Location) {

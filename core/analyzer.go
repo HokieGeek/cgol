@@ -54,6 +54,9 @@ func (t *Analyzer) Analysis(generation int) *Analysis {
 }
 
 func (t *Analyzer) analyze(cells []Location, generation int) {
+	if len(cells) <= 0 {
+		fmt.Println("WTF")
+	}
 	var analysis Analysis
 
 	// Record the status
@@ -115,20 +118,15 @@ func (t *Analyzer) Start() {
 	updates := make(chan bool)
 	t.stopAnalysis = t.Life.Start(updates, -1)
 
-	var genCount int
-
 	go func() {
 		for {
 			select {
 			case <-updates:
-				fmt.Printf("Generation %d\n", genCount)
-				genCount++
 				nextGen := len(t.analyses)
 				gen := t.Life.Generation(nextGen)
-				t.analyze(gen.Living, nextGen)
-				// if len(t.analyses[genCount].Changes) > len(t.analyses[genCount].Living) {
-				// fmt.Printf("%d: Changes > Living\n", genCount)
-				// }
+				fmt.Printf("Generation %d\n", gen.Num)
+				fmt.Println(t.Life)
+				t.analyze(gen.Living, gen.Num)
 			}
 		}
 	}()
@@ -149,7 +147,7 @@ func (t *Analyzer) String() string {
 }
 
 func NewAnalyzer(dims Dimensions, pattern func(Dimensions, Location) []Location, rulesTester func(int, bool) bool) (*Analyzer, error) {
-	// fmt.Println("NewAnalyzer")
+	// fmt.Printf("NewAnalyzer: %v\n", pattern(dims, Location{X: 0, Y: 0}))
 	a := new(Analyzer)
 
 	var err error
