@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 /////////////////////////////////// CREATE ANALYSIS ///////////////////////////////////
@@ -73,6 +74,7 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req CreateAnalysisRequest
+	fmt.Printf("REQ: %s\n", body)
 	if err := json.Unmarshal(body, &req); err != nil {
 		postJson(w, 422, err)
 	} else {
@@ -83,7 +85,9 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 		var patternFunc func(life.Dimensions, life.Location) []life.Location
 		switch req.Pattern {
 		case USER:
+			// fmt.Printf("Created USER pattern func: %v\n", req.Seed)
 			patternFunc = func(dims life.Dimensions, offset life.Location) []life.Location {
+				// fmt.Println("HERE I AM")
 				return req.Seed
 			}
 		case RANDOM:
@@ -101,11 +105,13 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create the analyzer
+		// fmt.Printf("Creating new analyzer with pattern: %v\n", patternFunc(req.Dims, life.Location{X: 0, Y: 0}))
 		analyzer, err := life.NewAnalyzer(req.Dims, patternFunc, life.ConwayTester())
 		if err != nil {
 			panic(err)
 		}
 		mgr.Add(analyzer)
+		fmt.Println(analyzer)
 
 		// fmt.Printf("Id: %x\n", analyzer.Id)
 
@@ -155,6 +161,19 @@ type AnalysisUpdateRequest struct {
 	NumMaxGenerations  int
 }
 
+func (t *AnalysisUpdateRequest) String() string {
+	var buf bytes.Buffer
+
+	buf.WriteString("Id: ")
+	buf.WriteString(fmt.Sprintf("%x", t.Id))
+	buf.WriteString("\nStarting Generation: ")
+	buf.WriteString(strconv.Itoa(t.StartingGeneration))
+	buf.WriteString("\nMax: ")
+	buf.WriteString(strconv.Itoa(t.NumMaxGenerations))
+
+	return buf.String()
+}
+
 type AnalysisUpdateResponse struct {
 	Id      []byte
 	Updates []AnalysisUpdate
@@ -196,11 +215,11 @@ func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 
 	var req AnalysisUpdateRequest
 
-	fmt.Println(string(body))
+	// fmt.Println(string(body))
 	if err := json.Unmarshal(body, &req); err != nil {
 		postJson(w, 422, err)
 	} else {
-		fmt.Printf("Received poll request: %x\n", req.Id)
+		fmt.Printf("Received poll request: %s\n", req.String())
 
 		resp := NewAnalysisUpdateResponse(mgr.Analyzer(req.Id), req.StartingGeneration, req.NumMaxGenerations)
 		postJson(w, http.StatusCreated, resp)
@@ -221,6 +240,21 @@ type ControlRequest struct {
 	Order ControlOrder
 }
 
+func (t *ControlRequest) String() string {
+	var buf bytes.Buffer
+	buf.WriteString("Id: ")
+	buf.WriteString(fmt.Sprintf("%x", t.Id))
+	buf.WriteString("\nOrder: ")
+	switch t.Order {
+	case 0:
+		buf.WriteString("Start")
+	case 1:
+		buf.WriteString("Stop")
+	}
+
+	return buf.String()
+}
+
 func ControlAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 	if err != nil {
@@ -233,11 +267,10 @@ func ControlAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 
 	var req ControlRequest
 
-	fmt.Println(string(body))
 	if err := json.Unmarshal(body, &req); err != nil {
 		postJson(w, 422, err)
 	} else {
-		fmt.Printf("Received control request: %x\n", req.Id)
+		fmt.Printf("Received control request: %s\n", req.String())
 
 		analyzer := mgr.Analyzer(req.Id)
 
