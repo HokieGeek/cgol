@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/hokiegeek/life/core"
 	"io"
@@ -286,6 +287,9 @@ func postJson(w http.ResponseWriter, httpStatus int, send interface{}) {
 }
 
 func main() {
+	portPtr := flag.Int("port", 8081, "Specify the port to use")
+	flag.Parse()
+
 	mux := http.NewServeMux()
 
 	mgr := NewManager()
@@ -303,5 +307,5 @@ func main() {
 			ControlAnalysis(mgr, w, r)
 		})
 
-	http.ListenAndServe(":8081", mux)
+	http.ListenAndServe(fmt.Sprintf(":%d", *portPtr), mux)
 }
