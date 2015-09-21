@@ -18,6 +18,7 @@ function getIdStr(id) {
 // var cellHeight = 3;
 var cellSpacing = 1;
 var cellAliveColor = '#4863a0'; // FIXME: hmmm
+var cellDeadColor = '#e0e0e0';
 
 function generateRandomSeed(id, boardSize, cellSize, coverage) {
     // console.log("generateRandomSeed()", id, cellWidth, cellHeight, coverage);
@@ -241,9 +242,9 @@ function createAnalysis() {
                         var ctx = board[0].getContext('2d');
                         ctx.clearRect(0, 0, board.width, board.height);
 
-                        ctx.save();
-
                         // FIXME: go back to doing changed....
+                        ctx.save();
+                        /*
                         for (var i = update.Living.length-1; i >= 0; i--) {
                               // var x = col * adjWidth;
                               // var y = row * adjHeight;
@@ -253,6 +254,28 @@ function createAnalysis() {
 
                               ctx.save();
                               ctx.fillStyle = "#ff0000";
+                              ctx.translate(x, y);
+                              // ctx.translate(update.Living.X, update.Living.Y);
+                              ctx.fillRect(0, 0, cellWidth, cellHeight);
+                              ctx.restore();
+                        }
+                        */
+                        for (var i = update.Changes.length-1; i >= 0; i--) {
+                              // var x = col * adjWidth;
+                              // var y = row * adjHeight;
+                              var x = update.Changes[i].X * adjWidth;
+                              var y = update.Changes[i].Y * adjHeight;
+                              // console.log(x,y);
+
+                              ctx.save();
+                              switch (update.Changes[i].Change) {
+                                  case 0: // Born
+                                        ctx.fillStyle = "#ff0000";
+                                        break;
+                                  case 1: // Dead
+                                        ctx.fillStyle = cellDeadColor;
+                                        break;
+                              }
                               ctx.translate(x, y);
                               // ctx.translate(update.Living.X, update.Living.Y);
                               ctx.fillRect(0, 0, cellWidth, cellHeight);
