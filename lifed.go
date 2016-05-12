@@ -192,12 +192,17 @@ func NewAnalysisUpdateResponse(analyzer *life.Analyzer, startingGeneration int, 
 	if analyzer.NumAnalyses() < endGen {
 		endGen = analyzer.NumAnalyses()
 	} else {
-		endGen = maxGenerations
+		endGen = analyzer.NumAnalyses() - startingGeneration
 	}
 
 	// only add the most recent ones
 	for i := startingGeneration; i < endGen; i++ {
-		r.Updates = append(r.Updates, *NewAnalysisUpdate(analyzer, i))
+		// fmt.Printf(">> Generation %d living <<\n", i)
+		update := *NewAnalysisUpdate(analyzer, i)
+		// for j, change := range update.Changes {
+		// fmt.Printf("  Change[%d] = %s\n", j, change.String())
+		// }
+		r.Updates = append(r.Updates, update)
 	}
 
 	return r
