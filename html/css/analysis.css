@@ -17,6 +17,7 @@
     font-height: 0.7em;
     margin: 3px;
     text-align: center;
+    visibility: hidden;
 }
 
 .analysisControl:hover {

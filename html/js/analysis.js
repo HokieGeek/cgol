@@ -170,6 +170,9 @@ function initBoard(key, padre) {
                                                  .change(function() { updateFromInputs(key, -1, -1); }))
                 .append($("<button></button>").text("Create")
                     .click(function() {
+                        $("#analysis-"+key+" .analysisControl").css('visibility', 'visible');
+                        // console.log("Whole: ", $("#analysis-"+key));
+                        console.log("Find: ", $("#analysis-"+key+" .analysisControl"));
                         $("#board-"+key).resizable('destroy');
                         $("#boardControls-"+key).remove();
                         createNewAnalysisRequest({"Dims": analyses[key].dimensions, "Pattern": 0, "Seed": analyses[key].seed},
@@ -299,12 +302,13 @@ function createAnalysis() {
                     }
                 },
         Start : function() {
-                    this.poller = setInterval(function() {  var startingGen = this.processed + this.updateQueue.length + 1;
-                                                            // console.log("### startingGen = ", this.processed, this.updateQueue.length, 1);
-                                                            pollAnalysisRequest(this.id,
-                                                                                startingGen,
-                                                                                maxPollGenerations) },
-                                                            pollRate_ms);
+                    var me = this;
+                    this.poller = setInterval(function() {  var startingGen = me.processed + me.updateQueue.length + 1;
+                                                                // console.log("))) startingGen = ", this.processed, this.updateQueue.length, 1);
+                                                                pollAnalysisRequest(me.id,
+                                                                                    startingGen,
+                                                                                    maxPollGenerations) },
+                                                  pollRate_ms);
                     controlAnalysisRequest(this.id, 0);
                     this.running = true;
                 },
@@ -332,34 +336,17 @@ function createAnalysis() {
                 .append($("<span></span>").addClass("analysisControl")
                                         .click(function() {
                                             // console.log("Running? ", this.running, this);
+                                            // var analysis = analyses[key];
                                             if (analyses[key].running) {
                                                 stopAnalysis(key);
+                                                // analyses[key].Stop();
                                                 this.innerHTML = '▶';
                                             } else {
-                                                startAnalysis(key);
+                                                analyses[key].Start();
                                                 this.innerHTML = '▮▮';
                                             }
                                         })
-                                        // .click(function() {
-                                        //             this.poller = setInterval(function() { pollAnalysisRequest(this.id,
-                                        //                                                                        this.processed + this.updateQueue.length + 1,
-                                        //                                                                        maxPollGenerations) },
-                                        //                                                    pollRate_ms);
-                                        //             controlAnalysisRequest(this.id, 0);
-                                        //             this.running = true;
-                                        //         })
                                         .text("▶"))
-                /*
-                .append($("<span></span>").addClass("analysisControl")
-                                        .click(function() { stopAnalysis(key); })
-                                        // .click(function() {
-                                        //         clearInterval(this.poller);
-                                        //         controlAnalysisRequest(key, 1);
-                                        //         this.running = false;
-                                        //     })
-                                        .text("▮▮"))
-                                        // .text("⬛"))
-                */
                 ) // Control
 
     );
@@ -414,6 +401,8 @@ function pollAnalysisRequest(analysisId, startingGen, maxGen) {
 function controlAnalysisRequest(key, order) {
     $.post(server+"/control", JSON.stringify({"Id":  key, "Order": order}))
         .fail(function(err) {
-            console.log("Got a post error:", err.status, err.responseText);
+            if (err.status != 0) {
+                console.log("Got a post error:", err.status, err.responseText);
+            }
         });
 }
