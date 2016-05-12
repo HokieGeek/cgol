@@ -200,6 +200,7 @@ function createAnalysis() {
         id: null, // TODO: how about this be the lifed id but this client can keep track of them with its own ID     <<-------
         poller : null,
         processed : 0,
+        processing: false,
         running : false,
         updateQueue : [],
         seed : [],
@@ -210,23 +211,29 @@ function createAnalysis() {
             board : null,
         },
         AddToQueue : function(data) {
-                        console.log("  AddToQueue()", data);
+                        // console.log("  AddToQueue()", data);
+                        // console.log("  AddtoQueue(): ", this.updateQueue.length);
                         // Add each update to the queue
                         for (var i = 0; i < data.Updates.length; i++) {
                             this.updateQueue.push(data.Updates[i]);
                         }
 
-                        if(this.updateQueue.length < updateQueueLimit) {
+                        if (!this.processing && this.updateQueue.length > 0 && this.updateQueue.length < updateQueueLimit) {
                         // if(this.updateQueue.length < updateQueueLimit && this.running) {
+                            this.processing = true;
+                            // console.log(">>>> WILL BE PROCESSING <<<<");
+                            // TODO: only do this timeout if one doesn't already exist
                             setTimeout($.proxy(this.Processor, this), processingRate_ms);
                         }
                     },
         Processor : function() {
                     // console.log("Process()", key, this);
+                    // console.log("Process(): updateQueue = ", this.updateQueue.length);
                     var update = this.updateQueue.shift();
 
                     if (update != undefined) { // TODO: Why is update sometimes undefined
-                        console.log("Processing: ", update.Living.length, update);
+                        // this.processing = true;
+                        // console.log("Processing: ", update.Living.length, update);
                         this.elements.currentGeneration.text(update.Generation);
 
                         var cellWidth = this.elements.cellSize.width;
@@ -240,44 +247,19 @@ function createAnalysis() {
                         var numPerCol = board.height / (cellHeight + cellSpacing);
 
                         var ctx = board[0].getContext('2d');
-                        ctx.clearRect(0, 0, board.width, board.height);
+                        ctx.save()
 
-                        // FIXME: go back to doing changed....
-                        ctx.save();
-                        /*
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+                        ctx.fillStyle = "#00ff00";
                         for (var i = update.Living.length-1; i >= 0; i--) {
-                              // var x = col * adjWidth;
-                              // var y = row * adjHeight;
                               var x = update.Living[i].X * adjWidth;
                               var y = update.Living[i].Y * adjHeight;
                               // console.log(x,y);
 
                               ctx.save();
-                              ctx.fillStyle = "#ff0000";
                               ctx.translate(x, y);
-                              // ctx.translate(update.Living.X, update.Living.Y);
-                              ctx.fillRect(0, 0, cellWidth, cellHeight);
-                              ctx.restore();
-                        }
-                        */
-                        for (var i = update.Changes.length-1; i >= 0; i--) {
-                              // var x = col * adjWidth;
-                              // var y = row * adjHeight;
-                              var x = update.Changes[i].X * adjWidth;
-                              var y = update.Changes[i].Y * adjHeight;
-                              // console.log(x,y);
-
-                              ctx.save();
-                              switch (update.Changes[i].Change) {
-                                  case 0: // Born
-                                        ctx.fillStyle = "#ff0000";
-                                        break;
-                                  case 1: // Dead
-                                        ctx.fillStyle = cellDeadColor;
-                                        break;
-                              }
-                              ctx.translate(x, y);
-                              // ctx.translate(update.Living.X, update.Living.Y);
                               ctx.fillRect(0, 0, cellWidth, cellHeight);
                               ctx.restore();
                         }
@@ -286,20 +268,25 @@ function createAnalysis() {
                         this.processed++;
 
                         // Keep processing
-                        // if (this.updateQueue.length > 0) {
-                        if (blah <= 3 && this.updateQueue.length > 0 && this.updateQueue.length < updateQueueLimit && this.running) {
-                            blah++;
+                        if (this.updateQueue.length > 0 && this.running) {
+                            // console.log(".... Will process again ....");
                             setTimeout($.proxy(this.Processor, this), processingRate_ms);
+                        } else {
+                            this.processing = false;
+                            // console.log(">>>> NO MORE PROCESSING <<<< ", this.updateQueue.length, this.running);
                         }
                     } else {
-                        console.log("Update is undefined");
+                        // console.log("Update is undefined: num_updates = " + this.updateQueue.length);
+                        this.processing = false;
                     }
                 },
         Start : function() {
-                    this.poller = setInterval(function() { pollAnalysisRequest(this.id,
-                                                                               this.processed + this.updateQueue.length + 1,
-                                                                               maxPollGenerations) },
-                                                           pollRate_ms);
+                    this.poller = setInterval(function() {  var startingGen = this.processed + this.updateQueue.length + 1;
+                                                            // console.log("### startingGen = ", this.processed, this.updateQueue.length, 1);
+                                                            pollAnalysisRequest(this.id,
+                                                                                startingGen,
+                                                                                maxPollGenerations) },
+                                                            pollRate_ms);
                     controlAnalysisRequest(this.id, 0);
                     this.running = true;
                 },
@@ -352,9 +339,11 @@ function createAnalysis() {
 
 function startAnalysis(key) {
     var analysis = analyses[key];
-    analysis.poller = setInterval(function() { pollAnalysisRequest(analysis.id,
-                                                                   analysis.processed + analysis.updateQueue.length + 1,
-                                                                   maxPollGenerations) },
+    analysis.poller = setInterval(function() {  var startingGen = analysis.processed + analysis.updateQueue.length + 1;
+                                                // console.log("))) startingGen = ", analysis.processed, analysis.updateQueue.length, 1);
+                                                pollAnalysisRequest(analysis.id,
+                                                                    startingGen,
+                                                                    maxPollGenerations) },
                                   pollRate_ms);
     controlAnalysisRequest(analysis.id, 0);
     analysis.running = true;
@@ -370,7 +359,7 @@ function stopAnalysis(key) {
 //////////////////// REQUESTORS ////////////////////
 
 function createNewAnalysisRequest(req, callback) {
-    console.log("createNewAnalysisRequest(): ", req);
+    // console.log("createNewAnalysisRequest(): ", req);
     $.post(server+"/analyze", JSON.stringify(req))
         .done(callback)
         .fail(function(err) {
@@ -379,7 +368,7 @@ function createNewAnalysisRequest(req, callback) {
 }
 
 function pollAnalysisRequest(analysisId, startingGen, maxGen) {
-    console.log("pollAnalysisRequest()", analysisId, startingGen, maxGen);
+    // console.log("pollAnalysisRequest()", analysisId, startingGen, maxGen);
     // console.log("analyses: ", analyses);
     $.post(server+"/poll", JSON.stringify({"Id": analysisId, "StartingGeneration": startingGen, "NumMaxGenerations": maxGen}))
     .done(function( data ) {
