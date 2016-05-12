@@ -21,7 +21,7 @@ var cellAliveColor = '#4863a0'; // FIXME: hmmm
 var cellDeadColor = '#e0e0e0';
 
 function generateRandomSeed(id, boardSize, cellSize, coverage) {
-    // console.log("generateRandomSeed()", id, cellWidth, cellHeight, coverage);
+    // console.log("generateRandomSeed()", id, boardSize, cellSize, coverage);
     var seed = [];
 
     var cellWidth = cellSize.width;
@@ -41,10 +41,12 @@ function generateRandomSeed(id, boardSize, cellSize, coverage) {
       for (var col = boardSize.Width-1; col >= 0; col--) {
         if ((Math.random() * 100) > aliveVal) {
           ctx.save();
-          ctx.fillStyle = cellAliveColor;
           // FIXME: yeah, this is no good
           var x = col * adjWidth;
           var y = row * adjHeight;
+
+          ctx.fillStyle = cellAliveColor;
+          // if ((col % 2) == 0) ctx.fillStyle = '#00ff00';
           // console.log(x,y);
           ctx.translate(x,y);
           // ctx.translate(Math.round(col * adjWidth), Math.round(row * adjHeight));
@@ -102,23 +104,34 @@ function generateRandomSeed2(id, boardSize, cellSize, coverage) {
 
 function updateFromInputs(key, width, height) {
     // console.log("updateFromInputs():", key, width, height);
-    var saneWidth = Math.floor(width);
-    var saneHeight = Math.floor(height);
 
     var id = "board-"+key;
     var analysis = analyses[key];
-    if (width > 0 && height > 0) {
-      var canvas = document.getElementById(id);
-      canvas.width = saneWidth;
-      canvas.height = saneHeight;
 
-      analysis.dimensions.Width = Math.ceil(saneWidth / analysis.elements.cellSize.width);
-      analysis.dimensions.Height = Math.ceil(saneHeight / analysis.elements.cellSize.height);
-    }
-
-    //cellWidth = parseInt(document.getElementById('cellSize').value);
+    // Determine new cell size
     analysis.elements.cellSize.width = parseInt($('#cellSize-'+key).val());
     analysis.elements.cellSize.height = analysis.elements.cellSize.width;
+    // console.log("cellSize = ", analysis.elements.cellSize.width);
+
+    var canvas = document.getElementById(id);
+    if (width > 0 && height > 0) {
+      var displayCellWidth = analysis.elements.cellSize.width + cellSpacing;
+      var displayCellHeight = analysis.elements.cellSize.height + cellSpacing;
+      canvas.width = Math.floor(width) + (displayCellWidth - (Math.floor(width) % displayCellWidth));
+      canvas.height = Math.floor(height) + (displayCellHeight - (Math.floor(height) % displayCellHeight));
+      // var adjHeight = Math.floor(height);
+      // console.log("ADJ % w,j: ", adjWidth % (analysis.elements.cellSize.width + cellSpacing), adjHeight % (analysis.elements.cellSize.height + cellSpacing));
+      // console.log("ADJ % w,j: ", adjWidth % (analysis.elements.cellSize.width + cellSpacing), adjHeight % (analysis.elements.cellSize.height + cellSpacing));
+      // canvas.width = adjWidth;
+      // canvas.height = adjHeight;
+      // canvas.width = adjWidth + cellSpacing;
+      // canvas.height = adjHeight + cellSpacing;
+    }
+    analysis.dimensions.Width = Math.floor(canvas.width / (analysis.elements.cellSize.width + cellSpacing));
+    analysis.dimensions.Height = Math.floor(canvas.height / (analysis.elements.cellSize.height + cellSpacing));
+    // console.log("updateFromInputs(): board w,h = ", analysis.dimensions.Width, analysis.dimensions.Height);
+
+    // Determine cell coverage and rebuild seed
     var coverage = parseInt($('#cellDensity-'+key).val());
     analysis.seed = generateRandomSeed(id, analysis.dimensions, analysis.elements.cellSize, coverage);
     // console.log("updateFromInputs():", analysis.seed);
@@ -126,8 +139,11 @@ function updateFromInputs(key, width, height) {
 
 function initBoard(key, padre) {
     var analysis = analyses[key];
-    var boardWidth = Math.floor(analysis.dimensions.Width * analysis.elements.cellSize.width)
-    var boardHeight = Math.floor(analysis.dimensions.Height * analysis.elements.cellSize.height);
+    var boardWidth = Math.floor(analysis.dimensions.Width * (analysis.elements.cellSize.width + cellSpacing))
+    var boardHeight = Math.floor(analysis.dimensions.Height * (analysis.elements.cellSize.height + cellSpacing));
+    // console.log("initBoard():   cell = ", analysis.elements.cellSize.width);
+    // console.log("initBoard():  width = ", analysis.dimensions.Width, boardWidth);
+    // console.log("initBoard(): height = ", analysis.dimensions.Height, boardHeight);
     var board = $("<canvas></canvas>").attr("id", "board-"+key)
                                       .addClass("analysisBoard ui-widget-content")
                                       .width(boardWidth)
@@ -142,7 +158,7 @@ function initBoard(key, padre) {
                 .append($("<input></input>").attr("type", "range")
                                             .attr("id", "cellSize-"+key)
                                             .attr("min", "1").attr("max", "5")
-                                            .attr("value", "2")
+                                            .attr("value", analysis.elements.cellSize.width)
                                             .change(function() { updateFromInputs(key, -1, -1); })
                                             .addClass("analysisBoardCellSizeSelector")
                        )
@@ -169,7 +185,8 @@ function initBoard(key, padre) {
 
     board.resizable({
       helper: "analysisBoard-resizable-helper",
-      stop: function( event, ui ) { updateFromInputs(key, ui.size.width, ui.size.height); }
+      // resize: function(event, ui) { console.log("resizing w,h: ", ui.size.width, ui.size.height); },
+      stop: function(event, ui) { updateFromInputs(key, ui.size.width, ui.size.height); }
     });
 
     updateFromInputs(key, boardWidth, boardHeight);
@@ -205,6 +222,7 @@ function createAnalysis() {
         updateQueue : [],
         seed : [],
         dimensions : {Width: 120, Height: 80}, //{ Width: 500, Height: 300 },
+        // dimensions : {Width: 10, Height: 10}, //{ Width: 500, Height: 300 },
         elements : {
             cellSize : { width: 3, height: 3 },
             currentGeneration : null,
@@ -252,7 +270,7 @@ function createAnalysis() {
                         ctx.setTransform(1, 0, 0, 1, 0, 0);
                         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-                        ctx.fillStyle = "#00ff00";
+                        ctx.fillStyle = cellAliveColor;
                         for (var i = update.Living.length-1; i >= 0; i--) {
                               var x = update.Living[i].X * adjWidth;
                               var y = update.Living[i].Y * adjHeight;
@@ -312,7 +330,16 @@ function createAnalysis() {
         // Control
         .append($("<div style='height: 40px'></div>") // TODO: WTF
                 .append($("<span></span>").addClass("analysisControl")
-                                        .click(function() { startAnalysis(key); })
+                                        .click(function() {
+                                            // console.log("Running? ", this.running, this);
+                                            if (analyses[key].running) {
+                                                stopAnalysis(key);
+                                                this.innerHTML = '▶';
+                                            } else {
+                                                startAnalysis(key);
+                                                this.innerHTML = '▮▮';
+                                            }
+                                        })
                                         // .click(function() {
                                         //             this.poller = setInterval(function() { pollAnalysisRequest(this.id,
                                         //                                                                        this.processed + this.updateQueue.length + 1,
@@ -322,6 +349,7 @@ function createAnalysis() {
                                         //             this.running = true;
                                         //         })
                                         .text("▶"))
+                /*
                 .append($("<span></span>").addClass("analysisControl")
                                         .click(function() { stopAnalysis(key); })
                                         // .click(function() {
@@ -329,7 +357,9 @@ function createAnalysis() {
                                         //         controlAnalysisRequest(key, 1);
                                         //         this.running = false;
                                         //     })
-                                        .text("⬛"))
+                                        .text("▮▮"))
+                                        // .text("⬛"))
+                */
                 ) // Control
 
     );
