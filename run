@@ -30,7 +30,7 @@ pkill lifed
 # [ $# -gt 0 ] && lifedPort=$1 || lifedPort=8080
 
 rm -rf lifed
-go build lifed.go && ./lifed --port 8081&
+go build lifed.go && ./lifed --port 8081 | tee lifed.log &
 
 echo "[Starting httpd server]"
 cd html
