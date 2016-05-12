@@ -9,11 +9,14 @@
 [ $# -gt 0 -a "$1" == "--cli" ] && {
     shift
     [ ! -f ./cli ] && go build core/client/cli.go
+    tput smcup
+    clear
     [ $# -gt 0 ] && {
         ./cli $@
     } || {
         ./cli --width 197 --height 50 --extra 15
     }
+    tput rmcup
     exit $?
 }
 
