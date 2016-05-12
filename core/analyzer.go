@@ -14,6 +14,17 @@ const (
 	Died
 )
 
+func (t ChangeType) String() string {
+	switch t {
+	case Born:
+		return "Born"
+	case Died:
+		return "Died"
+	}
+
+	return "Unknown"
+}
+
 type ChangedLocation struct {
 	Location
 	Change ChangeType
@@ -21,11 +32,42 @@ type ChangedLocation struct {
 	// Classificaiton ...
 }
 
+func (t *ChangedLocation) String() string {
+	var buf bytes.Buffer
+	buf.WriteString("{")
+	buf.WriteString(t.Change.String())
+	buf.WriteString(", ")
+	buf.WriteString(t.Location.String())
+	buf.WriteString("}")
+	return buf.String()
+}
+
 type Analysis struct {
 	Status  Status
 	Living  []Location
 	Changes []ChangedLocation
 	// TODO: checksum []byte
+}
+
+func (t *Analysis) String() string {
+	var buf bytes.Buffer
+	buf.WriteString("Analysis {")
+	buf.WriteString("\n\tStatus = ")
+	buf.WriteString(t.Status.String())
+	buf.WriteString("\n\tLiving = {")
+	for _, living := range t.Living {
+		buf.WriteString("\n\t\t")
+		buf.WriteString(living.String())
+	}
+	buf.WriteString("\n\t}")
+	buf.WriteString("\n\tChanged = {")
+	for _, change := range t.Changes {
+		buf.WriteString("\n\t\t")
+		buf.WriteString(change.String())
+	}
+	buf.WriteString("\n\t}")
+	buf.WriteString("\n}")
+	return buf.String()
 }
 
 // type (t *Analysis) Checksum() [sha1.Size]byte {
