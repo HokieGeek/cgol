@@ -394,3 +394,5 @@ func TestBoardString(t *testing.T) {
 		t.Error("The board String() function unexpectedly returned an empty string")
 	}
 }
+
+// vim: set foldmethod=marker:

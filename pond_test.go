@@ -214,3 +214,5 @@ func TestPondEquals(t *testing.T) {
 		t.Fatal("Pond Equals returned true with ponds having different neighbor selectors")
 	}
 }
+
+// vim: set foldmethod=marker:

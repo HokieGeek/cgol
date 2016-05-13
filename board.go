@@ -297,3 +297,5 @@ func newBoard(dims Dimensions) (*board, error) {
 
 	return g, nil
 }
+
+// vim: set foldmethod=marker:

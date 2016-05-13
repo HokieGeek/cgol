@@ -115,3 +115,5 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 	// Block until all modifications are done
 	<-done
 }
+
+// vim: set foldmethod=marker:

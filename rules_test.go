@@ -46,3 +46,5 @@ func TestRuleRulesConway(t *testing.T) {
 		t.Fatal("Revived dead cell that shouldn't have been")
 	}
 }
+
+// vim: set foldmethod=marker:

@@ -132,3 +132,5 @@ func TestPatternOffsetting(t *testing.T) {
 		}
 	}
 }
+
+// vim: set foldmethod=marker:

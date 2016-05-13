@@ -516,3 +516,5 @@ func BenchmarkProcessorSimultaneousRulesConwayPulsar(b *testing.B) {
 		SimultaneousProcessor(pond, ConwayTester())
 	}
 }
+
+// vim: set foldmethod=marker:

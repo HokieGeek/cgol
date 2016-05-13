@@ -147,3 +147,5 @@ func newTracker() *tracker {
 
 	return t
 }
+
+// vim: set foldmethod=marker:

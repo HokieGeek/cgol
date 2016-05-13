@@ -65,3 +65,5 @@ func GetConwayRules() *Rules {
 func ConwayTester() func(int, bool) bool {
 	return RulesTester(GetConwayRules())
 }
+
+// vim: set foldmethod=marker:

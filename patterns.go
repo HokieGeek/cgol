@@ -287,3 +287,5 @@ func Boat(dimensions Dimensions, offset Location) []Location {
 			*seed = append(*seed, Location{X: currentX + 1, Y: currentY + 2})
 		})
 }
+
+// vim: set foldmethod=marker:

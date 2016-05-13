@@ -131,3 +131,5 @@ func TestTrackerCount(t *testing.T) {
 		t.Fatalf("Retrieved count of %d instead of expected %d after remove a location\n", count, expectedCount)
 	}
 }
+
+// vim: set foldmethod=marker:

@@ -167,3 +167,5 @@ func newpond(dims Dimensions, neighbors neighborsSelector) (*pond, error) {
 
 	return p, nil
 }
+
+// vim: set foldmethod=marker:

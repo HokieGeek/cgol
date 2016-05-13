@@ -33,3 +33,5 @@ func Read(FILE) (*Pattern, error) {
 func Write(Pattern, FILE) error {
 }
 */
+
+// vim: set foldmethod=marker:

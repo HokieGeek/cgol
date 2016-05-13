@@ -207,3 +207,5 @@ func New(label string,
 
 	return s, nil
 }
+
+// vim: set foldmethod=marker:

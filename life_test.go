@@ -232,3 +232,5 @@ func TestLifeDimensions(t *testing.T) {
 		t.Error("Retrieved dimensions did not match expected dimensions")
 	}
 }
+
+// vim: set foldmethod=marker:
