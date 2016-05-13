@@ -2,20 +2,10 @@ package life
 
 import (
 	"bytes"
-	"crypto/sha1"
-	"encoding/binary"
 	"fmt"
 	"strconv"
 	"time"
 )
-
-func uniqueId() []byte {
-	h := sha1.New()
-	buf := make([]byte, sha1.Size)
-	binary.PutVarint(buf, time.Now().UnixNano())
-	h.Write(buf)
-	return h.Sum(nil)
-}
 
 type Statistics struct {
 	OrganismsCreated int
