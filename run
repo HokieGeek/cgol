@@ -6,20 +6,6 @@
     exit 0
 }
 
-[ $# -gt 0 -a "$1" == "--cli" ] && {
-    shift
-    [ ! -f ./cli ] && go build core/client/cli.go
-    tput smcup
-    clear
-    [ $# -gt 0 ] && {
-        ./cli $@
-    } || {
-        ./cli --width 197 --height 50 --extra 15
-    }
-    tput rmcup
-    exit $?
-}
-
 echo "[Starting lifed server]"
 
 me=$(cd $(dirname $0); pwd)
@@ -32,12 +18,5 @@ pkill lifed
 rm -rf lifed
 go build lifed.go && ./lifed --port 8081 | tee lifed.log &
 
-echo "[Starting httpd server]"
-cd html
-
-pkill -f SimpleHTTPServer
-
-[ $# -gt 0 ] && httpdPort=$1 || httpdPort=8080
-python2 -m SimpleHTTPServer ${httpdPort}&
-#./server.py
-# ./run&
+cd ~/src/web/life-web
+./run &
