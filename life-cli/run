@@ -1,0 +1,14 @@
+#!/bin/sh
+
+shift
+# [ ! -f ./life-cli ] && go build .
+tput smcup
+clear
+[ $# -gt 0 ] && {
+    life-cli $@
+} || {
+    life-cli --width 197 --height 50 --extra 15
+}
+ret=$?
+tput rmcup
+exit $ret
