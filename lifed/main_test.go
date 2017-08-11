@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/hokiegeek/biologist"
-	"github.com/hokiegeek/life"
+	"gitlab.com/hokiegeek/biologist"
+	"gitlab.com/hokiegeek/life"
 	"testing"
 )
 
