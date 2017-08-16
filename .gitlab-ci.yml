@@ -1,6 +1,6 @@
 stages:
     - test
-    - build_image
+      #    - build_image
 
 test_job:
     image: golang:alpine
