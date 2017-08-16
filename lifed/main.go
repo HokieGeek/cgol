@@ -22,12 +22,12 @@ type CreateAnalysisResponse struct {
 	// Neighbors  life.NeighborsSelector
 }
 
-func NewCreateAnalysisResponse(analyzer *biologist.Analyzer) *CreateAnalysisResponse {
+func NewCreateAnalysisResponse(biologist *biologist.Biologist) *CreateAnalysisResponse {
 	resp := new(CreateAnalysisResponse)
 
-	resp.Id = analyzer.Id
-	resp.Dims = analyzer.Life.Dimensions()
-	// resp.Rule = analyzer.Generation()
+	resp.Id = biologist.Id
+	resp.Dims = biologist.Life.Dimensions()
+	// resp.Rule = biologist.Generation()
 
 	return resp
 }
@@ -107,7 +107,7 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 
 		// Create the analyzer
 		// fmt.Printf("Creating new analyzer with pattern: %v\n", patternFunc(req.Dims, life.Location{X: 0, Y: 0}))
-		analyzer, err := biologist.NewAnalyzer(req.Dims, patternFunc, life.ConwayTester())
+		analyzer, err := biologist.NewBiologist(req.Dims, patternFunc, life.ConwayTester())
 		if err != nil {
 			panic(err)
 		}
@@ -134,7 +134,7 @@ type AnalysisUpdate struct {
 	// Neighbors life.NeighborSelector
 }
 
-func NewAnalysisUpdate(analyzer *biologist.Analyzer, generation int) *AnalysisUpdate {
+func NewAnalysisUpdate(analyzer *biologist.Biologist, generation int) *AnalysisUpdate {
 	fmt.Printf(" NewAnalysisUpdate(%d)\n", generation)
 	a := new(AnalysisUpdate)
 
@@ -179,7 +179,7 @@ type AnalysisUpdateResponse struct {
 	// TODO: timestamp
 }
 
-func NewAnalysisUpdateResponse(analyzer *biologist.Analyzer, startingGeneration int, maxGenerations int) *AnalysisUpdateResponse {
+func NewAnalysisUpdateResponse(analyzer *biologist.Biologist, startingGeneration int, maxGenerations int) *AnalysisUpdateResponse {
 	// fmt.Printf("NewAnalysisUpdateResponse(%d, %d)\n", startingGeneration, maxGenerations)
 	r := new(AnalysisUpdateResponse)
 
@@ -225,7 +225,7 @@ func GetAnalysisStatus(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Printf("Received poll request: %s\n", req.String())
 
-		resp := NewAnalysisUpdateResponse(mgr.Analyzer(req.Id), req.StartingGeneration, req.NumMaxGenerations)
+		resp := NewAnalysisUpdateResponse(mgr.Biologist(req.Id), req.StartingGeneration, req.NumMaxGenerations)
 		postJson(w, http.StatusCreated, resp)
 	}
 }
@@ -276,7 +276,7 @@ func ControlAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Printf("Received control request: %s\n", req.String())
 
-		analyzer := mgr.Analyzer(req.Id)
+		analyzer := mgr.Biologist(req.Id)
 
 		switch req.Order {
 		case Start:
@@ -290,19 +290,19 @@ func ControlAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 /////////////////////////////////// MANAGER ///////////////////////////////////
 
 type Manager struct {
-	analyzers map[string]*biologist.Analyzer
+	analyzers map[string]*biologist.Biologist
 }
 
 func (t *Manager) stringId(id []byte) string {
 	return fmt.Sprintf("%x", id)
 }
 
-func (t *Manager) Analyzer(id []byte) *biologist.Analyzer {
+func (t *Manager) Biologist(id []byte) *biologist.Biologist {
 	// TODO: validate the input
 	return t.analyzers[t.stringId(id)]
 }
 
-func (t *Manager) Add(analyzer *biologist.Analyzer) {
+func (t *Manager) Add(analyzer *biologist.Biologist) {
 	// TODO: validate the input
 	t.analyzers[t.stringId(analyzer.Id)] = analyzer
 }
@@ -315,7 +315,7 @@ func (t *Manager) Remove(id []byte) {
 func NewManager() *Manager {
 	m := new(Manager)
 
-	m.analyzers = make(map[string]*biologist.Analyzer, 0)
+	m.analyzers = make(map[string]*biologist.Biologist, 0)
 
 	return m
 }
