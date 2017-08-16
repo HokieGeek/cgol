@@ -27,7 +27,6 @@ func (t Status) String() string {
 }
 
 type Life struct {
-	Label       string
 	Status      Status
 	pond        *pond
 	processor   func(pond *pond, rules func(int, bool) bool)
@@ -108,11 +107,6 @@ func (t *Life) Dimensions() Dimensions {
 func (t *Life) String() string {
 	var buf bytes.Buffer
 
-	if len(t.Label) > 0 {
-		buf.WriteString("[")
-		buf.WriteString(t.Label)
-		buf.WriteString("]\n")
-	}
 	// buf.WriteString("Status: ")
 	// buf.WriteString(t.Status.String())
 	buf.WriteString("\n")
@@ -121,8 +115,7 @@ func (t *Life) String() string {
 	return buf.String()
 }
 
-func New(label string,
-	dims Dimensions,
+func New(dims Dimensions,
 	neighbors neighborsSelector,
 	initializer func(Dimensions, Location) []Location,
 	rules func(int, bool) bool,
@@ -141,7 +134,6 @@ func New(label string,
 	}
 
 	// Save the given values
-	s.Label = label
 	s.ruleset = rules
 	s.processor = processor
 
