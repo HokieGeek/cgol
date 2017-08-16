@@ -4,28 +4,6 @@ import (
 	"bytes"
 )
 
-type Status int
-
-const (
-	Seeded Status = iota
-	Active
-	Stable
-	Dead
-)
-
-func (t Status) String() string {
-	switch t {
-	case Seeded:
-		return "Seeded"
-	case Active:
-		return "Active"
-	case Dead:
-		return "Dead"
-	}
-
-	return "Unknown"
-}
-
 type Generation struct {
 	Num    int
 	Living []Location
@@ -37,7 +15,6 @@ type Life struct {
 	ruleset     func(int, bool) bool
 	Seed        []Location
 	Generations int
-	Status      Status
 }
 
 func (t *Life) process() *Generation {
@@ -47,19 +24,10 @@ func (t *Life) process() *Generation {
 	// Update the pond's statistics
 	t.Generations++
 
-	// If we don't have living cells, then we are done.
-	if t.pond.GetNumLiving() > 0 {
-		t.Status = Active
-	} else {
-		t.Status = Dead
-	}
-
 	return &Generation{Num: t.Generations, Living: t.pond.living.GetAll()}
 }
 
 func (t *Life) Start(listener chan *Generation) func() {
-	t.Status = Active
-
 	stop := false
 
 	go func() {
@@ -107,8 +75,6 @@ func (t *Life) Dimensions() Dimensions {
 func (t *Life) String() string {
 	var buf bytes.Buffer
 
-	// buf.WriteString("Status: ")
-	// buf.WriteString(t.Status.String())
 	buf.WriteString("\n")
 	buf.WriteString(t.pond.String())
 
@@ -136,8 +102,6 @@ func New(dims Dimensions,
 	// Save the given values
 	s.ruleset = rules
 	s.processor = processor
-
-	s.Status = Seeded
 
 	// Initialize the pond and schedule the currently living organisms
 	s.Seed = initializer(s.pond.board.Dims, Location{})

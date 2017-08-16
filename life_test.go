@@ -5,30 +5,6 @@ import (
 	"time"
 )
 
-func TestStatusString(t *testing.T) {
-	var status Status
-
-	status = Seeded
-	if len(status.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from Status object")
-	}
-
-	status = Active
-	if len(status.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from Status object")
-	}
-
-	status = Stable
-	if len(status.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from Status object")
-	}
-
-	status = Dead
-	if len(status.String()) <= 0 {
-		t.Error("Unexpectedly retrieved empty string from Status object")
-	}
-}
-
 func TestLifeCreation(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New(
