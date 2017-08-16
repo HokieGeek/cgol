@@ -41,12 +41,10 @@ func (t *tracker) living() {
 		select {
 		case add := <-t.trackerAdd:
 			added := true
-			_, keyExists := livingMap[add.loc.Y]
-			if !keyExists {
+			if _, keyExists := livingMap[add.loc.Y]; !keyExists {
 				livingMap[add.loc.Y] = make(map[int]Location)
 			}
-			_, keyExists = livingMap[add.loc.Y][add.loc.X]
-			if !keyExists {
+			if _, keyExists := livingMap[add.loc.Y][add.loc.X]; !keyExists {
 				livingMap[add.loc.Y][add.loc.X] = add.loc
 				count++
 			}
@@ -72,14 +70,8 @@ func (t *tracker) living() {
 			_, keyExists := livingMap[test.loc.Y]
 			if keyExists {
 				_, keyExists = livingMap[test.loc.Y][test.loc.X]
-				if !keyExists {
-					test.resp <- false
-				} else {
-					test.resp <- true
-				}
-			} else {
-				test.resp <- false
 			}
+			test.resp <- keyExists
 		case getall := <-t.trackerGetAll:
 			all := make([]Location, 0)
 			for rowNum := range livingMap {
