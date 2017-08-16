@@ -24,7 +24,9 @@ func displaypond(strategy *life.Life, rate time.Duration, iterations int, static
 		reader.ReadString('\n')
 	}
 
+	updates := make(chan *life.Generation)
 	rateLimitedUpdates := make(chan *life.Generation)
+	stop := strategy.Start(updates)
 
 	go func() {
 		countGenerations := 1
@@ -51,9 +53,6 @@ func displaypond(strategy *life.Life, rate time.Duration, iterations int, static
 			}
 		}
 	}()
-
-	updates := make(chan *life.Generation)
-	stop := strategy.Start(updates)
 
 	for {
 		select {

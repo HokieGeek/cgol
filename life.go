@@ -76,7 +76,7 @@ func (t *Life) process() *Generation {
 		t.Status = Dead
 	}
 
-	return &Generation{Num: t.pond.GetNumLiving(), Living: t.pond.living.GetAll()}
+	return &Generation{Num: t.Stats.Generations, Living: t.pond.living.GetAll()}
 }
 
 func (t *Life) Start(listener chan *Generation) func() {
