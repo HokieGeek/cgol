@@ -158,7 +158,12 @@ func New(label string,
 	s := new(Life)
 
 	var err error
-	s.pond, err = newpond(dims, neighbors)
+	board, err := newBoard(dims)
+	if err != nil {
+		return nil, err
+	}
+	livingTracker := newTracker()
+	s.pond, err = newPond(board, livingTracker, neighbors)
 	if err != nil {
 		return nil, err
 	}

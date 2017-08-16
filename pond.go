@@ -117,7 +117,7 @@ func (t *pond) SetOrganisms(organisms []Location) {
 }
 
 func (t *pond) Clone() (*pond, error) {
-	shadowpond, err := newpond(t.board.Dims, t.neighborsSelector)
+	shadowpond, err := newPond(t.board, t.living, t.neighborsSelector) // FIXME: umm. board and tracker need to be cloned as well
 	if err != nil {
 		return nil, err
 	}
@@ -151,18 +151,15 @@ func (t *pond) String() string {
 	return buf.String()
 }
 
-func newpond(dims Dimensions, neighbors neighborsSelector) (*pond, error) {
+func newPond(board *board, tracker *tracker, neighbors neighborsSelector) (*pond, error) {
 	p := new(pond)
 
-	// Create values
-	p.living = newTracker()
-
-	// Add the given values
-	var err error
-	p.board, err = newBoard(dims)
-	if err != nil {
-		return nil, err
+	if board == nil || tracker == nil {
+		return nil, errors.New("Neither board nor tracker can be nil")
 	}
+
+	p.living = tracker
+	p.board = board
 	p.neighborsSelector = neighbors
 
 	return p, nil
