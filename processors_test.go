@@ -15,7 +15,11 @@ func testProcessor(t *testing.T,
 	expected []*board) {
 
 	// Build the initial pond
-	pond, err := newpond(size, NEIGHBORS_ALL)
+	board, err := newBoard(size)
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -435,13 +439,21 @@ func TestProcessorSimultaneousRulesConwayRandom(t *testing.T) {
 	size := Dimensions{Height: 16, Width: 16}
 	initialLocations := Random(size, Location{}, 80)
 
-	pondInitialSnapshot, err := newpond(size, NEIGHBORS_ALL)
+	board, err := newBoard(size)
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pondInitialSnapshot, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
 	pondInitialSnapshot.SetOrganisms(initialLocations)
 
-	pondWorker, err := newpond(size, NEIGHBORS_ALL)
+	board, err = newBoard(size)
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pondWorker, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -504,7 +516,11 @@ func TestProcessorSimultaneousRulesConwayGliders(t *testing.T) {
 func BenchmarkProcessorSimultaneousRulesConwayPulsar(b *testing.B) {
 	// Build the initial pond
 	size := Dimensions{Height: 33, Width: 33}
-	pond, err := newpond(size, NEIGHBORS_ALL)
+	board, err := newBoard(size)
+	if err != nil {
+		b.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		b.Fatalf("Unable to create pond: %s\n", err)
 	}

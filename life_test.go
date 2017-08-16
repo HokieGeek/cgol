@@ -5,15 +5,6 @@ import (
 	"time"
 )
 
-func TestStatisticsString(t *testing.T) {
-	stats := new(Statistics)
-	stats.Generations++
-
-	if len(stats.String()) <= 0 {
-		t.Error("String function unexpectly returned an empty string")
-	}
-}
-
 func TestStatusString(t *testing.T) {
 	var status Status
 
@@ -40,7 +31,7 @@ func TestStatusString(t *testing.T) {
 
 func TestLifeCreation(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	strategy, err := New("TestLifeCreation",
+	strategy, err := New(
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -62,7 +53,7 @@ func TestLifeCreation(t *testing.T) {
 
 func TestLifeProcess(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	strategy, err := New("TestLifeProcess",
+	strategy, err := New(
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -86,14 +77,14 @@ func TestLifeProcess(t *testing.T) {
 	}
 
 	// Check statistics
-	if strategy.Stats.Generations != 1 {
-		t.Errorf("Tracked %d generations when there should only be one\n", strategy.Stats.Generations)
+	if strategy.Generations != 1 {
+		t.Errorf("Tracked %d generations when there should only be one\n", strategy.Generations)
 	}
 }
 
-func TestLifeStartRated(t *testing.T) {
+func TestLifeStart(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	strategy, err := New("TestLifeStartStop",
+	strategy, err := New(
 		dims,
 		NEIGHBORS_ALL,
 		func(dimensions Dimensions, offset Location) []Location {
@@ -110,49 +101,7 @@ func TestLifeStartRated(t *testing.T) {
 		t.Fatalf("Unable to clone pond: %s\n", err)
 	}
 
-	testRate := time.Millisecond
-
-	stop := strategy.Start(nil, testRate)
-
-	// t.Log(strategy.String())
-
-	time.Sleep(testRate * 2)
-	stop()
-	// t.Log(strategy.String())
-
-	processedpond := strategy.pond
-
-	if seededpond.Equals(processedpond) {
-		t.Fatal("pond did not change after processing")
-	}
-
-	// Check statistics
-	expectedGen := 1
-	if strategy.Stats.Generations < expectedGen {
-		t.Errorf("Tracked %d generations but expected %d\n", strategy.Stats.Generations, expectedGen)
-	}
-}
-
-func TestLifeStartFullTilt(t *testing.T) {
-	dims := Dimensions{Height: 3, Width: 3}
-	strategy, err := New("TestLifeStartStop",
-		dims,
-		NEIGHBORS_ALL,
-		func(dimensions Dimensions, offset Location) []Location {
-			return Random(dimensions, offset, 85)
-		},
-		ConwayTester(),
-		SimultaneousProcessor)
-	if err != nil {
-		t.Fatalf("Unable to create strategy: %s\n", err)
-	}
-
-	seededpond, err := strategy.pond.Clone()
-	if err != nil {
-		t.Fatalf("Unable to clone pond: %s\n", err)
-	}
-
-	stop := strategy.Start(nil, 0)
+	stop := strategy.Start(nil)
 
 	// t.Log(strategy.String())
 
@@ -167,14 +116,14 @@ func TestLifeStartFullTilt(t *testing.T) {
 	}
 
 	// Check statistics
-	if strategy.Stats.Generations < 2 {
-		t.Errorf("Tracked %d generations when there should be two or more\n", strategy.Stats.Generations)
+	if strategy.Generations < 2 {
+		t.Errorf("Tracked %d generations when there should be two or more\n", strategy.Generations)
 	}
 }
 
 func TestLifeGeneration(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	strategy, err := New("TestLifeString",
+	strategy, err := New(
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -199,7 +148,7 @@ func TestLifeGeneration(t *testing.T) {
 
 func TestLifeString(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	strategy, err := New("TestLifeString",
+	strategy, err := New(
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,
@@ -216,7 +165,7 @@ func TestLifeString(t *testing.T) {
 
 func TestLifeDimensions(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	life, err := New("TestLifeString",
+	life, err := New(
 		dims,
 		NEIGHBORS_ALL,
 		Blinkers,

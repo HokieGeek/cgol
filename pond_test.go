@@ -22,7 +22,11 @@ func TestNeighborSelectorString(t *testing.T) {
 }
 
 func TestPondSettingInitialPatterns(t *testing.T) {
-	pond, err := newpond(Dimensions{Height: 3, Width: 3}, NEIGHBORS_ALL)
+	board, err := newBoard(Dimensions{Height: 3, Width: 3})
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -44,7 +48,11 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 }
 
 func TestPondNeighborSelectionOrthogonal(t *testing.T) {
-	pond, err := newpond(Dimensions{Height: 3, Width: 3}, NEIGHBORS_ORTHOGONAL)
+	board, err := newBoard(Dimensions{Height: 3, Width: 3})
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ORTHOGONAL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -67,7 +75,11 @@ func TestPondNeighborSelectionOrthogonal(t *testing.T) {
 }
 
 func TestPondNeighborSelectionOblique(t *testing.T) {
-	pond, err := newpond(Dimensions{Height: 3, Width: 3}, NEIGHBORS_OBLIQUE)
+	board, err := newBoard(Dimensions{Height: 3, Width: 3})
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_OBLIQUE)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -91,7 +103,11 @@ func TestPondNeighborSelectionOblique(t *testing.T) {
 
 func TestPondNeighborSelectionError(t *testing.T) {
 	// t.Skip("Bad location should be the test")
-	pond, err := newpond(Dimensions{Height: 1, Width: 1}, NEIGHBORS_ALL)
+	board, err := newBoard(Dimensions{Height: 1, Width: 1})
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -105,7 +121,11 @@ func TestPondNeighborSelectionError(t *testing.T) {
 func TestPondOrganismValue(t *testing.T) {
 	expectedVal := 2
 	pos := Location{X: 0, Y: 0}
-	pond, err := newpond(Dimensions{Height: 1, Width: 1}, NEIGHBORS_ALL)
+	board, err := newBoard(Dimensions{Height: 1, Width: 1})
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -120,7 +140,11 @@ func TestPondOrganismValue(t *testing.T) {
 
 func TestPondGetNumLiving(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	pond, err := newpond(dims, NEIGHBORS_ALL)
+	board, err := newBoard(dims)
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -140,7 +164,11 @@ func TestPondGetNumLiving(t *testing.T) {
 
 func TestPondNeighborCountCalutation(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	pond, err := newpond(dims, NEIGHBORS_ALL)
+	board, err := newBoard(dims)
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -185,7 +213,11 @@ func TestPondNeighborCountCalutation(t *testing.T) {
 
 func TestPondString(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	pond, err := newpond(dims, NEIGHBORS_ALL)
+	board, err := newBoard(dims)
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -196,7 +228,11 @@ func TestPondString(t *testing.T) {
 
 func TestPondEquals(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	pond, err := newpond(dims, NEIGHBORS_ALL)
+	board, err := newBoard(dims)
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -205,7 +241,11 @@ func TestPondEquals(t *testing.T) {
 		t.Fatal("Pond Equals failed identity test")
 	}
 
-	pond2, err := newpond(dims, NEIGHBORS_OBLIQUE)
+	board, err = newBoard(dims)
+	if err != nil {
+		t.Fatal("Unable to create board")
+	}
+	pond2, err := newPond(board, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
