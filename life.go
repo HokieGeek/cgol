@@ -37,8 +37,6 @@ func (t Status) String() string {
 		return "Seeded"
 	case Active:
 		return "Active"
-	case Stable:
-		return "Stable"
 	case Dead:
 		return "Dead"
 	}
@@ -76,8 +74,6 @@ func (t *Life) process() {
 	} else if organismsDelta < 0 {
 		t.Stats.OrganismsKilled += (organismsDelta * -1)
 		t.Status = Active
-	} else {
-		t.Status = Stable
 	}
 
 	// If the pond is dead, let's just stop doing things
