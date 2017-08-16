@@ -2,23 +2,7 @@ package life
 
 import (
 	"bytes"
-	"strconv"
 )
-
-type Statistics struct {
-	OrganismsCreated int
-	OrganismsKilled  int
-	Generations      int
-}
-
-func (t *Statistics) String() string {
-	var buf bytes.Buffer
-
-	buf.WriteString("Generation: ")
-	buf.WriteString(strconv.Itoa(t.Generations))
-
-	return buf.String()
-}
 
 type Status int
 
@@ -43,40 +27,30 @@ func (t Status) String() string {
 }
 
 type Life struct {
-	Label     string
-	Stats     Statistics
-	Status    Status
-	pond      *pond
-	processor func(pond *pond, rules func(int, bool) bool)
-	ruleset   func(int, bool) bool
-	Seed      []Location
+	Label       string
+	Status      Status
+	pond        *pond
+	processor   func(pond *pond, rules func(int, bool) bool)
+	ruleset     func(int, bool) bool
+	Seed        []Location
+	Generations int
 }
 
 func (t *Life) process() *Generation {
-	startingLivingCount := t.pond.GetNumLiving()
-
 	// Process any organisms that need to be
 	t.processor(t.pond, t.ruleset)
 
 	// Update the pond's statistics
-	t.Stats.Generations++
+	t.Generations++
 
-	// Update the statistics
-	organismsDelta := t.pond.GetNumLiving() - startingLivingCount
-	if organismsDelta > 0 {
-		t.Stats.OrganismsCreated += organismsDelta
+	// If we don't have living cells, then we are done.
+	if t.pond.GetNumLiving() > 0 {
 		t.Status = Active
-	} else if organismsDelta < 0 {
-		t.Stats.OrganismsKilled += (organismsDelta * -1)
-		t.Status = Active
-	}
-
-	// If the pond is dead, let's just stop doing things
-	if t.pond.GetNumLiving() <= 0 {
+	} else {
 		t.Status = Dead
 	}
 
-	return &Generation{Num: t.Stats.Generations, Living: t.pond.living.GetAll()}
+	return &Generation{Num: t.Generations, Living: t.pond.living.GetAll()}
 }
 
 func (t *Life) Start(listener chan *Generation) func() {
@@ -108,7 +82,7 @@ type Generation struct {
 
 func (t *Life) Generation(num int) *Generation {
 	var p *pond
-	if num == t.Stats.Generations {
+	if num == t.Generations {
 		p = t.pond
 	} else {
 		cloned, err := t.pond.Clone()
@@ -141,8 +115,6 @@ func (t *Life) String() string {
 	}
 	// buf.WriteString("Status: ")
 	// buf.WriteString(t.Status.String())
-	// buf.WriteString("\t")
-	// buf.WriteString(t.Stats.String())
 	buf.WriteString("\n")
 	buf.WriteString(t.pond.String())
 
@@ -178,7 +150,6 @@ func New(label string,
 	// Initialize the pond and schedule the currently living organisms
 	s.Seed = initializer(s.pond.board.Dims, Location{})
 	s.pond.SetOrganisms(s.Seed)
-	s.Stats.OrganismsCreated = len(s.Seed)
 
 	return s, nil
 }
