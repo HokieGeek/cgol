@@ -24,25 +24,41 @@ func displaypond(strategy *life.Life, rate time.Duration, iterations int, static
 		reader.ReadString('\n')
 	}
 
-	updates := make(chan bool)
-	stop := strategy.Start(updates, rate)
+	rateLimitedUpdates := make(chan *life.Generation)
 
-	countGenerations := 1
-	for {
-		select {
-		case <-updates:
-			if static {
-				fmt.Print("\033[H")
-			}
-			fmt.Print(strategy)
+	go func() {
+		countGenerations := 1
+		ticker := time.NewTicker(rate)
 
-			if iterations >= 0 {
-				countGenerations++
-				if countGenerations >= iterations {
-					stop()
-					break
+		for {
+			select {
+			case <-ticker.C:
+				gen := <-rateLimitedUpdates
+				if static {
+					fmt.Print("\033[H")
+				}
+				fmt.Printf("Generation: %d\n", gen.Num)
+				fmt.Print(strategy)
+
+				if iterations >= 0 {
+					countGenerations++
+					if countGenerations >= iterations {
+						ticker.Stop()
+						stop()
+						break
+					}
 				}
 			}
+		}
+	}()
+
+	updates := make(chan *life.Generation)
+	stop := strategy.Start(updates)
+
+	for {
+		select {
+		case gen := <-updates:
+			rateLimitedUpdates <- gen
 		}
 	}
 }
@@ -66,7 +82,7 @@ func main() {
 	patternPtr := flag.String("pattern", "random", "Specify the pattern to run")
 	widthPtr := flag.Int("width", 1, "Width of the Life board")
 	heightPtr := flag.Int("height", 1, "Height of the Life board")
-	ratePtr := flag.Duration("rate", -1, "Rate at which the board should be updated in milliseconds")
+	ratePtr := flag.Duration("rate", 1, "Rate at which the board should be updated in milliseconds")
 	extraPtr := flag.Int("extra", -1, "Extra values for pattners (such as random)")
 
 	flag.Parse()

@@ -2,9 +2,7 @@ package life
 
 import (
 	"bytes"
-	"fmt"
 	"strconv"
-	"time"
 )
 
 type Statistics struct {
@@ -54,14 +52,11 @@ type Life struct {
 	Seed      []Location
 }
 
-func (t *Life) process() {
+func (t *Life) process() *Generation {
 	startingLivingCount := t.pond.GetNumLiving()
-	fmt.Printf("Num living: %d\n", startingLivingCount)
 
 	// Process any organisms that need to be
 	t.processor(t.pond, t.ruleset)
-
-	fmt.Printf("Num living (processed): %d\n", t.pond.GetNumLiving())
 
 	// Update the pond's statistics
 	t.Stats.Generations++
@@ -78,58 +73,37 @@ func (t *Life) process() {
 
 	// If the pond is dead, let's just stop doing things
 	if t.pond.GetNumLiving() <= 0 {
-		fmt.Println("Oh shit")
 		t.Status = Dead
 	}
+
+	return &Generation{Num: t.pond.GetNumLiving(), Living: t.pond.living.GetAll()}
 }
 
-func (t *Life) Start(alert chan bool, rate time.Duration) func() {
+func (t *Life) Start(listener chan *Generation) func() {
 	t.Status = Active
 
-	if rate > 0 {
-		ticker := time.NewTicker(rate)
+	stop := false
 
-		go func() {
-			for {
-				select {
-				case <-ticker.C:
-					t.process()
-					if alert != nil {
-						alert <- true
-					}
+	go func() {
+		for {
+			if stop {
+				break
+			} else {
+				if listener != nil {
+					listener <- t.process()
 				}
 			}
-		}()
-
-		return func() {
-			ticker.Stop()
 		}
-	} else {
-		stop := false
+	}()
 
-		go func() {
-			for {
-				if stop {
-					break
-				} else {
-					t.process()
-					if alert != nil {
-						alert <- true
-					}
-				}
-			}
-		}()
-
-		return func() {
-			stop = true
-		}
+	return func() {
+		stop = true
 	}
 }
 
 type Generation struct {
 	Num    int
 	Living []Location
-	// stats...
 }
 
 func (t *Life) Generation(num int) *Generation {
@@ -165,10 +139,10 @@ func (t *Life) String() string {
 		buf.WriteString(t.Label)
 		buf.WriteString("]\n")
 	}
-	buf.WriteString("Status: ")
-	buf.WriteString(t.Status.String())
-	buf.WriteString("\t")
-	buf.WriteString(t.Stats.String())
+	// buf.WriteString("Status: ")
+	// buf.WriteString(t.Status.String())
+	// buf.WriteString("\t")
+	// buf.WriteString(t.Stats.String())
 	buf.WriteString("\n")
 	buf.WriteString(t.pond.String())
 

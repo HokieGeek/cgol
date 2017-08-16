@@ -107,7 +107,7 @@ func CreateAnalysis(mgr *Manager, w http.ResponseWriter, r *http.Request) {
 
 		// Create the analyzer
 		// fmt.Printf("Creating new analyzer with pattern: %v\n", patternFunc(req.Dims, life.Location{X: 0, Y: 0}))
-		analyzer, err := biologist.NewBiologist(req.Dims, patternFunc, life.ConwayTester())
+		analyzer, err := biologist.New(req.Dims, patternFunc, life.ConwayTester())
 		if err != nil {
 			panic(err)
 		}
