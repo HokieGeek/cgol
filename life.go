@@ -26,13 +26,18 @@ func (t Status) String() string {
 	return "Unknown"
 }
 
+type Generation struct {
+	Num    int
+	Living []Location
+}
+
 type Life struct {
-	Status      Status
 	pond        *pond
 	processor   func(pond *pond, rules func(int, bool) bool)
 	ruleset     func(int, bool) bool
 	Seed        []Location
 	Generations int
+	Status      Status
 }
 
 func (t *Life) process() *Generation {
@@ -72,11 +77,6 @@ func (t *Life) Start(listener chan *Generation) func() {
 	return func() {
 		stop = true
 	}
-}
-
-type Generation struct {
-	Num    int
-	Living []Location
 }
 
 func (t *Life) Generation(num int) *Generation {
