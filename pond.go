@@ -90,7 +90,7 @@ func (t *pond) setOrganismValue(organism Location, num int) {
 	} else if originalNum >= 0 && num < 0 {
 		t.living.Remove(organism)
 	} else {
-		fmt.Println(">>>>> what am i doing in here?")
+		fmt.Printf(">>>>> what am i doing in here?: %d\n", num)
 	}
 	// fmt.Printf("Living count is: %d\n", t.living.GetCount())
 }
@@ -117,7 +117,12 @@ func (t *pond) SetOrganisms(organisms []Location) {
 }
 
 func (t *pond) Clone() (*pond, error) {
-	shadowpond, err := newPond(t.board, t.living, t.neighborsSelector) // FIXME: umm. board and tracker need to be cloned as well
+	shadowBoard, err := t.board.Clone()
+	if err != nil {
+		return nil, err
+	}
+
+	shadowpond, err := newPond(shadowBoard, t.living.Clone(), t.neighborsSelector) // FIXME: umm. board and tracker need to be cloned as well
 	if err != nil {
 		return nil, err
 	}

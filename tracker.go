@@ -126,6 +126,14 @@ func (t *tracker) GetCount() int {
 	return val
 }
 
+func (t *tracker) Clone() *tracker {
+	shadow := newTracker()
+
+	// FIXME: copy the tracker using t.GetAll()
+
+	return shadow
+}
+
 func newTracker() *tracker {
 	t := new(tracker)
 

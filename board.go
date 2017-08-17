@@ -230,6 +230,17 @@ func (t *board) GetAllNeighbors(location Location) []Location {
 	return neighbors
 }
 
+func (t *board) Clone() (*board, error) {
+	shadow, err := newBoard(t.Dims)
+	if err != nil {
+		return nil, err
+	}
+
+	// FIXME: copy the board using t.getSnapshot()
+
+	return shadow, nil
+}
+
 func (t *board) Equals(rhs *board) bool {
 	rhsSnapshot := rhs.getSnapshot()
 	thisSnapshot := t.getSnapshot()
