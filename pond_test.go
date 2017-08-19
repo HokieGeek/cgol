@@ -2,6 +2,47 @@ package life
 
 import "testing"
 
+func TestLocationString(t *testing.T) {
+	loc := Location{X: 1, Y: 1}
+	if len(loc.String()) == 0 {
+		t.Error("The Location String() function unexpectedly returned an empty string")
+	}
+}
+
+func TestDimensionsString(t *testing.T) {
+	dims := Dimensions{Height: 1, Width: 1}
+	if len(dims.String()) == 0 {
+		t.Error("The Dimensions Strings() function unexpectedly returned an empty string")
+	}
+}
+
+func TestDimensionsEquals(t *testing.T) {
+	dims := Dimensions{Height: 42, Width: 42}
+
+	// Check that they are equal
+	if !dims.Equals(&dims) {
+		t.Fatal("Stupid equals function failed identity check")
+	}
+
+	// Check where height is not equal
+	notEqual := Dimensions{Height: 44, Width: 42}
+	if dims.Equals(&notEqual) {
+		t.Fatalf("Equals function says that %d is equal to %d\n", dims.Height, notEqual.Height)
+	}
+
+	// Check where width is not equal
+	notEqual = Dimensions{Height: 42, Width: 22}
+	if dims.Equals(&notEqual) {
+		t.Fatalf("Equals function says that %d is equal to %d\n", dims.Height, notEqual.Height)
+	}
+
+	// Check where neither is equal
+	notEqual = Dimensions{Height: 44, Width: 22}
+	if dims.Equals(&notEqual) {
+		t.Fatalf("Equals function says that %s is equal to %s\n", dims.String(), notEqual.String())
+	}
+}
+
 func TestNeighborSelectorString(t *testing.T) {
 	var selector neighborsSelector
 
@@ -22,11 +63,7 @@ func TestNeighborSelectorString(t *testing.T) {
 }
 
 func TestPondSettingInitialPatterns(t *testing.T) {
-	board, err := newBoard(Dimensions{Height: 3, Width: 3})
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -48,11 +85,7 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 }
 
 func TestPondNeighborSelectionOrthogonal(t *testing.T) {
-	board, err := newBoard(Dimensions{Height: 3, Width: 3})
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond, err := newPond(board, newTracker(), NEIGHBORS_ORTHOGONAL)
+	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NEIGHBORS_ORTHOGONAL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -75,11 +108,7 @@ func TestPondNeighborSelectionOrthogonal(t *testing.T) {
 }
 
 func TestPondNeighborSelectionOblique(t *testing.T) {
-	board, err := newBoard(Dimensions{Height: 3, Width: 3})
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond, err := newPond(board, newTracker(), NEIGHBORS_OBLIQUE)
+	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NEIGHBORS_OBLIQUE)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -102,12 +131,7 @@ func TestPondNeighborSelectionOblique(t *testing.T) {
 }
 
 func TestPondNeighborSelectionError(t *testing.T) {
-	// t.Skip("Bad location should be the test")
-	board, err := newBoard(Dimensions{Height: 1, Width: 1})
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(Dimensions{Height: 1, Width: 1}, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -118,14 +142,11 @@ func TestPondNeighborSelectionError(t *testing.T) {
 	}
 }
 
+/* TODO
 func TestPondOrganismValue(t *testing.T) {
 	expectedVal := 2
 	pos := Location{X: 0, Y: 0}
-	board, err := newBoard(Dimensions{Height: 1, Width: 1})
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(Dimensions{Height: 1, Width: 1}, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -137,38 +158,11 @@ func TestPondOrganismValue(t *testing.T) {
 		t.Fatalf("Retrieved actual value %d instead of expected value %d\n", actualVal, expectedVal)
 	}
 }
-
-func TestPondGetNumLiving(t *testing.T) {
-	dims := Dimensions{Height: 3, Width: 3}
-	board, err := newBoard(dims)
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
-	if err != nil {
-		t.Fatal("Unable to create pond")
-	}
-
-	// Create a pattern and call the pond's init function
-	initialLiving := make([]Location, 2)
-	initialLiving[0] = Location{X: 0, Y: 0}
-	initialLiving[1] = Location{X: 1, Y: 1}
-	pond.SetOrganisms(initialLiving)
-
-	numLiving := pond.GetNumLiving()
-
-	if numLiving != len(initialLiving) {
-		t.Fatalf("Retrieved actual %d living orgnamisms instead of expected %d\n", numLiving, len(initialLiving))
-	}
-}
+*/
 
 func TestPondNeighborCountCalutation(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	board, err := newBoard(dims)
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(dims, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -213,11 +207,7 @@ func TestPondNeighborCountCalutation(t *testing.T) {
 
 func TestPondString(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	board, err := newBoard(dims)
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(dims, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -229,11 +219,7 @@ func TestPondString(t *testing.T) {
 func TestPondEquals(t *testing.T) {
 	t.Skip("whoops")
 	dims := Dimensions{Height: 3, Width: 3}
-	board, err := newBoard(dims)
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond, err := newPond(board, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(dims, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -242,11 +228,7 @@ func TestPondEquals(t *testing.T) {
 		t.Fatal("Pond Equals failed identity test")
 	}
 
-	board, err = newBoard(dims)
-	if err != nil {
-		t.Fatal("Unable to create board")
-	}
-	pond2, err := newPond(board, newTracker(), NEIGHBORS_ALL)
+	pond2, err := newPond(dims, newTracker(), NEIGHBORS_ALL)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -255,5 +237,121 @@ func TestPondEquals(t *testing.T) {
 		t.Fatal("Pond Equals returned true with ponds having different neighbor selectors")
 	}
 }
+
+/*
+func testBoardNeighbors(t *testing.T, expected []Location, actual []Location) {
+	// Check the results
+	if len(actual) != len(expected) {
+		t.Fatalf("Number of neighbors (%d) does not match expected (%d)\n", len(actual), len(expected))
+	}
+
+	// Check that all expected locations are in the actual list
+	for _, expectedLoc := range expected {
+		found := false
+		for _, actualLoc := range actual {
+			if expectedLoc.Equals(&actualLoc) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("Did not find location %s in actual list\n", expectedLoc.String())
+		}
+	}
+
+	// Check that the actual list doesn't have any unexpected locations
+	for _, actualLoc := range actual {
+		found := false
+		for _, expectedLoc := range expected {
+			if expectedLoc.Equals(&actualLoc) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Fatalf("Found location %s in actual list that was not expected\n", actualLoc.String())
+		}
+	}
+}
+
+func TestBoardGetOrthogonalNeighbors(t *testing.T) {
+	// Build list of expected locations
+	expected := make([]Location, 4)
+	expected[0] = Location{X: 1, Y: 0}
+	expected[1] = Location{X: 0, Y: 1}
+	expected[2] = Location{X: 2, Y: 1}
+	expected[3] = Location{X: 1, Y: 2}
+
+	// Initialize a board
+	dims := Dimensions{Height: 3, Width: 3}
+	board, err := newBoard(dims)
+	if err != nil {
+		t.Fatalf("board of size %s could not be created\n", dims.String())
+	}
+	for i := 0; i < len(expected); i++ {
+		board.SetValue(expected[i], 0)
+	}
+
+	// Retrieve neighbors
+	actual := board.GetOrthogonalNeighbors(Location{X: 1, Y: 1})
+
+	testBoardNeighbors(t, expected, actual)
+}
+
+func TestBoardGetObliqueNeighbors(t *testing.T) {
+	// Build list of expected locations
+	expected := make([]Location, 4)
+	expected[0] = Location{X: 0, Y: 0}
+	expected[1] = Location{X: 2, Y: 0}
+	expected[2] = Location{X: 0, Y: 2}
+	expected[3] = Location{X: 2, Y: 2}
+
+	// Initialize a board
+	dims := Dimensions{Height: 3, Width: 3}
+	board, err := newBoard(dims)
+	if err != nil {
+		t.Fatalf("board of size %s could not be created\n", dims.String())
+	}
+	for i := 0; i < len(expected); i++ {
+		board.SetValue(expected[i], 0)
+	}
+
+	// Retrieve neighbors
+	actual := board.GetObliqueNeighbors(Location{X: 1, Y: 1})
+
+	testBoardNeighbors(t, expected, actual)
+}
+
+func TestBoardGetAllNeighbors(t *testing.T) {
+	// Build list of expected locations
+	expected := make([]Location, 0)
+	for i := 0; i < 4; i++ {
+		switch i {
+		case 0, 2:
+			for j := 0; j < 3; j++ {
+				expected = append(expected, Location{X: j, Y: i})
+			}
+		case 1:
+			expected = append(expected, Location{X: 0, Y: 1})
+			expected = append(expected, Location{X: 2, Y: 1})
+		}
+	}
+
+	// Initialize a board
+	dims := Dimensions{Height: 3, Width: 3}
+	board, err := newBoard(dims)
+	if err != nil {
+		t.Fatalf("board of size %s could not be created\n", dims.String())
+	}
+	for i := 0; i < len(expected); i++ {
+		board.SetValue(expected[i], 0)
+	}
+
+	// Retrieve neighbors
+	actual := board.GetAllNeighbors(Location{X: 1, Y: 1})
+
+	testBoardNeighbors(t, expected, actual)
+}
+*/
 
 // vim: set foldmethod=marker:

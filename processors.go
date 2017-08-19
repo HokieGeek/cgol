@@ -6,11 +6,11 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 
 	////// Modifications handler /////
 	type ModifiedOrganism struct {
-		loc Location
-		val int
+		loc   Location
+		alive bool
 	}
 
-	modifications := make(chan ModifiedOrganism, pond.board.Dims.Capacity())
+	modifications := make(chan ModifiedOrganism, pond.Dims.Capacity())
 	blockModifications := make(chan bool, 1)
 
 	// This routine will make the actual modifications to the pond
@@ -20,7 +20,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 		for {
 			mod, more := <-modifications
 			if more {
-				pond.setOrganismValue(mod.loc, mod.val)
+				pond.setOrganismState(mod.loc, mod.alive)
 			} else {
 				break
 			}
@@ -31,7 +31,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 	}()
 
 	///// Start processing stuffs /////
-	processingQueue := make(chan Location, pond.board.Dims.Capacity())
+	processingQueue := make(chan Location, pond.Dims.Capacity())
 	doneProcessing := make(chan bool, 1)
 
 	// Process the queue
@@ -68,9 +68,9 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 
 					if currentlyAlive != organismStatus { // If its status has changed, then we do stuff
 						if organismStatus { // If is alive
-							modifications <- ModifiedOrganism{loc: organism, val: 0}
+							modifications <- ModifiedOrganism{loc: organism, alive: true}
 						} else {
-							modifications <- ModifiedOrganism{loc: organism, val: -1}
+							modifications <- ModifiedOrganism{loc: organism, alive: false}
 						}
 					}
 

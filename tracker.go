@@ -126,6 +126,27 @@ func (t *tracker) GetCount() int {
 	return val
 }
 
+func (t *tracker) Equals(rhs *tracker) bool {
+	rhsSnapshot := rhs.GetAll()
+	thisSnapshot := t.GetAll()
+
+	if len(thisSnapshot) != len(rhsSnapshot) {
+		return false
+	}
+
+	/* TODO
+	for row := t.Dims.Height - 1; row >= 0; row-- {
+		for col := t.Dims.Width - 1; col >= 0; col-- {
+			if thisSnapshot[row][col] != rhsSnapshot[row][col] {
+				return false
+			}
+		}
+	}
+	return true
+	*/
+	return false
+}
+
 func (t *tracker) Clone() *tracker {
 	shadow := newTracker()
 

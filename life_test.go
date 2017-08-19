@@ -17,13 +17,11 @@ func TestLifeCreation(t *testing.T) {
 		t.Fatalf("Unable to create strategy: %s\n", err)
 	}
 
-	expected, _ := newBoard(Dimensions{3, 3})
-	expected.SetValue(Location{X: 0, Y: 1}, 0)
-	expected.SetValue(Location{X: 1, Y: 1}, 0)
-	expected.SetValue(Location{X: 2, Y: 1}, 0)
+	expected, _ := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NEIGHBORS_ALL)
+	expected.SetOrganisms([]Location{Location{X: 0, Y: 1}, Location{X: 1, Y: 1}, Location{X: 2, Y: 1}})
 
-	if !strategy.pond.board.Equals(expected) {
-		t.Fatalf("Actual board\n%s\ndoes not match expected\n%s\n", strategy.pond.board.String(), expected.String())
+	if !strategy.pond.Equals(expected) {
+		t.Fatalf("Actual board\n%s\ndoes not match expected\n%s\n", strategy.pond.String(), expected.String())
 	}
 }
 

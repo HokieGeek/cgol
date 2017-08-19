@@ -69,7 +69,7 @@ func (t *Life) Generation(num int) *Generation {
 }
 
 func (t *Life) Dimensions() Dimensions {
-	return t.pond.board.Dims
+	return t.pond.Dims
 }
 
 func (t *Life) String() string {
@@ -89,12 +89,8 @@ func New(dims Dimensions,
 	s := new(Life)
 
 	var err error
-	board, err := newBoard(dims)
-	if err != nil {
-		return nil, err
-	}
 	livingTracker := newTracker()
-	s.pond, err = newPond(board, livingTracker, neighbors)
+	s.pond, err = newPond(dims, livingTracker, neighbors)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +100,7 @@ func New(dims Dimensions,
 	s.processor = processor
 
 	// Initialize the pond and schedule the currently living organisms
-	s.Seed = initializer(s.pond.board.Dims, Location{})
+	s.Seed = initializer(s.pond.Dims, Location{})
 	s.pond.SetOrganisms(s.Seed)
 
 	return s, nil
