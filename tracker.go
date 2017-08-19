@@ -34,8 +34,6 @@ type tracker struct {
 func (t *tracker) living() {
 	var livingMap = make(map[int]map[int]Location)
 	var count int
-	// logger := log.New(os.Stderr, "tracker: ", log.Ltime)
-	// logger := log.New(ioutil.Discard, "tracker: ", log.Ltime)
 
 	for {
 		select {
@@ -118,7 +116,7 @@ func (t *tracker) GetAll() []Location {
 	return val
 }
 
-func (t *tracker) GetCount() int {
+func (t *tracker) Count() int {
 	count := &trackerCountOp{resp: make(chan int)}
 	t.trackerCount <- count
 	val := <-count.resp
@@ -127,30 +125,25 @@ func (t *tracker) GetCount() int {
 }
 
 func (t *tracker) Equals(rhs *tracker) bool {
-	rhsSnapshot := rhs.GetAll()
-	thisSnapshot := t.GetAll()
-
-	if len(thisSnapshot) != len(rhsSnapshot) {
+	if t.Count() != rhs.Count() {
 		return false
 	}
 
-	/* TODO
-	for row := t.Dims.Height - 1; row >= 0; row-- {
-		for col := t.Dims.Width - 1; col >= 0; col-- {
-			if thisSnapshot[row][col] != rhsSnapshot[row][col] {
-				return false
-			}
+	for _, loc := range t.GetAll() {
+		if !rhs.Test(loc) {
+			return false
 		}
 	}
+
 	return true
-	*/
-	return false
 }
 
 func (t *tracker) Clone() *tracker {
 	shadow := newTracker()
 
-	// FIXME: copy the tracker using t.GetAll()
+	for _, loc := range t.GetAll() {
+		shadow.Set(loc)
+	}
 
 	return shadow
 }

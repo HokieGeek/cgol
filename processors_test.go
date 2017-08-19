@@ -12,7 +12,7 @@ func testProcessor(t *testing.T,
 	rules func(int, bool) bool,
 	size Dimensions,
 	init func(Dimensions, Location) []Location,
-	expected []*tracker) {
+	expected []*pond) {
 
 	// Build the initial pond
 	pond, err := newPond(size, newTracker(), NEIGHBORS_ALL)
@@ -26,13 +26,26 @@ func testProcessor(t *testing.T,
 		processor(pond, rules)
 
 		// Compare the pond with the expected version
-		if !pond.living.Equals(expected[i]) {
-			t.Fatalf("At iteration %d, actual board\n%s\ndoes not match expected\n", len(expected), pond.String())
+		if !pond.Equals(expected[i]) {
+			t.Fatalf("At iteration %d, actual board\n%s\ndoes not match expected\n%s\n", len(expected), pond.String(), expected[i].String())
 		}
 	}
 }
 
-func generateBlinkers(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*tracker) {
+func createPondsFromTrackers(t *testing.T, dims Dimensions, trackers []*tracker) []*pond {
+	var err error
+	ponds := make([]*pond, len(trackers))
+	for i, tracker := range trackers {
+		ponds[i], err = newPond(dims, tracker, NEIGHBORS_ALL)
+		if err != nil {
+			t.Fatal("Unable to create pond")
+		}
+	}
+
+	return ponds
+}
+
+func generateBlinkers(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*pond) {
 	size := Dimensions{Height: 3, Width: 3}
 
 	// Build the expected board
@@ -50,10 +63,10 @@ func generateBlinkers(t *testing.T) (Dimensions, func(Dimensions, Location) []Lo
 		expected[1].Set(val)
 	}
 
-	return size, Blinkers, expected
+	return size, Blinkers, createPondsFromTrackers(t, size, expected)
 }
 
-func generateToads(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*tracker) {
+func generateToads(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*pond) {
 	size := Dimensions{Height: 4, Width: 4}
 
 	// Build the expected board
@@ -76,10 +89,10 @@ func generateToads(t *testing.T) (Dimensions, func(Dimensions, Location) []Locat
 		expected[1].Set(val)
 	}
 
-	return size, Toads, expected
+	return size, Toads, createPondsFromTrackers(t, size, expected)
 }
 
-func generateBeacons(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*tracker) {
+func generateBeacons(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*pond) {
 	size := Dimensions{Height: 4, Width: 4}
 
 	// Build the expected board
@@ -104,10 +117,10 @@ func generateBeacons(t *testing.T) (Dimensions, func(Dimensions, Location) []Loc
 		expected[1].Set(val)
 	}
 
-	return size, Beacons, expected
+	return size, Beacons, createPondsFromTrackers(t, size, expected)
 }
 
-func generatePulsar(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*tracker) {
+func generatePulsar(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*pond) {
 	size := Dimensions{Height: 15, Width: 15}
 
 	// Build the expected board
@@ -193,10 +206,10 @@ func generatePulsar(t *testing.T) (Dimensions, func(Dimensions, Location) []Loca
 		expected[2].Set(val)
 	}
 
-	return size, Pulsar, expected
+	return size, Pulsar, createPondsFromTrackers(t, size, expected)
 }
 
-func generateGlider(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*tracker) {
+func generateGlider(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*pond) {
 	size := Dimensions{Height: 5, Width: 4}
 
 	// Build the expected board
@@ -263,10 +276,10 @@ func generateGlider(t *testing.T) (Dimensions, func(Dimensions, Location) []Loca
 	// Row 3
 	expected[4].Set(Location{X: 2, Y: 4})
 
-	return size, Gliders, expected
+	return size, Gliders, createPondsFromTrackers(t, size, expected)
 }
 
-func generateBlock(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*tracker) {
+func generateBlock(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*pond) {
 	size := Dimensions{Height: 4, Width: 4}
 
 	// Build the expected board
@@ -281,10 +294,10 @@ func generateBlock(t *testing.T) (Dimensions, func(Dimensions, Location) []Locat
 		}
 	}
 
-	return size, Blocks, expected
+	return size, Blocks, createPondsFromTrackers(t, size, expected)
 }
 
-func generateBeehive(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*tracker) {
+func generateBeehive(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*pond) {
 	size := Dimensions{Height: 4, Width: 4}
 
 	// Build the expected board
@@ -304,10 +317,10 @@ func generateBeehive(t *testing.T) (Dimensions, func(Dimensions, Location) []Loc
 		}
 	}
 
-	return size, Beehive, expected
+	return size, Beehive, createPondsFromTrackers(t, size, expected)
 }
 
-func generateLoaf(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*tracker) {
+func generateLoaf(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*pond) {
 	size := Dimensions{Height: 4, Width: 4}
 
 	// Build the expected board
@@ -328,10 +341,10 @@ func generateLoaf(t *testing.T) (Dimensions, func(Dimensions, Location) []Locati
 		expected[period].Set(Location{X: 2, Y: 3})
 	}
 
-	return size, Loaf, expected
+	return size, Loaf, createPondsFromTrackers(t, size, expected)
 }
 
-func generateBoat(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*tracker) {
+func generateBoat(t *testing.T) (Dimensions, func(Dimensions, Location) []Location, []*pond) {
 	size := Dimensions{Height: 4, Width: 4}
 
 	// Build the expected board
@@ -349,7 +362,7 @@ func generateBoat(t *testing.T) (Dimensions, func(Dimensions, Location) []Locati
 		expected[period].Set(Location{X: 1, Y: 2})
 	}
 
-	return size, Boat, expected
+	return size, Boat, createPondsFromTrackers(t, size, expected)
 }
 
 //////////////////////// Simultaneous processor ////////////////////////
@@ -357,7 +370,7 @@ func generateBoat(t *testing.T) (Dimensions, func(Dimensions, Location) []Locati
 func testProcessorSimultaneousRulesConway(t *testing.T,
 	size Dimensions,
 	init func(Dimensions, Location) []Location,
-	expected []*tracker) {
+	expected []*pond) {
 
 	testProcessor(t,
 		SimultaneousProcessor,

@@ -118,7 +118,7 @@ func TestTrackerCount(t *testing.T) {
 
 	// Test the counter
 	expectedCount := len(expectedLocations)
-	count := tracker.GetCount()
+	count := tracker.Count()
 	if count != expectedCount {
 		t.Fatalf("Retrieved count of %d instead of expected %d\n", count, expectedCount)
 	}
@@ -126,7 +126,7 @@ func TestTrackerCount(t *testing.T) {
 	// Now remove a location and try again
 	tracker.Remove(expectedLocations[2])
 	expectedCount--
-	count = tracker.GetCount()
+	count = tracker.Count()
 	if count != expectedCount {
 		t.Fatalf("Retrieved count of %d instead of expected %d after remove a location\n", count, expectedCount)
 	}

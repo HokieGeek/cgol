@@ -86,7 +86,7 @@ type pond struct {
 	living            *tracker
 }
 
-func (t *pond) GetOrthogonalNeighbors(location Location) []Location {
+func (t *pond) getOrthogonalNeighbors(location Location) []Location {
 	neighbors := make([]Location, 0)
 
 	// Determine the offsets
@@ -115,7 +115,7 @@ func (t *pond) GetOrthogonalNeighbors(location Location) []Location {
 	return neighbors
 }
 
-func (t *pond) GetObliqueNeighbors(location Location) []Location {
+func (t *pond) getObliqueNeighbors(location Location) []Location {
 	neighbors := make([]Location, 0)
 
 	// Determine the offsets
@@ -145,8 +145,8 @@ func (t *pond) GetObliqueNeighbors(location Location) []Location {
 	return neighbors
 }
 
-func (t *pond) GetAllNeighbors(location Location) []Location {
-	neighbors := append(t.GetOrthogonalNeighbors(location), t.GetObliqueNeighbors(location)...)
+func (t *pond) getAllNeighbors(location Location) []Location {
+	neighbors := append(t.getOrthogonalNeighbors(location), t.getObliqueNeighbors(location)...)
 
 	return neighbors
 }
@@ -158,11 +158,11 @@ func (t *pond) GetNeighbors(organism Location) ([]Location, error) {
 
 	switch {
 	case t.neighborsSelector == NEIGHBORS_ORTHOGONAL:
-		return t.GetOrthogonalNeighbors(organism), nil
+		return t.getOrthogonalNeighbors(organism), nil
 	case t.neighborsSelector == NEIGHBORS_OBLIQUE:
-		return t.GetObliqueNeighbors(organism), nil
+		return t.getObliqueNeighbors(organism), nil
 	case t.neighborsSelector == NEIGHBORS_ALL:
-		return t.GetAllNeighbors(organism), nil
+		return t.getAllNeighbors(organism), nil
 	}
 
 	return nil, errors.New("Did not recognize neighbor selector")
@@ -194,7 +194,7 @@ func (t *pond) setOrganismState(organism Location, alive bool) {
 		} else {
 			t.living.Remove(organism)
 		}
-		// fmt.Printf("Living count is: %d\n", t.living.GetCount())
+		// fmt.Printf("Living count is: %d\n", t.living.Count())
 	}
 }
 
@@ -247,7 +247,7 @@ func (t *pond) String() string {
 	buf.WriteString("Neighbors: ")
 	buf.WriteString(t.neighborsSelector.String())
 	buf.WriteString("\tLiving cells: ")
-	buf.WriteString(strconv.Itoa(t.living.GetCount()))
+	buf.WriteString(strconv.Itoa(t.living.Count()))
 	buf.WriteString("\n")
 
 	//// DRAW THE BOARD ////
