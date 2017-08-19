@@ -1,4 +1,4 @@
-# life [![Build Status](https://travis-ci.org/HokieGeek/life.svg?branch=master)](https://travis-ci.org/HokieGeek/life) [![Coverage](http://gocover.io/_badge/gitlab.com/HokieGeek/life/core?0)](http://gocover.io/gitlab.com/HokieGeek/life/core) [![GoDoc](http://godoc.org/gitlab.com/hokiegeek/life/core?status.png)](http://godoc.org/gitlab.com/hokiegeek/life/core)
+# life [![build status](https://gitlab.com/HokieGeek/life/badges/master/build.svg)](https://gitlab.com/HokieGeek/life/commits/master) [![coverage report](https://gitlab.com/HokieGeek/life/badges/master/coverage.svg)](https://gitlab.com/HokieGeek/life/commits/master) [![GoDoc](http://godoc.org/gitlab.com/HokieGeek/life?status.png)](http://godoc.org/gitlab.com/HokieGeek/life)
 
 This library allows you to run a [Conway's Game of Life](http://www.conwaylife.com/wiki/Conway%27s_Game_of_Life) simulation.
 
