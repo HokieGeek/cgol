@@ -1,17 +1,6 @@
 package life
 
-/*
-import (
-// "io/ioutil"
-"log"
-"os"
-)
-*/
-
 func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
-	// logger := log.New(os.Stderr, "SimultaneousProcessor: ", log.Ltime)
-	// logger := log.New(ioutil.Discard, "SimultaneousProcessor: ", log.Ltime)
-
 	// Blocks the completion of this function
 	done := make(chan bool, 1)
 
@@ -71,7 +60,6 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 					processed[organism.Y][organism.X] = 1
 
 					// Retrieve all the infos
-					// numNeighbors, neighbors := pond.calculateNeighborCount(organism)
 					numNeighbors, _ := pond.calculateNeighborCount(organism)
 					currentlyAlive := pond.isOrganismAlive(organism)
 
