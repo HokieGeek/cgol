@@ -1,5 +1,7 @@
 package life
 
+import "fmt"
+
 // SimultaneousProcessor simultaneously applies the given rules to the given pond. This is the default Conway processor.
 func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 	// Blocks the completion of this function
@@ -30,7 +32,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 		done <- true
 	}()
 
-	///// Start processing stuffs /////
+	///// Start processing the living cells and their neighbors /////
 	// Process the queue
 	processingQueue := make(chan Location, pond.Dims.Capacity())
 	go func() {
@@ -53,8 +55,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 					processed[organism.Y][organism.X] = 1
 
 					// Retrieve all the infos
-					neighbors, err := pond.GetNeighbors(organism)
-					if err == nil {
+					if neighbors, err := pond.GetNeighbors(organism); err == nil {
 						numLivingNeighbors := 0
 						for _, neighbor := range neighbors {
 							if pond.isOrganismAlive(neighbor) {
@@ -72,6 +73,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 					}
 				}
 			} else {
+				fmt.Println("blah")
 				close(modifications)
 				blockModifications <- false
 				break
@@ -84,8 +86,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 		processingQueue <- organism
 
 		// Now process the neighbors!
-		neighbors, err := pond.GetNeighbors(organism)
-		if err == nil {
+		if neighbors, err := pond.GetNeighbors(organism); err == nil {
 			for _, neighbor := range neighbors {
 				processingQueue <- neighbor
 			}
