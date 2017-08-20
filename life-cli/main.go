@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"gitlab.com/hokiegeek/life"
 	"os"
 	"time"
+
+	"gitlab.com/hokiegeek/life"
 )
 
 func displaypond(strategy *life.Life, rate time.Duration, iterations int, static, paused bool) {

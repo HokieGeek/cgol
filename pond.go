@@ -278,6 +278,10 @@ func (t *pond) String() string {
 }
 
 func newPond(dims Dimensions, tracker *tracker, neighbors neighborsSelector) (*pond, error) {
+	if dims.Capacity() == 0 {
+		return nil, errors.New("Cannot create pond of zero capacity")
+	}
+
 	p := new(pond)
 
 	if tracker == nil {

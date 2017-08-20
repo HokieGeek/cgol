@@ -62,6 +62,14 @@ func TestNeighborSelectorString(t *testing.T) {
 	}
 }
 
+func TestCreateCreateError(t *testing.T) {
+	size := Dimensions{Width: 0, Height: 0}
+	_, err := newPond(size, newTracker(), NeighborsAll)
+	if err == nil {
+		t.Fatal("Unexpectedly successful at creating pond of 0 capacity")
+	}
+}
+
 func TestPondSettingInitialPatterns(t *testing.T) {
 	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NeighborsAll)
 	if err != nil {
