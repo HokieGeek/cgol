@@ -18,8 +18,7 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 		<-blockModifications
 
 		for {
-			mod, more := <-modifications
-			if more {
+			if mod, more := <-modifications; more {
 				pond.setOrganismState(mod.loc, mod.alive)
 			} else {
 				break
@@ -31,25 +30,18 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 	}()
 
 	///// Start processing stuffs /////
-	processingQueue := make(chan Location, pond.Dims.Capacity())
-	doneProcessing := make(chan bool, 1)
-
 	// Process the queue
+	processingQueue := make(chan Location, pond.Dims.Capacity())
 	go func() {
 		processed := make(map[int]map[int]int)
 		for {
 			// Retrieve organism from channel, get its neighbors and see if it is alive
-			organism, more := <-processingQueue
-			if more {
-
+			if organism, more := <-processingQueue; more {
 				// Should not process an organism which has already been processed
 				unprocessed := true
-				_, keyExists := processed[organism.Y]
-				if keyExists {
+				if _, keyExists := processed[organism.Y]; keyExists {
 					_, keyExists = processed[organism.Y][organism.X]
-					if keyExists {
-						unprocessed = false
-					}
+					unprocessed = !keyExists
 				} else {
 					processed[organism.Y] = make(map[int]int)
 				}
@@ -60,24 +52,27 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 					processed[organism.Y][organism.X] = 1
 
 					// Retrieve all the infos
-					numNeighbors, _ := pond.calculateNeighborCount(organism)
-					currentlyAlive := pond.isOrganismAlive(organism)
+					neighbors, err := pond.GetNeighbors(organism)
+					if err == nil {
+						numLivingNeighbors := 0
+						for _, neighbor := range neighbors {
+							if pond.isOrganismAlive(neighbor) {
+								numLivingNeighbors++
+							}
+						}
+						currentlyAlive := pond.isOrganismAlive(organism)
 
-					// Check with the ruleset what this organism's current status is
-					organismStatus := rules(numNeighbors, currentlyAlive)
+						// Check with the ruleset what this organism's current status is
+						organismStatus := rules(numLivingNeighbors, currentlyAlive)
 
-					if currentlyAlive != organismStatus { // If its status has changed, then we do stuff
-						if organismStatus { // If is alive
-							modifications <- ModifiedOrganism{loc: organism, alive: true}
-						} else {
-							modifications <- ModifiedOrganism{loc: organism, alive: false}
+						if currentlyAlive != organismStatus { // If its status has changed, then we do stuff
+							modifications <- ModifiedOrganism{loc: organism, alive: organismStatus}
 						}
 					}
-
 				}
 			} else {
 				close(modifications)
-				doneProcessing <- true
+				blockModifications <- false
 				break
 			}
 		}
@@ -88,17 +83,14 @@ func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 		processingQueue <- organism
 
 		// Now process the neighbors!
-		_, neighbors := pond.calculateNeighborCount(organism)
-		for _, neighbor := range neighbors {
-			processingQueue <- neighbor
+		neighbors, err := pond.GetNeighbors(organism)
+		if err == nil {
+			for _, neighbor := range neighbors {
+				processingQueue <- neighbor
+			}
 		}
 	}
 	close(processingQueue)
-
-	<-doneProcessing
-
-	// Start processing modifications
-	blockModifications <- false
 
 	// Block until all modifications are done
 	<-done

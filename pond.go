@@ -198,20 +198,6 @@ func (t *pond) setOrganismState(organism Location, alive bool) {
 	}
 }
 
-func (t *pond) calculateNeighborCount(organism Location) (int, []Location) {
-	numNeighbors := 0
-	neighbors, err := t.GetNeighbors(organism)
-	if err != nil {
-		// FIXME
-	}
-	for _, neighbor := range neighbors {
-		if t.isOrganismAlive(neighbor) {
-			numNeighbors++
-		}
-	}
-	return numNeighbors, neighbors
-}
-
 func (t *pond) SetOrganisms(organisms []Location) {
 	// Initialize the first organisms and set their neighbor counts
 	for _, organism := range organisms {

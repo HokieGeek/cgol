@@ -160,51 +160,6 @@ func TestPondOrganismValue(t *testing.T) {
 }
 */
 
-func TestPondNeighborCountCalutation(t *testing.T) {
-	dims := Dimensions{Height: 3, Width: 3}
-	pond, err := newPond(dims, newTracker(), NEIGHBORS_ALL)
-	if err != nil {
-		t.Fatal("Unable to create pond")
-	}
-
-	// Create a pattern and call the pond's init function
-	initialLiving := make([]Location, 2)
-	initialLiving[0] = Location{X: 0, Y: 0}
-	initialLiving[1] = Location{X: 1, Y: 1}
-	pond.SetOrganisms(initialLiving)
-
-	expectedNeighbors := make([]Location, 5)
-	expectedNeighbors[0] = Location{X: 0, Y: 0}
-	expectedNeighbors[1] = Location{X: 1, Y: 0}
-	expectedNeighbors[2] = Location{X: 1, Y: 1}
-	expectedNeighbors[3] = Location{X: 0, Y: 2}
-	expectedNeighbors[4] = Location{X: 1, Y: 2}
-
-	expectedNeighborCount := len(initialLiving)
-	actualNeighborCount, actualNeighbors := pond.calculateNeighborCount(Location{X: 0, Y: 1})
-
-	if actualNeighborCount != expectedNeighborCount {
-		t.Fatalf("Retrieved %d neighbor count instead of expected %d\n", actualNeighborCount, expectedNeighborCount)
-	}
-
-	if len(actualNeighbors) != len(expectedNeighbors) {
-		t.Fatalf("Retrieved %d neighbors instead of expected %d\n", len(actualNeighbors), expectedNeighborCount)
-	}
-
-	for _, neighbor := range actualNeighbors {
-		found := false
-		for _, expected := range expectedNeighbors {
-			if expected.Equals(&neighbor) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Fatalf("Found unexpected neighbor %s\n", neighbor.String())
-		}
-	}
-}
-
 func TestPondString(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
 	pond, err := newPond(dims, newTracker(), NEIGHBORS_ALL)
