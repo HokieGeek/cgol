@@ -15,7 +15,7 @@ func testProcessor(t *testing.T,
 	expected []*pond) {
 
 	// Build the initial pond
-	pond, err := newPond(size, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(size, newTracker(), NeighborsAll)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -36,7 +36,7 @@ func createPondsFromTrackers(t *testing.T, dims Dimensions, trackers []*tracker)
 	var err error
 	ponds := make([]*pond, len(trackers))
 	for i, tracker := range trackers {
-		ponds[i], err = newPond(dims, tracker, NEIGHBORS_ALL)
+		ponds[i], err = newPond(dims, tracker, NeighborsAll)
 		if err != nil {
 			t.Fatal("Unable to create pond")
 		}
@@ -385,13 +385,13 @@ func TestProcessorSimultaneousRulesConwayRandom(t *testing.T) {
 	size := Dimensions{Height: 16, Width: 16}
 	initialLocations := Random(size, Location{}, 80)
 
-	pondInitialSnapshot, err := newPond(size, newTracker(), NEIGHBORS_ALL)
+	pondInitialSnapshot, err := newPond(size, newTracker(), NeighborsAll)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
 	pondInitialSnapshot.SetOrganisms(initialLocations)
 
-	pondWorker, err := newPond(size, newTracker(), NEIGHBORS_ALL)
+	pondWorker, err := newPond(size, newTracker(), NeighborsAll)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -454,7 +454,7 @@ func TestProcessorSimultaneousRulesConwayGliders(t *testing.T) {
 func BenchmarkProcessorSimultaneousRulesConwayPulsar(b *testing.B) {
 	// Build the initial pond
 	size := Dimensions{Height: 33, Width: 33}
-	pond, err := newPond(size, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(size, newTracker(), NeighborsAll)
 	if err != nil {
 		b.Fatalf("Unable to create pond: %s\n", err)
 	}

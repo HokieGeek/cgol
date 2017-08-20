@@ -4,11 +4,13 @@ import (
 	"bytes"
 )
 
+// Generation encapsulates a snapshot of each generation
 type Generation struct {
 	Num    int
 	Living []Location
 }
 
+// Life structure is the primary structure for the simulation
 type Life struct {
 	pond        *pond
 	processor   func(pond *pond, rules func(int, bool) bool)
@@ -27,6 +29,7 @@ func (t *Life) process() *Generation {
 	return &Generation{Num: t.Generations, Living: t.pond.living.GetAll()}
 }
 
+// Start enables the seeded simulation with each tick providing a Generation object
 func (t *Life) Start(listener chan *Generation) func() {
 	stop := false
 
@@ -47,6 +50,8 @@ func (t *Life) Start(listener chan *Generation) func() {
 	}
 }
 
+// Generation provides the snapshot of the given generation
+// It will actually simulate the full progression from seed to the given generation
 func (t *Life) Generation(num int) *Generation {
 	var p *pond
 	if num == t.Generations {
@@ -68,6 +73,7 @@ func (t *Life) Generation(num int) *Generation {
 	return &Generation{Num: num, Living: p.living.GetAll()}
 }
 
+// Dimensions returns the dimensions of the Life board
 func (t *Life) Dimensions() Dimensions {
 	return t.pond.Dims
 }
@@ -81,6 +87,7 @@ func (t *Life) String() string {
 	return buf.String()
 }
 
+// New creates a new Life structure
 func New(dims Dimensions,
 	neighbors neighborsSelector,
 	initializer func(Dimensions, Location) []Location,

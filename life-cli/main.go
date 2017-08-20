@@ -65,7 +65,7 @@ func displaypond(strategy *life.Life, rate time.Duration, iterations int, static
 func displayTestpond(width int, height int, rate time.Duration, initializer func(life.Dimensions, life.Location) []life.Location) {
 	strategy, err := life.New(
 		life.Dimensions{Height: height, Width: width},
-		life.NEIGHBORS_ALL,
+		life.NeighborsAll,
 		initializer,
 		life.ConwayTester(),
 		life.SimultaneousProcessor)

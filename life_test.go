@@ -9,7 +9,7 @@ func TestLifeCreation(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New(
 		dims,
-		NEIGHBORS_ALL,
+		NeighborsAll,
 		Blinkers,
 		ConwayTester(),
 		SimultaneousProcessor)
@@ -17,7 +17,7 @@ func TestLifeCreation(t *testing.T) {
 		t.Fatalf("Unable to create strategy: %s\n", err)
 	}
 
-	expected, _ := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NEIGHBORS_ALL)
+	expected, _ := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NeighborsAll)
 	expected.SetOrganisms([]Location{Location{X: 0, Y: 1}, Location{X: 1, Y: 1}, Location{X: 2, Y: 1}})
 
 	if !strategy.pond.Equals(expected) {
@@ -29,7 +29,7 @@ func TestLifeProcess(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New(
 		dims,
-		NEIGHBORS_ALL,
+		NeighborsAll,
 		Blinkers,
 		ConwayTester(),
 		SimultaneousProcessor)
@@ -59,7 +59,7 @@ func TestLifeStart(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New(
 		dims,
-		NEIGHBORS_ALL,
+		NeighborsAll,
 		func(dimensions Dimensions, offset Location) []Location {
 			return Random(dimensions, offset, 85)
 		},
@@ -98,7 +98,7 @@ func TestLifeGeneration(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New(
 		dims,
-		NEIGHBORS_ALL,
+		NeighborsAll,
 		Blinkers,
 		ConwayTester(),
 		SimultaneousProcessor)
@@ -111,7 +111,7 @@ func TestLifeGeneration(t *testing.T) {
 	gen := strategy.Generation(expectedGen)
 
 	if gen.Num != expectedGen {
-		t.Error("Retrieved %d generations instead of %d\n", gen.Num, expectedGen)
+		t.Errorf("Retrieved %d generations instead of %d\n", gen.Num, expectedGen)
 	}
 
 	if len(gen.Living) != expectedNumLiving {
@@ -123,7 +123,7 @@ func TestLifeString(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
 	strategy, err := New(
 		dims,
-		NEIGHBORS_ALL,
+		NeighborsAll,
 		Blinkers,
 		ConwayTester(),
 		SimultaneousProcessor)
@@ -140,7 +140,7 @@ func TestLifeDimensions(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
 	life, err := New(
 		dims,
-		NEIGHBORS_ALL,
+		NeighborsAll,
 		Blinkers,
 		ConwayTester(),
 		SimultaneousProcessor)

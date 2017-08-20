@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// Rules encapsulates the standard Life rules
 type Rules struct {
 	Survive []int // The number of neighbors an alive cell needs to have to survive
 	Born    []int // The number of neighbors a dead cell needs to have to be born
@@ -44,14 +45,14 @@ func testRule(numNeighbors int, isAlive bool, rules *Rules) bool {
 	return false
 }
 
-// Returns a RulesTest function that uses the given ruleset
+// RulesTester returns a RulesTest function that uses the given ruleset
 func RulesTester(rules *Rules) func(int, bool) bool {
 	return func(numNeighbors int, isAlive bool) bool {
 		return testRule(numNeighbors, isAlive, rules)
 	}
 }
 
-// Returns a Rules struct filled with the normal Conway rules of 23/3
+// GetConwayRules returns a Rules struct filled with the normal Conway rules of 23/3
 //	-- Rules --
 // 	1. If live cell has < 2 neighbors, it dies
 // 	2. If live cell has 2 or 3 neighbors, it lives
@@ -61,7 +62,7 @@ func GetConwayRules() *Rules {
 	return &Rules{Survive: []int{2, 3}, Born: []int{3}}
 }
 
-// Returns a rules tester with Conway Normal rules
+// ConwayTester returns a rules tester with Conway Normal rules
 func ConwayTester() func(int, bool) bool {
 	return RulesTester(GetConwayRules())
 }

@@ -47,6 +47,7 @@ func getRepeatingPattern(boardDims, patternDims Dimensions, offset Location,
 
 /////////////////// RANDOM ///////////////////
 
+// Random generates a random pattern
 func Random(dimensions Dimensions, offset Location, percent int) []Location {
 	seed := make([]Location, 0)
 
@@ -64,7 +65,7 @@ func Random(dimensions Dimensions, offset Location, percent int) []Location {
 
 /////////////////// OSCILLATORS ///////////////////
 
-// Generate a basic Blinker oscillator
+// Blinkers generates a basic Blinker oscillator
 //	Period 1  Period 2
 // 	-0-       ---
 // 	-0-       000
@@ -81,7 +82,7 @@ func Blinkers(dimensions Dimensions, offset Location) []Location {
 
 }
 
-// Generates a Toad oscillator
+// Toads generates a Toad oscillator
 //	Period 1	  Period 2
 // 	----       --0-
 // 	-000       0--0
@@ -103,7 +104,7 @@ func Toads(dimensions Dimensions, offset Location) []Location {
 		})
 }
 
-// Generates a Beacon oscillator
+// Beacons generates a Beacon oscillator
 //	Period 1   Period 2
 //	00--       00--
 // 	0---       00--
@@ -128,7 +129,7 @@ func Beacons(dimensions Dimensions, offset Location) []Location {
 		})
 }
 
-// Generates a Pulsar oscillator
+// Pulsar generates a Pulsar oscillator
 //	Period 1          Period 2          Period 3
 // 	---------------   ----0-----0----   ---------------
 // 	---000---000---   ----0-----0----   ---00-----00---
@@ -173,7 +174,7 @@ func Pulsar(dimensions Dimensions, offset Location) []Location {
 
 /////////////////// SPACESHIPS ///////////////////
 
-// Generates a basic Glider spaceship
+// Gliders generates a basic Glider spaceship
 //	Period 1   Period 2   Period 3   Period 4
 // 	-0--       ----       ----       ----
 // 	--0-       0-0-       --0-       -0--
@@ -200,7 +201,7 @@ func Gliders(dimensions Dimensions, offset Location) []Location {
 
 /////////////////// STILLS ///////////////////
 
-// Generates the Block still pattern
+// Blocks generates the Block still pattern
 //	00
 // 	00
 func Blocks(dimensions Dimensions, offset Location) []Location {
@@ -218,7 +219,7 @@ func Blocks(dimensions Dimensions, offset Location) []Location {
 		})
 }
 
-// Generates the Beehive still pattern
+// Beehive generates the Beehive still pattern
 //	-00-
 // 	0--0
 // 	-00-
@@ -244,7 +245,7 @@ func Beehive(dimensions Dimensions, offset Location) []Location {
 		})
 }
 
-// Generates the Loaf still pattern
+// Loaf generates the Loaf still pattern
 //	-00-
 // 	0--0
 // 	-0-0
@@ -268,7 +269,7 @@ func Loaf(dimensions Dimensions, offset Location) []Location {
 		})
 }
 
-// Generates the Boat still pattern
+// Boat generates the Boat still pattern
 //	00-
 //	0-0
 //	-0-

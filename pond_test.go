@@ -46,24 +46,24 @@ func TestDimensionsEquals(t *testing.T) {
 func TestNeighborSelectorString(t *testing.T) {
 	var selector neighborsSelector
 
-	selector = NEIGHBORS_ALL
+	selector = NeighborsAll
 	if len(selector.String()) <= 0 || selector.String() != "All" {
 		t.Error("Unexpectedly retrieved empty string from Status object")
 	}
 
-	selector = NEIGHBORS_ORTHOGONAL
+	selector = NeighborsOrthogonal
 	if len(selector.String()) <= 0 || selector.String() != "Orthogonal" {
 		t.Error("Unexpectedly retrieved empty string from pondselector object")
 	}
 
-	selector = NEIGHBORS_OBLIQUE
+	selector = NeighborsOblique
 	if len(selector.String()) <= 0 || selector.String() != "Oblique" {
 		t.Error("Unexpectedly retrieved empty string from pondselector object")
 	}
 }
 
 func TestPondSettingInitialPatterns(t *testing.T) {
-	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NeighborsAll)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -85,7 +85,7 @@ func TestPondSettingInitialPatterns(t *testing.T) {
 }
 
 func TestPondNeighborSelectionOrthogonal(t *testing.T) {
-	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NEIGHBORS_ORTHOGONAL)
+	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NeighborsOrthogonal)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -108,7 +108,7 @@ func TestPondNeighborSelectionOrthogonal(t *testing.T) {
 }
 
 func TestPondNeighborSelectionOblique(t *testing.T) {
-	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NEIGHBORS_OBLIQUE)
+	pond, err := newPond(Dimensions{Height: 3, Width: 3}, newTracker(), NeighborsOblique)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -131,7 +131,7 @@ func TestPondNeighborSelectionOblique(t *testing.T) {
 }
 
 func TestPondNeighborSelectionError(t *testing.T) {
-	pond, err := newPond(Dimensions{Height: 1, Width: 1}, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(Dimensions{Height: 1, Width: 1}, newTracker(), NeighborsAll)
 	if err != nil {
 		t.Fatalf("Unable to create pond: %s\n", err)
 	}
@@ -146,7 +146,7 @@ func TestPondNeighborSelectionError(t *testing.T) {
 func TestPondOrganismValue(t *testing.T) {
 	expectedVal := 2
 	pos := Location{X: 0, Y: 0}
-	pond, err := newPond(Dimensions{Height: 1, Width: 1}, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(Dimensions{Height: 1, Width: 1}, newTracker(), NeighborsAll)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -162,7 +162,7 @@ func TestPondOrganismValue(t *testing.T) {
 
 func TestPondString(t *testing.T) {
 	dims := Dimensions{Height: 3, Width: 3}
-	pond, err := newPond(dims, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(dims, newTracker(), NeighborsAll)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -174,7 +174,7 @@ func TestPondString(t *testing.T) {
 func TestPondEquals(t *testing.T) {
 	t.Skip("whoops")
 	dims := Dimensions{Height: 3, Width: 3}
-	pond, err := newPond(dims, newTracker(), NEIGHBORS_ALL)
+	pond, err := newPond(dims, newTracker(), NeighborsAll)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}
@@ -183,7 +183,7 @@ func TestPondEquals(t *testing.T) {
 		t.Fatal("Pond Equals failed identity test")
 	}
 
-	pond2, err := newPond(dims, newTracker(), NEIGHBORS_ALL)
+	pond2, err := newPond(dims, newTracker(), NeighborsAll)
 	if err != nil {
 		t.Fatal("Unable to create pond")
 	}

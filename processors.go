@@ -1,5 +1,6 @@
 package life
 
+// SimultaneousProcessor simultaneously applies the given rules to the given pond. This is the default Conway processor.
 func SimultaneousProcessor(pond *pond, rules func(int, bool) bool) {
 	// Blocks the completion of this function
 	done := make(chan bool, 1)

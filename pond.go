@@ -6,11 +6,13 @@ import (
 	"strconv"
 )
 
+// Location is a simple coordinate structure
 type Location struct {
 	X int
 	Y int
 }
 
+// Equals is a basic equality test for the given object
 func (t *Location) Equals(rhs *Location) bool {
 	if t.X != rhs.X {
 		return false
@@ -31,15 +33,18 @@ func (t *Location) String() string {
 	return buf.String()
 }
 
+// Dimensions is a simple structure capturing the given dimensions
 type Dimensions struct {
 	Width  int
 	Height int
 }
 
+// Capacity returns the number of cells possible with the given dimensions
 func (t *Dimensions) Capacity() int {
 	return t.Width * t.Height
 }
 
+// Equals is a basic equality test for the given object
 func (t *Dimensions) Equals(rhs *Dimensions) bool {
 	if t.Width != rhs.Width {
 		return false
@@ -62,19 +67,20 @@ func (t *Dimensions) String() string {
 
 type neighborsSelector int
 
+// Enumeration of the method to select neighbors
 const (
-	NEIGHBORS_ALL neighborsSelector = iota
-	NEIGHBORS_ORTHOGONAL
-	NEIGHBORS_OBLIQUE
+	NeighborsAll neighborsSelector = iota
+	NeighborsOrthogonal
+	NeighborsOblique
 )
 
 func (t neighborsSelector) String() string {
 	switch t {
-	case NEIGHBORS_ALL:
+	case NeighborsAll:
 		return "All"
-	case NEIGHBORS_ORTHOGONAL:
+	case NeighborsOrthogonal:
 		return "Orthogonal"
-	case NEIGHBORS_OBLIQUE:
+	case NeighborsOblique:
 		return "Oblique"
 	}
 	return "Unknown"
@@ -157,11 +163,11 @@ func (t *pond) GetNeighbors(organism Location) ([]Location, error) {
 	}
 
 	switch {
-	case t.neighborsSelector == NEIGHBORS_ORTHOGONAL:
+	case t.neighborsSelector == NeighborsOrthogonal:
 		return t.getOrthogonalNeighbors(organism), nil
-	case t.neighborsSelector == NEIGHBORS_OBLIQUE:
+	case t.neighborsSelector == NeighborsOblique:
 		return t.getObliqueNeighbors(organism), nil
-	case t.neighborsSelector == NEIGHBORS_ALL:
+	case t.neighborsSelector == NeighborsAll:
 		return t.getAllNeighbors(organism), nil
 	}
 
